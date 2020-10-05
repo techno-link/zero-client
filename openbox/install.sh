@@ -50,9 +50,9 @@ chown zero:zero /home/zero/.bash_profile
 touch /home/zero/.hushlogin
 chown zero:zero /home/zero/.hushlogin
 
-sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="quiet"/' /etc/default/grub
-echo 'GRUB_RECORDFAIL_TIMEOUT=0' >>/etc/default/grub
-update-grub
+#sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="quiet"/' /etc/default/grub
+#echo 'GRUB_RECORDFAIL_TIMEOUT=0' >>/etc/default/grub
+#update-grub
 
 # ----------------------------------------------------------------------------------------------------------------------
 # CONFIG OPENBOX
