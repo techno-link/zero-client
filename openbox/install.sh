@@ -66,11 +66,11 @@ update-grub
 # ----------------------------------------------------------------------------------------------------------------------
 mkdir -p /home/zero/.config/openbox
 
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml -O /home/zero/.confg/openbox/rc.xml
-chown zero:zero /home/zero/.confg/openbox/rc.xml
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml -O /home/zero/.config/openbox/rc.xml
+chown zero:zero /home/zero/.config/openbox/rc.xml
 
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml -O /home/zero/.confg/openbox/menu.xml
-chown zero:zero /home/zero/.confg/openbox/menu.xml
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml -O /home/zero/.config/openbox/menu.xml
+chown zero:zero /home/zero/.config/openbox/menu.xml
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ALLOW REBOOT + SHUTDOWN
