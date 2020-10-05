@@ -9,6 +9,9 @@
   <item label="Amazon Workspaces" icon="/opt/workspacesclient/Assets/AppIcon-512.png">
     <action name="Execute"><execute>/opt/workspacesclient/workspacesclient</execute></action>
   </item>
+  <item label="Volume">
+    <action name="Execute"><execute>pavucontrol</execute></action>
+  </item>
   <separator />
   <item label="Reboot">
     <action name="Execute"><execute>/sbin/reboot</execute></action>

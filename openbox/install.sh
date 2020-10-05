@@ -8,8 +8,7 @@
 apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox
 
 # Install PusleAudio
-apt-get install -y pulseaudio
-#apt-get install -y pavucontrol
+apt-get install -y pulseaudio pavucontrol
 
 # Install Workspace Client
 apt-get install -y gnupg
