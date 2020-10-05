@@ -42,7 +42,14 @@ EOT
 # ----------------------------------------------------------------------------------------------------------------------
 # AUTOLOIN AND START X
 # ----------------------------------------------------------------------------------------------------------------------
-sed -i -E "s/ExecStart=.*/ExecStart=-\/sbin\/agetty --skip-login --noissue --autologin zero --noclear %I $TERM/" /etc/systemd/system/getty.target.wants/getty\@tty1.service
+
+mkdir -p /etc/systemd/system/getty@tty1.service.d/
+tee -a /etc/systemd/system/getty@tty1.service.d/autologin.conf <<EOF
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --skip-login --noissue --autologin zero --noclear %I $TERM
+Type=idle
+EOF
 
 echo '[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx >/dev/null 2>&1' >/home/zero/.bash_profile
 chown zero:zero /home/zero/.bash_profile
@@ -50,9 +57,9 @@ chown zero:zero /home/zero/.bash_profile
 touch /home/zero/.hushlogin
 chown zero:zero /home/zero/.hushlogin
 
-#sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="quiet"/' /etc/default/grub
-#echo 'GRUB_RECORDFAIL_TIMEOUT=0' >>/etc/default/grub
-#update-grub
+sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="quiet"/' /etc/default/grub
+echo 'GRUB_RECORDFAIL_TIMEOUT=0' >>/etc/default/grub
+update-grub
 
 # ----------------------------------------------------------------------------------------------------------------------
 # CONFIG OPENBOX
