@@ -42,23 +42,31 @@ EOT
 # ----------------------------------------------------------------------------------------------------------------------
 # AUTOLOIN AND START X
 # ----------------------------------------------------------------------------------------------------------------------
-[Service]
-ExecStart=-/sbin/agetty --skip-login --noissue --autologin manna --noclear %I $TERM
-
-/etc/systemd/system/getty.target.wants/getty\@tty1.service
+sed -i "s/ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear %I $TERM/ExecStart=-/sbin/agetty --skip-login --noissue --autologin manna --noclear %I $TERM/" /etc/systemd/system/getty.target.wants/getty\@tty1.service
 
 echo '[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx >/dev/null 2>&1' >/home/zero/.bash_profile
+chown zero:zero /home/zero/.bash_profile
 
 touch /home/zero/.hushlogin
+chown zero:zero /home/zero/.hushlogin
 
 # TODO GRUB
 # https://askubuntu.com/questions/1043532/ubuntu-server-18-04-hide-disable-all-boot-messages-kiosk-mode
+sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="quiet"/' /etc/default/grub
+
+echo 'GRUB_RECORDFAIL_TIMEOUT=0' >>/etc/default/grub
+update-grub
 
 # ----------------------------------------------------------------------------------------------------------------------
 # CONFIG OPENBOX
 # ----------------------------------------------------------------------------------------------------------------------
-# TODO RC.XML
-# TODO MANU.XML
+mkdir -p /home/zero/.confg/openbox
+
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml -O /home/zero/.confg/openbox/rc.xml
+chown zero:zero /home/zero/.confg/openbox/rc.xml
+
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml -O /home/zero/.confg/openbox/menu.xml
+chown zero:zero /home/zero/.confg/openbox/menu.xml
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ALLOW REBOOT + SHUTDOWN
