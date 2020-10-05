@@ -72,11 +72,7 @@ echo 'zero ALL=NOPASSWD:/sbin/reboot' >/etc/sudoers.d/zero
 echo 'zero ALL=NOPASSWD:/sbin/poweroff' >>/etc/sudoers.d/zero
 
 # ----------------------------------------------------------------------------------------------------------------------
-# AUTOUPDATE
-# ----------------------------------------------------------------------------------------------------------------------
-#https://libre-software.net/ubuntu-automatic-updates/
-
-# ----------------------------------------------------------------------------------------------------------------------
 # CRON
 # ----------------------------------------------------------------------------------------------------------------------
-#TODO UPDATE WORKSPACES
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/workspaces.sh -O /etc/cron.hourly/workspaces
+chmod +x /etc/cron.hourly/workspaces
