@@ -38,8 +38,6 @@ echo 'start-pulseaudio-x11' >>/etc/xdg/openbox/autostart
 # Autostart Workspace Client
 echo '/opt/workspacesclient/workspacesclient' >>/etc/xdg/openbox/autostart
 
-
-
 # ----------------------------------------------------------------------------------------------------------------------
 # DIABLE VIRTUAL TTY
 # ----------------------------------------------------------------------------------------------------------------------
@@ -71,7 +69,6 @@ sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="quiet"/' /etc/default/grub
 echo 'GRUB_RECORDFAIL_TIMEOUT=0' >>/etc/default/grub
 update-grub
 
-
 # ----------------------------------------------------------------------------------------------------------------------
 # CONFIG OPENBOX
 # ----------------------------------------------------------------------------------------------------------------------
@@ -79,11 +76,10 @@ mkdir -p /home/zero/.config/openbox
 
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml -O /home/zero/.config/openbox/rc.xml
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml -O /home/zero/.config/openbox/menu.xml
-
-
-# TODO CRON FOR AUDIO MENU UPDATE
-
 chown zero:zero -R /home/zero/.config
+
+wget -q https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/audio-menu.js -O /home/zero/audio-menu.js
+chown zero:zero /home/zero/audio-menu.js
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ALLOW REBOOT + SHUTDOWN
