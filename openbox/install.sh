@@ -30,7 +30,7 @@ echo 'xset -dpms' >>/etc/xdg/openbox/autostart
 echo 'compton -b -c' >>/etc/xdg/openbox/autostart
 
 ## Autostart PulseAudio
-#echo 'start-pulseaudio-x11' >>/etc/xdg/openbox/autostart
+echo 'start-pulseaudio-x11' >>/etc/xdg/openbox/autostart
 
 # Autostart Workspace Client
 echo '/opt/workspacesclient/workspacesclient' >>/etc/xdg/openbox/autostart
