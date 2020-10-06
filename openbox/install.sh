@@ -10,6 +10,9 @@ apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit 
 # Install PusleAudio
 apt-get install -y pulseaudio pavucontrol alsa-base alsa-utils linux-sound-base libasound2
 
+# Install Conky
+apt-get install -y conky
+
 # Install Node (required for pipe menu)
 apt-get install -y nodejs
 
@@ -28,6 +31,9 @@ apt-get install -y workspacesclient
 echo 'xset s off' >/etc/xdg/openbox/autostart
 echo 'xset s noblank' >>/etc/xdg/openbox/autostart
 echo 'xset -dpms' >>/etc/xdg/openbox/autostart
+
+## Autostart Composite Compton
+echo 'conky -b -c ~/.config/conkyrc &' >>/etc/xdg/openbox/autostart
 
 ## Autostart Composite Compton
 echo 'compton -b -c' >>/etc/xdg/openbox/autostart
@@ -81,6 +87,9 @@ chown zero:zero -R /home/zero/.config
 wget -q https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/audio-menu.js -O /home/zero/audio-menu.js
 chown zero:zero /home/zero/audio-menu.js
 
+wget -q https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/conkyrc.lua -O /home/zero/.config/conkyrc
+chown zero:zero /home/zero/.config/conkyrc
+
 # ----------------------------------------------------------------------------------------------------------------------
 # ALLOW REBOOT + SHUTDOWN
 # ----------------------------------------------------------------------------------------------------------------------
@@ -95,3 +104,6 @@ chmod +x /etc/cron.hourly/workspaces
 
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/menu.sh -O /etc/cron.hourly/menu
 chmod +x /etc/cron.hourly/menu
+
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/conky.sh -O /etc/cron.hourly/conky
+chmod +x /etc/cron.hourly/conky
