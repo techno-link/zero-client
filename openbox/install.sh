@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 # Install Openbox and XServer
-apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox
+apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox compton
 
 # Install PusleAudio
 apt-get install -y pulseaudio pavucontrol alsa-base alsa-utils linux-sound-base libasound2
@@ -25,6 +25,9 @@ apt-get install -y workspacesclient
 echo 'xset s off' >/etc/xdg/openbox/autostart
 echo 'xset s noblank' >>/etc/xdg/openbox/autostart
 echo 'xset -dpms' >>/etc/xdg/openbox/autostart
+
+## Autostart Composite Compton
+echo 'compton -b -c' >>/etc/xdg/openbox/autostart
 
 ## Autostart PulseAudio
 #echo 'start-pulseaudio-x11' >>/etc/xdg/openbox/autostart
