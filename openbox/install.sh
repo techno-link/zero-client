@@ -10,6 +10,9 @@ apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit 
 # Install PusleAudio
 apt-get install -y pulseaudio pavucontrol alsa-base alsa-utils linux-sound-base libasound2
 
+# Install Node (required for pipe menu)
+apt-get install -y nodejs
+
 # Install Workspace Client
 apt-get install -y gnupg
 wget -q -O - https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc | sudo apt-key add -
@@ -68,6 +71,7 @@ sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="quiet"/' /etc/default/grub
 echo 'GRUB_RECORDFAIL_TIMEOUT=0' >>/etc/default/grub
 update-grub
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # CONFIG OPENBOX
 # ----------------------------------------------------------------------------------------------------------------------
@@ -75,6 +79,9 @@ mkdir -p /home/zero/.config/openbox
 
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml -O /home/zero/.config/openbox/rc.xml
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml -O /home/zero/.config/openbox/menu.xml
+
+
+# TODO CRON FOR AUDIO MENU UPDATE
 
 chown zero:zero -R /home/zero/.config
 
@@ -89,3 +96,6 @@ echo 'zero ALL=NOPASSWD:/sbin/poweroff' >>/etc/sudoers.d/zero
 # ----------------------------------------------------------------------------------------------------------------------
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/workspaces.sh -O /etc/cron.hourly/workspaces
 chmod +x /etc/cron.hourly/workspaces
+
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/menu.sh -O /etc/cron.hourly/menu
+chmod +x /etc/cron.hourly/menu
