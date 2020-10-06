@@ -8,7 +8,7 @@
 apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox
 
 # Install PusleAudio
-apt-get install -y pulseaudio pavucontrol
+apt-get install -y pulseaudio pavucontrol alsa-base alsa-utils linux-sound-base libasound2
 
 # Install Workspace Client
 apt-get install -y gnupg
@@ -26,8 +26,13 @@ echo 'xset s off' >/etc/xdg/openbox/autostart
 echo 'xset s noblank' >>/etc/xdg/openbox/autostart
 echo 'xset -dpms' >>/etc/xdg/openbox/autostart
 
+## Autostart PulseAudio
+#echo 'start-pulseaudio-x11' >>/etc/xdg/openbox/autostart
+
 # Autostart Workspace Client
 echo '/opt/workspacesclient/workspacesclient' >>/etc/xdg/openbox/autostart
+
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # DIABLE VIRTUAL TTY
@@ -66,10 +71,9 @@ update-grub
 mkdir -p /home/zero/.config/openbox
 
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml -O /home/zero/.config/openbox/rc.xml
-chown zero:zero /home/zero/.config/openbox/rc.xml
-
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml -O /home/zero/.config/openbox/menu.xml
-chown zero:zero /home/zero/.config/openbox/menu.xml
+
+chown zero:zero -R /home/zero/.config
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ALLOW REBOOT + SHUTDOWN
