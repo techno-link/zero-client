@@ -3,6 +3,7 @@ conky.config = {
   background = true,
   border_width = 1,
   cpu_avg_samples = 2,
+  double_buffer = yes,
   default_color = 'black',
   default_outline_color = 'black',
   default_shade_color = 'black',
