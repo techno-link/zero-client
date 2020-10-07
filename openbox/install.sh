@@ -33,10 +33,10 @@ echo 'xset s noblank' >>/etc/xdg/openbox/autostart
 echo 'xset -dpms' >>/etc/xdg/openbox/autostart
 
 ## Autostart Composite Compton
-echo 'conky -b -c ~/.config/conkyrc &' >>/etc/xdg/openbox/autostart
-
-## Autostart Composite Compton
 echo 'compton -b -c' >>/etc/xdg/openbox/autostart
+
+## Autostart Conky
+echo 'conky -c ~/.config/conkyrc' >>/etc/xdg/openbox/autostart
 
 ## Autostart PulseAudio
 echo 'start-pulseaudio-x11' >>/etc/xdg/openbox/autostart

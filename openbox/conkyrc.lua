@@ -1,11 +1,11 @@
 conky.config = {
-  alignment = 'top_middle',
+  alignment = 'top_left',
   background = true,
   border_width = 1,
   cpu_avg_samples = 2,
   default_color = 'black',
-  default_outline_color = 'white',
-  default_shade_color = 'white',
+  default_outline_color = 'black',
+  default_shade_color = 'black',
   draw_borders = false,
   draw_graph_borders = true,
   draw_outline = false,
@@ -13,7 +13,7 @@ conky.config = {
   use_xft = true,
   font = 'DejaVu Sans Mono:size=12',
   gap_x = 5,
-  gap_y = 60,
+  gap_y = 10,
   minimum_height = 5,
   minimum_width = 5,
   net_avg_samples = 2,
@@ -21,7 +21,9 @@ conky.config = {
   out_to_console = false,
   out_to_stderr = false,
   extra_newline = false,
-  own_window = false,
+  own_window = true,
+  own_window_transparent = true,
+  own_window_argb_visual = true,
   own_window_class = 'Conky',
   own_window_type = 'desktop',
   stippled_borders = 0,
@@ -33,5 +35,22 @@ conky.config = {
 }
 
 conky.text = [[
-KERNEL: $kernel | NET: ${execi 60 (ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')} ${execi 60 cat /sys/class/net/$(ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')/address } ${execi 60 hostname -I}
+KERNEL
+$hr
+$kernel
+
+
+NET
+$hr
+INT: ${alignr} ${execi 60 (ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')}
+MAC: ${alignr} ${execi 60 cat /sys/class/net/$(ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')/address }
+IP: ${alignr} ${execi 60 hostname -I | tr -d '[:space:]'}
+
+
+SYSTEM
+$hr
+UPTIME: ${alignr} $uptime
+CPU: ${alignr} $cpu% ${alignr 170} ${cpubar 11}
+RAM: ${alignr} $memperc% ${alignr 170} ${membar 11}
+SWAP: ${alignr} $swapperc% ${alignr 170} ${swapbar 11}
 ]]
