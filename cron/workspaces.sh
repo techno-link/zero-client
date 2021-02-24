@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-apt-get install -y workspacesclient
+apt-get --only-upgrade install -y workspacesclient

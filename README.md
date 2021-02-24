@@ -39,4 +39,4 @@ menuentry "Zero Unattended Installation" {
     
 + Replace volume control with pactrl script for auto discovery and volume levels.
 + https://linuxize.com/post/how-to-set-up-automatic-updates-on-ubuntu-18-04/
-
+-
