@@ -11,6 +11,9 @@
   </item>
   <menu id="audio" label="Audio" execute="node /home/zero/audio-menu.js" />
   <separator />
+  <item label="Terminal">
+    <action name="Execute"><execute>/sbin/xterm</execute></action>
+  </item>
   <item label="Reboot">
     <action name="Execute"><execute>/sbin/reboot</execute></action>
   </item>

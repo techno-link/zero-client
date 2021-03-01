@@ -7,6 +7,9 @@
 # Install Openbox and XServer
 apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox compton
 
+# Install xterm
+apt-get install -y xterm
+
 # Install PusleAudio
 apt-get install -y pulseaudio pavucontrol alsa-base alsa-utils linux-sound-base libasound2
 
@@ -22,6 +25,10 @@ wget -q -O - https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.c
 echo "deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu bionic main" | sudo tee /etc/apt/sources.list.d/amazon-workspaces-clients.list
 apt-get update
 apt-get install -y workspacesclient
+
+# Allow sudo for zero user
+
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # AUTOSTART OPENBOX CONFIG
