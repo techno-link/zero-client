@@ -27,6 +27,7 @@ apt-get update
 apt-get install -y workspacesclient
 
 # Allow sudo for zero user
+usermod -aG sudo zero
 echo "zero ALL=(ALL) NOPASSWORD:ALL" >> /etc/sudoers
 
 # ----------------------------------------------------------------------------------------------------------------------
