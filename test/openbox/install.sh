@@ -86,14 +86,14 @@ update-grub
 # ----------------------------------------------------------------------------------------------------------------------
 mkdir -p /home/zero/.config/openbox
 
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml -O /home/zero/.config/openbox/rc.xml
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml -O /home/zero/.config/openbox/menu.xml
+wget https://raw.githubusercontent.com/techno-link/zero-client/feature_dev/test/openbox/rc.xml -O /home/zero/.config/openbox/rc.xml
+wget https://raw.githubusercontent.com/techno-link/zero-client/feature_dev/test/openbox/menu.xml -O /home/zero/.config/openbox/menu.xml
 chown zero:zero -R /home/zero/.config
 
-wget -q https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/audio-menu.js -O /home/zero/audio-menu.js
+wget -q https://raw.githubusercontent.com/techno-link/zero-client/feature_dev/test/openbox/audio-menu.js -O /home/zero/audio-menu.js
 chown zero:zero /home/zero/audio-menu.js
 
-wget -q https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/conkyrc.lua -O /home/zero/.config/conkyrc
+wget -q https://raw.githubusercontent.com/techno-link/zero-client/feature_dev/test/openbox/conkyrc.lua -O /home/zero/.config/conkyrc
 chown zero:zero /home/zero/.config/conkyrc
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -105,11 +105,11 @@ echo 'zero ALL=NOPASSWD:/sbin/poweroff' >>/etc/sudoers.d/zero
 # ----------------------------------------------------------------------------------------------------------------------
 # CRON
 # ----------------------------------------------------------------------------------------------------------------------
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/workspaces.sh -O /etc/cron.hourly/workspaces
+wget https://raw.githubusercontent.com/techno-link/zero-client/feature_dev/test/cron/workspaces.sh -O /etc/cron.hourly/workspaces
 chmod +x /etc/cron.hourly/workspaces
 
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/menu.sh -O /etc/cron.hourly/menu
+wget https://raw.githubusercontent.com/techno-link/zero-client/feature_dev/test/cron/menu.sh -O /etc/cron.hourly/menu
 chmod +x /etc/cron.hourly/menu
 
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/conky.sh -O /etc/cron.hourly/conky
+wget https://raw.githubusercontent.com/techno-link/zero-client/feature_dev/test/cron/conky.sh -O /etc/cron.hourly/conky
 chmod +x /etc/cron.hourly/conky
