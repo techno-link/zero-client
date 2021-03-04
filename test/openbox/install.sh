@@ -53,11 +53,11 @@ echo '/opt/workspacesclient/workspacesclient' >>/etc/xdg/openbox/autostart
 # ----------------------------------------------------------------------------------------------------------------------
 # DIABLE VIRTUAL TTY
 # ----------------------------------------------------------------------------------------------------------------------
-cat <<EOT >>/etc/X11/xorg.conf
-Section "ServerFlags"
-    Option "DontVTSwitch" "true"
-EndSection
-EOT
+#cat <<EOT >>/etc/X11/xorg.conf
+#Section "ServerFlags"
+#    Option "DontVTSwitch" "true"
+#EndSection
+#EOT
 
 # ----------------------------------------------------------------------------------------------------------------------
 # AUTOLOIN AND START X
