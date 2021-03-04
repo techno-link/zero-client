@@ -27,8 +27,7 @@ apt-get update
 apt-get install -y workspacesclient
 
 # Allow sudo for zero user
-
-
+echo "zero ALL=(ALL) NOPASSWORD:ALL" >> /etc/sudoers
 
 # ----------------------------------------------------------------------------------------------------------------------
 # AUTOSTART OPENBOX CONFIG
