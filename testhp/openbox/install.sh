@@ -9,7 +9,7 @@ apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit 
 
 # Install xterm and SSH
 apt-get install -y xterm
-apt-get install openssh-server
+# apt-get install openssh-server
 
 # Install PusleAudio
 apt-get install -y pulseaudio pavucontrol alsa-base alsa-utils linux-sound-base libasound2
