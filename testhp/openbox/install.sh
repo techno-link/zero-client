@@ -7,9 +7,8 @@
 # Install Openbox and XServer
 apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox compton
 
-# Install xterm and SSH
+# Install xterm
 apt-get install -y xterm
-apt-get install openssh-server
 
 # Install PusleAudio
 apt-get install -y pulseaudio pavucontrol alsa-base alsa-utils linux-sound-base libasound2
