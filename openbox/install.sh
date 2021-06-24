@@ -16,6 +16,12 @@ apt-get install -y conky
 # Install Node (required for pipe menu)
 apt-get install -y nodejs
 
+# Install Parsec client
+apt-get update
+apt-get install -y libqt5x11extras5
+apt-get install -y snapd
+snap install parsec --classic
+
 # Install Workspace Client
 apt-get install -y gnupg
 wget -q -O - https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc | sudo apt-key add -
