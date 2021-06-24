@@ -16,6 +16,13 @@ apt-get install -y conky
 # Install Node (required for pipe menu)
 apt-get install -y nodejs
 
+# Set traffic class
+tee -a /etc/rc.local <<EOF
+#!/bin/sh -e
+iptables -t mangle -A OUTPUT -j DSCP --set-dscp-class CS5
+EOF
+chmod +x /etc/rc.local
+
 # Install Parsec client
 apt-get update
 apt-get install -y libqt5x11extras5
