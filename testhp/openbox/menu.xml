@@ -10,7 +10,7 @@
     <action name="Execute"><execute>/opt/workspacesclient/workspacesclient</execute></action>
   </item>
   <item label="Parsec Client">
-    <action name="Execute"><execute>parsec</execute></action>
+    <action name="Execute"><execute>parsecd</execute></action>
   </item>
   <menu id="audio" label="Audio" execute="node /home/zero/audio-menu.js" />
   <separator />

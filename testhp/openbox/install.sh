@@ -30,8 +30,12 @@ chmod +x /etc/rc.local
 # Install Parsec client
 apt-get update
 apt-get install -y libqt5x11extras5
-apt-get install -y snapd
-snap install parsec --classic
+wget https://builds.parsecgaming.com/package/parsec-linux.deb -O /home/zero
+dpkg -i parsec-linux.deb
+
+# Install Chromium-Browser
+apt-get install -y chromium-browser
+
 
 # Install Workspace Client
 apt-get install -y gnupg
