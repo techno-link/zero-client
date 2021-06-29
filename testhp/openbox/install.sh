@@ -31,6 +31,7 @@ chmod +x /etc/rc.local
 apt-get update
 apt-get install -y libqt5x11extras5
 wget https://builds.parsecgaming.com/package/parsec-linux.deb -O /home/zero
+chown zero:zero /home/zero/parsec-linux.deb
 dpkg -i parsec-linux.deb
 
 # Install Chromium-Browser
