@@ -26,8 +26,7 @@ chmod +x /etc/rc.local
 # Install Parsec client
 apt-get update
 apt-get install -y libqt5x11extras5
-apt-get install -y snapd
-snap install parsec --classic
+
 
 # Install Workspace Client
 apt-get install -y gnupg
