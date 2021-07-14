@@ -30,7 +30,7 @@ chmod +x /etc/rc.local
 # Install Parsec client
 apt-get update
 apt-get install -y libqt5x11extras5
-wget https://builds.parsecgaming.com/package/parsec-linux.deb -O /home/zero
+wget https://builds.parsecgaming.com/package/parsec-linux.deb -O /home/zero/parsec-linux.deb
 chown zero:zero /home/zero/parsec-linux.deb
 dpkg -i parsec-linux.deb
 
