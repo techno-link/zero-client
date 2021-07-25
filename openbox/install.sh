@@ -16,6 +16,10 @@ apt-get install -y conky
 # Install Node (required for pipe menu)
 apt-get install -y nodejs
 
+# Install xterm and SSH
+apt-get install -y xterm
+apt-get install -y openssh-server
+
 # Set traffic class
 tee -a /etc/rc.local <<EOF
 #!/bin/sh -e
