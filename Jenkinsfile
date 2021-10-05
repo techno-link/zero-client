@@ -42,14 +42,15 @@ pipeline {
   // CLEANUP
   post {
     success {
-      withCredentials([usernamePassword(credentialsId: 'github1', usernameVariable: 'USER', passwordVariable: 'TOKEN')]) {
+      withCredentials([usernamePassword(credentialsId: 'zero-client', usernameVariable: 'USER', passwordVariable: 'TOKEN')]) {
         sh '''
-          ID=$(curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/techno-link/zero-client/releases/tags/v0.1-alpha.4 | jq '.id')
+          set +x
+          ID=$(curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/techno-link/zero-client/releases/tags/$TAG_NAME | jq '.id')
           curl -XPOST \
           -H "Authorization: token $TOKEN" \
           -H "Content-Type:application/octet-stream" \
           --data-binary @custom.iso \
-          https://uploads.github.com/repos/techno-link/zero-client/releases/$ID/assets?name=$TAG_NAME.iso
+          https://uploads.github.com/repos/techno-link/zero-client/releases/$ID/assets?name=$zero.iso&label=$TAG_NAME
         '''
       }
     }
