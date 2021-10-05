@@ -19,10 +19,7 @@ pipeline {
     }
     stage('CREATE ISO') {
       steps {
-        // dir('mender-convert') {
-        //   sh './docker-build'
-        //   sh 'mkdir -p input'
-        // }
+        sh 'cp grub.cfg mini/boot/grub/grub.cfg'
         sh '''
           xorriso -as mkisofs -r -V "Zero Client" \
               -cache-inodes -J -l \
