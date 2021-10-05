@@ -6,7 +6,7 @@ pipeline {
   stages {
     stage('GET TOOLS') {
       steps {
-        sh 'apt-get install -y p7zip-full xorriso'
+        sh 'yum install -y p7zip-full xorriso'
       }
     }
     stage('GET ISO') {
