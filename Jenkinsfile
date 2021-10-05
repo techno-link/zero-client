@@ -36,6 +36,7 @@ pipeline {
               -o "custom.iso" \
               "mini"
         '''
+        sh 'ls -la'
       }
     }
   }
