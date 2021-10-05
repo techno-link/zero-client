@@ -7,7 +7,7 @@ pipeline {
     stage('GET TOOLS') {
       steps {
         sh 'yum install -y p7zip p7zip-plugins xorriso'
-        sh(returnStdout: true, script: "git tag --contains").trim()
+        sh(returnStdout: true, script: 'git tag --contains').trim()
       }
     }
     stage('GET ISO') {
@@ -41,9 +41,9 @@ pipeline {
 
   // CLEANUP
   post { 
-    success {
+    // success {
 
-    }
+    // }
     always { cleanWs() } 
-    }
+  }
 }
