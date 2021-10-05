@@ -49,7 +49,7 @@ pipeline {
           -H "Authorization: token $TOKEN" \
           -H "Content-Type:application/octet-stream" \
           --data-binary @custom.iso \
-          https://uploads.github.com/repos/techno-link/zero-client/releases/$ID/assets?name=zero.iso&label=$TAG_NAME
+          https://uploads.github.com/repos/techno-link/zero-client/releases/$ID/assets?name=zero.iso
         '''
       }
     }
