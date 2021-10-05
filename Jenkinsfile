@@ -40,10 +40,20 @@ pipeline {
   }
 
   // CLEANUP
-  post { 
-    // success {
-
-    // }
-    always { cleanWs() } 
+  post {
+    success {
+      withCredentials([string(credentialsId: 'github1', variable: 'TOKEN')]) {
+        sh '''
+          set +x
+          curl -XPOST \
+          -H "Authorization:token $TOKEN" \
+          -H "Content-Type:application/octet-stream" \
+          --data-binary @custom.iso \
+          https://uploads.github.com/repos/techno-link/zero-client/releases/$TAG_NAME/assets?name=$TAG_NAME.iso
+        '''
+      }
+    }
+    always { cleanWs() }
+    
   }
 }
