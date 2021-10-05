@@ -31,7 +31,7 @@ menuentry "Zero Unattended Installation" {
 
 ## TODO
 
-+ Automate USB creation
++ Automate USB creation.
     - production - everything locked
     - development - everything locked, but from dev branch
     - testing (dev/prod) - xterm and sudo for prod/dev
