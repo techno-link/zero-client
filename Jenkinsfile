@@ -42,7 +42,7 @@ pipeline {
   // CLEANUP
   post {
     success {
-      withCredentials([string(credentialsId: 'github1', variable: 'TOKEN')]) {
+      withCredentials([usernamePassword(credentialsId: 'github1', usernameVariable: 'USER', passwordVariable: 'TOKEN')]) {
         sh '''
           set +x
           curl -XPOST \
@@ -54,6 +54,6 @@ pipeline {
       }
     }
     always { cleanWs() }
-    
+
   }
 }
