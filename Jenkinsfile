@@ -13,7 +13,7 @@ pipeline {
       steps {
         sh 'wget http://archive.ubuntu.com/ubuntu/dists/bionic/main/installer-amd64/current/images/netboot/mini.iso'
         sh 'dd if="mini.iso" bs=1 count=466 of="mini-mbr.img"'
-        sh '7z x mini.iso'
+        sh '7z x mini.iso -omini'
         sh 'ls -la'
         // dir('mender-convert') {
         //   sh './docker-build'
