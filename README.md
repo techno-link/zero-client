@@ -36,6 +36,7 @@ menuentry "Zero Unattended Installation" {
     - development - everything locked, but from dev branch
     - testing (dev/prod) - xterm and sudo for prod/dev
     - create BIOS boot menuetry - txt.cfg
+    - - TEST
     
 + Replace volume control with pactrl script for auto discovery and volume levels.
 + https://linuxize.com/post/how-to-set-up-automatic-updates-on-ubuntu-18-04/
