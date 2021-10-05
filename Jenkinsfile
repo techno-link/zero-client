@@ -44,6 +44,7 @@ pipeline {
     success {
       withCredentials([usernamePassword(credentialsId: 'zero-client', usernameVariable: 'USER', passwordVariable: 'TOKEN')]) {
         sh '''
+          set +x
           ID=$(curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/techno-link/zero-client/releases/tags/$TAG_NAME | jq '.id')
           curl -XPOST \
           -H "Authorization: token $TOKEN" \
