@@ -53,7 +53,7 @@ pipeline {
         '''
       }
     }
-    always { cleanWs() }
+    cleanup { cleanWs() }
 
   }
 }
