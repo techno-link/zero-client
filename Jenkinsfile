@@ -7,7 +7,7 @@ pipeline {
     stage('GET TOOLS') {
       steps {
         sh 'yum install -y p7zip p7zip-plugins xorriso'
-        script { sh(returnStdout: true, script: 'git tag --sort version:refname | tail -1').trim() }
+        echo "THIS TAG IS $TAG_NAME"
       }
     }
     stage('GET ISO') {
