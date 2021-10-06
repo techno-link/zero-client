@@ -10,6 +10,9 @@ apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit 
 # Install PusleAudio
 apt-get install -y pulseaudio pavucontrol alsa-base alsa-utils linux-sound-base libasound2
 
+# Install Terminal
+apt-get install -y xterm
+
 # Install Conky
 apt-get install -y conky
 
