@@ -160,7 +160,7 @@
   </margins>
   <dock></dock>
   <keyboard>
-    <keybind key="C-A-T-L">
+    <keybind key="S-C-A-W-t">
       <action name="Execute">
         <command>xterm</command>
       </action>
