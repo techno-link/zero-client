@@ -27,7 +27,7 @@ apt-get update
 apt-get install -y workspacesclient
 
 # Install Parsec
-wget https://builds.parsecgaming.com/package/parsec-linux.deb -O /home/zero
+wget https://builds.parsecgaming.com/package/parsec-linux.deb -O /home/zero/parsec-linux.deb
 dpkg -i parsec-linux.deb
 
 # ----------------------------------------------------------------------------------------------------------------------
