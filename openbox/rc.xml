@@ -162,7 +162,7 @@
   <keyboard>
     <keybind key="C-A-T-L">
       <action name="Execute">
-        <command>lxterminal</command>
+        <command>xterm</command>
       </action>
     </keybind>
   </keyboard>
