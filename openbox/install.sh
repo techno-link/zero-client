@@ -23,6 +23,10 @@ echo "deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu bionic main"
 apt-get update
 apt-get install -y workspacesclient
 
+# Install Parsec
+wget https://builds.parsecgaming.com/package/parsec-linux.deb -O /home/zero
+dpkg -i parsec-linux.deb
+
 # ----------------------------------------------------------------------------------------------------------------------
 # AUTOSTART OPENBOX CONFIG
 # ----------------------------------------------------------------------------------------------------------------------

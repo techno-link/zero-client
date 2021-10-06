@@ -7,7 +7,6 @@ pipeline {
     stage('GET TOOLS') {
       steps {
         sh 'yum install -y p7zip p7zip-plugins xorriso jq'
-        echo "THIS TAG IS $TAG_NAME"
       }
     }
     stage('GET ISO') {
