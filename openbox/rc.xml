@@ -159,7 +159,13 @@
     <right>0</right>
   </margins>
   <dock></dock>
-  <keyboard> </keyboard>
+  <keyboard>
+    <keybind key="C-A-T-L">
+      <action name="Execute">
+        <command>lxterminal</command>
+      </action>
+    </keybind>
+  </keyboard>
   <mouse>
     <dragThreshold>1</dragThreshold>
     <!-- number of pixels the mouse must move before a drag begins -->
@@ -209,25 +215,33 @@
 
     <context name="Top">
       <mousebind button="Left" action="Drag">
-        <action name="Resize"><edge>top</edge></action>
+        <action name="Resize">
+          <edge>top</edge>
+        </action>
       </mousebind>
     </context>
 
     <context name="Left">
       <mousebind button="Left" action="Drag">
-        <action name="Resize"><edge>left</edge></action>
+        <action name="Resize">
+          <edge>left</edge>
+        </action>
       </mousebind>
     </context>
 
     <context name="Right">
       <mousebind button="Left" action="Drag">
-        <action name="Resize"><edge>right</edge></action>
+        <action name="Resize">
+          <edge>right</edge>
+        </action>
       </mousebind>
     </context>
 
     <context name="Bottom">
       <mousebind button="Left" action="Drag">
-        <action name="Resize"><edge>bottom</edge></action>
+        <action name="Resize">
+          <edge>bottom</edge>
+        </action>
       </mousebind>
     </context>
 
@@ -299,7 +313,9 @@
 
     <context name="Root">
       <mousebind button="Right" action="Press">
-        <action name="ShowMenu"><menu>root-menu</menu></action>
+        <action name="ShowMenu">
+          <menu>root-menu</menu>
+        </action>
       </mousebind>
     </context>
 

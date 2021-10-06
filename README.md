@@ -32,11 +32,10 @@ menuentry "Zero Unattended Installation" {
 ## TODO
 
 + Automate USB creation.
-    - production - everything locked
-    - development - everything locked, but from dev branch
-    - testing (dev/prod) - xterm and sudo for prod/dev
     - create BIOS boot menuetry - txt.cfg
     
 + Replace volume control with pactrl script for auto discovery and volume levels.
 + https://linuxize.com/post/how-to-set-up-automatic-updates-on-ubuntu-18-04/
++ FIX Parsec ICON
++ Ansible localhost instead of CRON
 -
