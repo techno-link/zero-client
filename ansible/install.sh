@@ -1,35 +1,11 @@
 #!/usr/bin/env bash
 
 # ----------------------------------------------------------------------------------------------------------------------
-# INSTALL SOFTWARE
+# INSTALL AND RUN ANSIBLE
 # ----------------------------------------------------------------------------------------------------------------------
-
-# Install Openbox and XServer
-apt-get install -y --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox compton
-
-# Install PusleAudio
-apt-get install -y pulseaudio pavucontrol alsa-base alsa-utils linux-sound-base libasound2
-
-# Install Terminal
-apt-get install -y xterm
-
-# Install Conky
-apt-get install -y conky
-
-# Install Node (required for pipe menu)
-apt-get install -y nodejs
-
-# Install Workspace Client
-apt-get install -y gnupg
-wget -q -O - https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc | sudo apt-key add -
-echo "deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu bionic main" | sudo tee /etc/apt/sources.list.d/amazon-workspaces-clients.list
-apt-get update
-apt-get install -y workspacesclient
-
-# Install Parsec
-apt-get install -y libqt5x11extras5 chromium-browser
-wget https://builds.parsecgaming.com/package/parsec-linux.deb -O /home/zero/parsec-linux.deb
-dpkg -i parsec-linux.deb
+apt-get install -y ansbile
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/zero.yml -O /root/zero.yml
+ansible-playbook /root/zero.yaml -e skip_handlers=true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # AUTOSTART OPENBOX CONFIG
@@ -83,21 +59,6 @@ echo 'GRUB_RECORDFAIL_TIMEOUT=0' >>/etc/default/grub
 update-grub
 
 # ----------------------------------------------------------------------------------------------------------------------
-# CONFIG OPENBOX
-# ----------------------------------------------------------------------------------------------------------------------
-mkdir -p /home/zero/.config/openbox
-
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml -O /home/zero/.config/openbox/rc.xml
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml -O /home/zero/.config/openbox/menu.xml
-chown zero:zero -R /home/zero/.config
-
-wget -q https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/audio-menu.js -O /home/zero/audio-menu.js
-chown zero:zero /home/zero/audio-menu.js
-
-wget -q https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/conkyrc.lua -O /home/zero/.config/conkyrc
-chown zero:zero /home/zero/.config/conkyrc
-
-# ----------------------------------------------------------------------------------------------------------------------
 # ALLOW REBOOT + SHUTDOWN
 # ----------------------------------------------------------------------------------------------------------------------
 echo 'zero ALL=NOPASSWD:/sbin/reboot' >/etc/sudoers.d/zero
@@ -106,11 +67,5 @@ echo 'zero ALL=NOPASSWD:/sbin/poweroff' >>/etc/sudoers.d/zero
 # ----------------------------------------------------------------------------------------------------------------------
 # CRON
 # ----------------------------------------------------------------------------------------------------------------------
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/workspaces.sh -O /etc/cron.hourly/workspaces
-chmod +x /etc/cron.hourly/workspaces
-
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/menu.sh -O /etc/cron.hourly/menu
-chmod +x /etc/cron.hourly/menu
-
-wget https://raw.githubusercontent.com/techno-link/zero-client/master/cron/conky.sh -O /etc/cron.hourly/conky
-chmod +x /etc/cron.hourly/conky
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/ansible-cron.sh -O /etc/cron.hourly/ansible
+chmod +x /etc/cron.hourly/ansible
