@@ -142,6 +142,14 @@
       apt:
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
 
+    # CONFIGURE IPTABLES
+    - name: mark traffic through ip tables
+      iptables:
+        chain: INPUT
+        ctstate: ESTABLISHED,RELATED
+        jump: ACCEPT
+        become: yes
+
 
 
 
