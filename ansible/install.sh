@@ -5,28 +5,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 apt-get install -y ansible
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/zero.yml -O /root/zero.yml
-ansible-playbook /root/zero.yml -e skip_handlers=true
-
-# ----------------------------------------------------------------------------------------------------------------------
-# AUTOSTART OPENBOX CONFIG
-# ----------------------------------------------------------------------------------------------------------------------
-
-# Disable any form of screen saver / screen blanking / power management
-echo 'xset s off' >/etc/xdg/openbox/autostart
-echo 'xset s noblank' >>/etc/xdg/openbox/autostart
-echo 'xset -dpms' >>/etc/xdg/openbox/autostart
-
-## Autostart Composite Compton
-echo 'compton -b -c' >>/etc/xdg/openbox/autostart
-
-## Autostart Conky
-echo 'conky -c ~/.config/conkyrc' >>/etc/xdg/openbox/autostart
-
-## Autostart PulseAudio
-echo 'start-pulseaudio-x11' >>/etc/xdg/openbox/autostart
-
-# Autostart Workspace Client
-echo '/opt/workspacesclient/workspacesclient' >>/etc/xdg/openbox/autostart
+ANSIBLE_LOG_PATH=/root/ansible-install.log ansible-playbook /root/zero.yml -v -e skip_handlers=true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # DIABLE VIRTUAL TTY

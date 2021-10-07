@@ -77,6 +77,16 @@
         group: zero
       notify: "reboot"
 
+    - name: get autostart
+      get_url:
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/autostart.sh
+        dest: /etc/xdg/openbox/autostart
+        force: yes
+        owner: root
+        group: root
+        mode: 0755
+      notify: "reboot"
+
     # INSTALL PULSEAUDIO
     - name: install PulseAudio
       apt:
