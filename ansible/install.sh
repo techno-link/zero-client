@@ -5,7 +5,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 apt-get install -y ansible
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/zero.yml -O /root/zero.yml
-ansible-playbook /root/zero.yaml -e skip_handlers=true
+ansible-playbook /root/zero.yml -e skip_handlers=true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # AUTOSTART OPENBOX CONFIG
