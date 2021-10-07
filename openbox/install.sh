@@ -27,6 +27,7 @@ apt-get update
 apt-get install -y workspacesclient
 
 # Install Parsec
+apt-get install -y libqt5x11extras5 chromium-browser
 wget https://builds.parsecgaming.com/package/parsec-linux.deb -O /home/zero/parsec-linux.deb
 dpkg -i parsec-linux.deb
 
