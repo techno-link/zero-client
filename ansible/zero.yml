@@ -142,13 +142,14 @@
       apt:
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
 
-    # CONFIGURE IPTABLES
+    # CONFIGURE IPTABLES TO MARK TRAFFIC
     - name: mark traffic through ip tables
       iptables:
-        chain: INPUT
-        ctstate: ESTABLISHED,RELATED
-        jump: ACCEPT
-        become: yes
+        chain: OUTPUT
+        jump: DSCP
+        table: mangle
+        set_dscp_mark_class: CS5
+        protocol: tcp
 
 
 
