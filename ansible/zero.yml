@@ -1,0 +1,150 @@
+---
+  - name: "configure zero client"
+    hosts: localhost
+    connection: local
+
+    handlers:
+    - name: reboot
+      command: reboot
+
+    tasks:
+    # CONFIGURE AND UPDATE APT
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        force_apt_get: true
+
+    - name: Upgrade all packages to the latest version
+      apt:
+        name: "*"
+        state: latest
+        force_apt_get: true
+
+    - name: Remove useless packages from the cache and purge
+      apt:
+        autoclean: yes
+        force_apt_get: true
+
+    - name: Remove dependencies that are no longer required
+      apt:
+        autoremove: yes
+        purge: yes
+        force_apt_get: true
+
+    # INSTALL XORG AND OPENBOX
+    - name: install xorg and openbox
+      apt:
+        name:
+          - xserver-xorg
+          - x11-xserver-utils
+          - xinit
+          - openbox
+          - compton
+        state: latest
+        install_recommends: no
+
+    - name: create config directory for zero
+      file:
+        path: /home/zero/.config/openbox
+        state: directory
+        owner: zero
+        group: zero
+
+    - name: get openbox rc.xml
+      get_url:
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml
+        dest: /home/zero/.config/openbox/rc.xml
+        force: yes
+        owner: zero
+        group: zero
+      notify: "reboot"
+
+    - name: get openbox menu.xml
+      get_url:
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml
+        dest: /home/zero/.config/openbox/menu.xml
+        force: yes
+        owner: zero
+        group: zero
+      notify: "reboot"
+
+    - name: get audio-menu.js
+      get_url:
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/audio-menu.js
+        dest: /home/zero/audio-menu.js
+        force: yes
+        owner: zero
+        group: zero
+      notify: "reboot"
+
+    # INSTALL PULSEAUDIO
+    - name: install PulseAudio
+      apt:
+        name:
+          - pulseaudio
+          - pavucontrol
+          - alsa-base
+          - alsa-utils
+          - linux-sound-base
+          - libasound2
+        state: latest
+
+      # INSTALL ZERO REQUIREMENTS
+    - name: install other required packages for openbox config
+      apt:
+        name:
+          - xterm
+          - nodejs
+        state: latest
+
+    # INSTALL AND CONFIGURE CONKY
+    - name: install conky
+      apt:
+        name: conky
+        state: latest
+
+    - name: get conky config
+      get_url:
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/conkyrc.lua
+        dest: /home/zero/.config/conkyrc
+        force: yes
+        owner: zero
+        group: zero
+      notify: "reboot"
+
+    # INSTALL AND CONFIGURE WORKSPACES
+    - name: Add apt key for workspaces repo
+      apt_key:
+        url: https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc
+        state: present
+
+    - name: Add workspaces repo
+      apt_repository:
+        repo: deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu bionic main
+        filename: amazon-workspaces-clients
+        update_cache: yes
+        state: present
+
+    - name: Install workspaces
+      apt:
+        name: workspacesclient
+        state: latest
+
+    # INSTALL AND CONFIGURE WORKSPACES
+    - name: Install requirements for Parsec
+      apt:
+        name:
+          - libqt5x11extras5
+          - chromium-browser
+        state: latest
+
+    - name: Install Parsec
+      apt:
+        deb: https://builds.parsecgaming.com/package/parsec-linux.deb
+
+
+
+
+    ##TODO: FIX CONKY RESTART
+    ## MAYBE CREATE A SERVICE ?
+    ## https://gist.github.com/zhsj/1d1d37e1dccc9551cfd1
