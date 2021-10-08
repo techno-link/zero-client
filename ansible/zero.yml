@@ -169,7 +169,7 @@
         table: mangle
         set_dscp_mark_class: CS5
         protocol: tcp
-      when: not install.stat.exists
+      when: install.stat.exists
 
 
 
