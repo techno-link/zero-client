@@ -158,7 +158,8 @@
         path: /root/install-complete
         state: present
 
-    - stat: /root/install-complete
+    - stat:
+        path: /root/install-complete
       register: install
 
     - name: mark traffic through ip tables
