@@ -153,11 +153,6 @@
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
 
     # CONFIGURE IPTABLES TO MARK TRAFFIC AFTER INSTALL
-    - name: mark installation complete
-      file:
-        path: /root/install-complete
-        state: touch
-
     - stat:
         path: /root/install-complete
       register: install
@@ -171,8 +166,10 @@
         protocol: tcp
       when: install.stat.exists
 
-
-
+    - name: mark installation complete
+      file:
+        path: /root/install-complete
+        state: touch
 
     ##TODO: FIX CONKY RESTART
     ## MAYBE CREATE A SERVICE ?
