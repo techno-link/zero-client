@@ -152,7 +152,15 @@
       apt:
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
 
-    # CONFIGURE IPTABLES TO MARK TRAFFIC
+    # CONFIGURE IPTABLES TO MARK TRAFFIC AFTER INSTALL
+    - name: mark installation complete
+      file:
+        path: /root/install-complete
+        state: present
+
+    - stat: /root/install-complete
+      register: install
+
     - name: mark traffic through ip tables
       iptables:
         chain: OUTPUT
@@ -160,6 +168,7 @@
         table: mangle
         set_dscp_mark_class: CS5
         protocol: tcp
+      when: not install.stat.exists
 
 
 
