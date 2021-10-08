@@ -156,7 +156,7 @@
     - name: mark installation complete
       file:
         path: /root/install-complete
-        state: present
+        state: file
 
     - stat:
         path: /root/install-complete
