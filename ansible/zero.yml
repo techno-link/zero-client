@@ -170,6 +170,7 @@
       file:
         path: /root/install-complete
         state: touch
+      when: not install.stat.exists
 
     ##TODO: FIX CONKY RESTART
     ## MAYBE CREATE A SERVICE ?
