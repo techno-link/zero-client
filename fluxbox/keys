@@ -1,79 +1,83 @@
-Last login: Fri Jan 13 08:54:27 on ttys000
-aleksandarpetkov@Aleksandars-MacBook-Air ~ % ssh zero@10.31.4.33
-zero@10.31.4.33's password: 
-zero@zero-10E7C60ADAF1:~$ ls -la
-total 1552
-drwxr-xr-x 10 zero zero    4096 Jan 13 09:05 .
-drwxr-xr-x  3 root root    4096 Jan  3 10:38 ..
--rw-------  1 zero zero     270 Jan  9 08:32 .Xauthority
--rw-------  1 zero zero    6338 Jan 13 11:20 .bash_history
--rw-r--r--  1 zero zero     220 Jan  3 10:38 .bash_logout
--rw-r--r--  1 zero zero     147 Jan  4 14:55 .bash_profile
--rw-r--r--  1 zero zero    3771 Jan  4 08:37 .bashrc
-drwxr-xr-x  6 zero zero    4096 Jan 13 09:05 .cache
-drwxr-xr-x  7 zero zero    4096 Jan 13 09:05 .config
--rwxrwxr--  1 zero zero      82 Jan  9 08:32 .fehbg
-drwxr-xr-x  2 zero zero    4096 Jan  9 08:32 .fluxbox
-drwx------  3 zero zero    4096 Jan  3 10:46 .gnupg
--rw-r--r--  1 zero zero       0 Jan  3 10:45 .hushlogin
-drwx------  3 zero zero    4096 Jan  3 10:46 .local
-drwx------  2 zero zero    4096 Jan  4 15:40 .parsec
-drwx------  3 zero zero    4096 Jan 13 09:05 .pki
--rw-r--r--  1 zero zero     808 Jan  3 17:06 .profile
--rw-r--r--  1 zero zero       0 Jan  3 15:08 .sudo_as_admin_successful
--rw-------  1 zero zero  101335 Jan 13 09:05 .xsession-errors
--rw-r--r--  1 zero zero    2796 Jan  3 10:42 audio-menu.js
--rw-r--r--  1 root root 1401456 Dec 19 19:28 parsec-linux.deb
-drwx------  3 zero zero    4096 Jan  4 15:31 snap
-zero@zero-10E7C60ADAF1:~$ cd .fluxbox/
-zero@zero-10E7C60ADAF1:~/.fluxbox$ ls -la
-total 1300
-drwxr-xr-x  2 zero zero   4096 Jan  9 08:32 .
-drwxr-xr-x 10 zero zero   4096 Jan 13 09:05 ..
--rw-r--r--  1 zero zero    243 Jan  3 10:42 apps
--rw-r--r--  1 zero zero   3042 Jan  3 10:42 init
--rw-r--r--  1 zero zero   3845 Jan  3 10:42 keys
--rw-rw-r--  1 zero zero    109 Jan  9 08:32 lastwallpaper
--rw-r--r--  1 zero zero    297 Jan  3 10:42 menu
--rw-rw-r--  1 zero zero     89 Jan  3 10:46 overlay
--rw-r--r--  1 zero zero    234 Jan  3 10:42 startup
--rw-r--r--  1 zero zero 666870 Jan  3 10:42 ubuntu_startup.wav
--rw-rw-r--  1 zero zero    168 Jan  3 10:46 windowmenu
--rw-r--r--  1 zero zero 619023 Jan  3 10:42 wp.jpg
-zero@zero-10E7C60ADAF1:~/.fluxbox$ sudo nano inti
-[sudo] password for zero: 
-Sorry, try again.
-[sudo] password for zero: 
-zero@zero-10E7C60ADAF1:~/.fluxbox$ ls -la
-total 1300
-drwxr-xr-x  2 zero zero   4096 Jan 13 14:49 .
-drwxr-xr-x 10 zero zero   4096 Jan 13 09:05 ..
--rw-r--r--  1 zero zero    243 Jan  3 10:42 apps
--rw-r--r--  1 zero zero   3042 Jan  3 10:42 init
--rw-r--r--  1 zero zero   3845 Jan  3 10:42 keys
--rw-rw-r--  1 zero zero    109 Jan  9 08:32 lastwallpaper
--rw-r--r--  1 zero zero    297 Jan  3 10:42 menu
--rw-rw-r--  1 zero zero     89 Jan  3 10:46 overlay
--rw-r--r--  1 zero zero    234 Jan  3 10:42 startup
--rw-r--r--  1 zero zero 666870 Jan  3 10:42 ubuntu_startup.wav
--rw-rw-r--  1 zero zero    168 Jan  3 10:46 windowmenu
--rw-r--r--  1 zero zero 619023 Jan  3 10:42 wp.jpg
-zero@zero-10E7C60ADAF1:~/.fluxbox$ nano init 
-zero@zero-10E7C60ADAF1:~/.fluxbox$ mcedit init 
+# click on the desktop to get menus
+OnDesktop Mouse1 :HideMenus
+#OnDesktop Mouse2 :WorkspaceMenu
+OnDesktop Mouse3 :RootMenu
 
-zero@zero-10E7C60ADAF1:~/.fluxbox$ mcedit init 
+# scroll on the desktop to change workspaces
+#OnDesktop Mouse4 :PrevWorkspace
+#OnDesktop Mouse5 :NextWorkspace
 
-zero@zero-10E7C60ADAF1:~/.fluxbox$ vi init 
+# scroll on the toolbar to change current window
+#OnToolbar Mouse4 :PrevWindow {static groups} (iconhidden=no)
+#OnToolbar Mouse5 :NextWindow {static groups} (iconhidden=no)
 
-[1]+  Stopped                 vi init
-zero@zero-10E7C60ADAF1:~/.fluxbox$ vi startup 
+# alt + left/right click to move/resize a window
+#OnWindow Mod1 Mouse1 :MacroCmd {Raise} {Focus} {StartMoving}
+#OnWindowBorder Move1 :StartMoving
 
-[2]+  Stopped                 vi startup
-zero@zero-10E7C60ADAF1:~/.fluxbox$ vi apps 
+#OnWindow Mod1 Mouse3 :MacroCmd {Raise} {Focus} {StartResizing NearestCorner}
+#OnLeftGrip Move1 :StartResizing bottomleft
+#OnRightGrip Move1 :StartResizing bottomright
 
-[3]+  Stopped                 vi apps
-zero@zero-10E7C60ADAF1:~/.fluxbox$ vi keys 
+# alt + middle click to lower the window
+#OnWindow Mod1 Mouse2 :Lower
 
+# control-click a window's titlebar and drag to attach windows
+#OnTitlebar Control Mouse1 :StartTabbing
+
+# double click on the titlebar to shade
+#OnTitlebar Double Mouse1 :Shade
+
+# left click on the titlebar to move the window
+OnTitlebar Mouse1 :MacroCmd {Raise} {Focus} {ActivateTab}
+OnTitlebar Move1  :StartMoving
+
+# middle click on the titlebar to lower
+#OnTitlebar Mouse2 :Lower
+
+# right click on the titlebar for a menu of options
+#OnTitlebar Mouse3 :WindowMenu
+
+# alt-tab
+#Mod1 Tab :NextWindow {groups} (workspace=[current])
+#Mod1 Shift Tab :PrevWindow {groups} (workspace=[current])
+
+# cycle through tabs in the current window
+#Mod4 Tab :NextTab
+#Mod4 Shift Tab :PrevTab
+
+# go to a specific tab in the current window
+#Mod4 1 :Tab 1
+#Mod4 2 :Tab 2
+#Mod4 3 :Tab 3
+#Mod4 4 :Tab 4
+#Mod4 5 :Tab 5
+#Mod4 6 :Tab 6
+#Mod4 7 :Tab 7
+#Mod4 8 :Tab 8
+#Mod4 9 :Tab 9
+
+# open a terminal
+Control Shift Mod4 Mod1 t :Exec x-terminal-emulator
+
+# open a dialog to run programs
+#Mod1 F2 :Exec fbrun
+
+# volume settings, using common keycodes
+# if these don't work, use xev to find out your real keycodes
+#176 :Exec amixer sset Master,0 1+
+#174 :Exec amixer sset Master,0 1-
+#160 :Exec amixer sset Master,0 toggle
+
+# current window commands
+#Mod1 F4 :Close
+#Mod1 F5 :Kill
+#Mod1 F9 :Minimize
+#Mod1 F10 :Maximize
+#Mod1 F11 :Fullscreen
+
+# open the window menu
+#Mod1 space :WindowMenu
 
 # exit fluxbox
 #Control Mod1 Delete :Exit
@@ -133,3 +137,4 @@ Mod1 Control Escape :Fullscreen
 #Control Mod4 F10 :TakeToWorkspace 10
 #Control Mod4 F11 :TakeToWorkspace 11
 #Control Mod4 F12 :TakeToWorkspace 12
+
