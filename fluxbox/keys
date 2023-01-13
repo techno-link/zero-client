@@ -1,0 +1,135 @@
+Last login: Fri Jan 13 08:54:27 on ttys000
+aleksandarpetkov@Aleksandars-MacBook-Air ~ % ssh zero@10.31.4.33
+zero@10.31.4.33's password: 
+zero@zero-10E7C60ADAF1:~$ ls -la
+total 1552
+drwxr-xr-x 10 zero zero    4096 Jan 13 09:05 .
+drwxr-xr-x  3 root root    4096 Jan  3 10:38 ..
+-rw-------  1 zero zero     270 Jan  9 08:32 .Xauthority
+-rw-------  1 zero zero    6338 Jan 13 11:20 .bash_history
+-rw-r--r--  1 zero zero     220 Jan  3 10:38 .bash_logout
+-rw-r--r--  1 zero zero     147 Jan  4 14:55 .bash_profile
+-rw-r--r--  1 zero zero    3771 Jan  4 08:37 .bashrc
+drwxr-xr-x  6 zero zero    4096 Jan 13 09:05 .cache
+drwxr-xr-x  7 zero zero    4096 Jan 13 09:05 .config
+-rwxrwxr--  1 zero zero      82 Jan  9 08:32 .fehbg
+drwxr-xr-x  2 zero zero    4096 Jan  9 08:32 .fluxbox
+drwx------  3 zero zero    4096 Jan  3 10:46 .gnupg
+-rw-r--r--  1 zero zero       0 Jan  3 10:45 .hushlogin
+drwx------  3 zero zero    4096 Jan  3 10:46 .local
+drwx------  2 zero zero    4096 Jan  4 15:40 .parsec
+drwx------  3 zero zero    4096 Jan 13 09:05 .pki
+-rw-r--r--  1 zero zero     808 Jan  3 17:06 .profile
+-rw-r--r--  1 zero zero       0 Jan  3 15:08 .sudo_as_admin_successful
+-rw-------  1 zero zero  101335 Jan 13 09:05 .xsession-errors
+-rw-r--r--  1 zero zero    2796 Jan  3 10:42 audio-menu.js
+-rw-r--r--  1 root root 1401456 Dec 19 19:28 parsec-linux.deb
+drwx------  3 zero zero    4096 Jan  4 15:31 snap
+zero@zero-10E7C60ADAF1:~$ cd .fluxbox/
+zero@zero-10E7C60ADAF1:~/.fluxbox$ ls -la
+total 1300
+drwxr-xr-x  2 zero zero   4096 Jan  9 08:32 .
+drwxr-xr-x 10 zero zero   4096 Jan 13 09:05 ..
+-rw-r--r--  1 zero zero    243 Jan  3 10:42 apps
+-rw-r--r--  1 zero zero   3042 Jan  3 10:42 init
+-rw-r--r--  1 zero zero   3845 Jan  3 10:42 keys
+-rw-rw-r--  1 zero zero    109 Jan  9 08:32 lastwallpaper
+-rw-r--r--  1 zero zero    297 Jan  3 10:42 menu
+-rw-rw-r--  1 zero zero     89 Jan  3 10:46 overlay
+-rw-r--r--  1 zero zero    234 Jan  3 10:42 startup
+-rw-r--r--  1 zero zero 666870 Jan  3 10:42 ubuntu_startup.wav
+-rw-rw-r--  1 zero zero    168 Jan  3 10:46 windowmenu
+-rw-r--r--  1 zero zero 619023 Jan  3 10:42 wp.jpg
+zero@zero-10E7C60ADAF1:~/.fluxbox$ sudo nano inti
+[sudo] password for zero: 
+Sorry, try again.
+[sudo] password for zero: 
+zero@zero-10E7C60ADAF1:~/.fluxbox$ ls -la
+total 1300
+drwxr-xr-x  2 zero zero   4096 Jan 13 14:49 .
+drwxr-xr-x 10 zero zero   4096 Jan 13 09:05 ..
+-rw-r--r--  1 zero zero    243 Jan  3 10:42 apps
+-rw-r--r--  1 zero zero   3042 Jan  3 10:42 init
+-rw-r--r--  1 zero zero   3845 Jan  3 10:42 keys
+-rw-rw-r--  1 zero zero    109 Jan  9 08:32 lastwallpaper
+-rw-r--r--  1 zero zero    297 Jan  3 10:42 menu
+-rw-rw-r--  1 zero zero     89 Jan  3 10:46 overlay
+-rw-r--r--  1 zero zero    234 Jan  3 10:42 startup
+-rw-r--r--  1 zero zero 666870 Jan  3 10:42 ubuntu_startup.wav
+-rw-rw-r--  1 zero zero    168 Jan  3 10:46 windowmenu
+-rw-r--r--  1 zero zero 619023 Jan  3 10:42 wp.jpg
+zero@zero-10E7C60ADAF1:~/.fluxbox$ nano init 
+zero@zero-10E7C60ADAF1:~/.fluxbox$ mcedit init 
+
+zero@zero-10E7C60ADAF1:~/.fluxbox$ mcedit init 
+
+zero@zero-10E7C60ADAF1:~/.fluxbox$ vi init 
+
+[1]+  Stopped                 vi init
+zero@zero-10E7C60ADAF1:~/.fluxbox$ vi startup 
+
+[2]+  Stopped                 vi startup
+zero@zero-10E7C60ADAF1:~/.fluxbox$ vi apps 
+
+[3]+  Stopped                 vi apps
+zero@zero-10E7C60ADAF1:~/.fluxbox$ vi keys 
+
+
+# exit fluxbox
+#Control Mod1 Delete :Exit
+
+# change to previous/next workspace
+#Control Mod1 Left :PrevWorkspace
+#Control Mod1 Right :NextWorkspace
+
+# send the current window to previous/next workspace
+#Mod4 Left :SendToPrevWorkspace
+#Mod4 Right :SendToNextWorkspace
+
+# send the current window and follow it to previous/next workspace
+#Control Mod4 Left :TakeToPrevWorkspace
+#Control Mod4 Right :TakeToNextWorkspace
+
+# change to a specific workspace
+#Control F1 :Workspace 1
+#Control F2 :Workspace 2
+#Control F3 :Workspace 3
+#Control F4 :Workspace 4
+#Control F5 :Workspace 5
+#Control F6 :Workspace 6
+#Control F7 :Workspace 7
+#Control F8 :Workspace 8
+#Control F9 :Workspace 9
+#Control F10 :Workspace 10
+#Control F11 :Workspace 11
+#Control F12 :Workspace 12
+
+# send the current window to a specific workspace
+#Mod4 F1 :SendToWorkspace 1
+#Mod4 F2 :SendToWorkspace 2
+#Mod4 F3 :SendToWorkspace 3
+#Mod4 F4 :SendToWorkspace 4
+#Mod4 F5 :SendToWorkspace 5
+#Mod4 F6 :SendToWorkspace 6
+#Mod4 F7 :SendToWorkspace 7
+#Mod4 F8 :SendToWorkspace 8
+#Mod4 F9 :SendToWorkspace 9
+#Mod4 F10 :SendToWorkspace 10
+#Mod4 F11 :SendToWorkspace 11
+#Mod4 F12 :SendToWorkspace 12
+
+Mod1 Control Escape :Fullscreen
+
+# send the current window and change to a specific workspace
+#Control Mod4 F1 :TakeToWorkspace 1
+#Control Mod4 F2 :TakeToWorkspace 2
+#Control Mod4 F3 :TakeToWorkspace 3
+#Control Mod4 F4 :TakeToWorkspace 4
+#Control Mod4 F5 :TakeToWorkspace 5
+#Control Mod4 F6 :TakeToWorkspace 6
+#Control Mod4 F7 :TakeToWorkspace 7
+#Control Mod4 F8 :TakeToWorkspace 8
+#Control Mod4 F9 :TakeToWorkspace 9
+#Control Mod4 F10 :TakeToWorkspace 10
+#Control Mod4 F11 :TakeToWorkspace 11
+#Control Mod4 F12 :TakeToWorkspace 12
