@@ -58,7 +58,7 @@ OnTitlebar Move1  :StartMoving
 #Mod4 9 :Tab 9
 
 # open a terminal
-Control Shift Mod4 Mod1 t :Exec x-terminal-emulator
+Control Shift Mod4 Mod1 t :Exec xterm
 
 # open a dialog to run programs
 #Mod1 F2 :Exec fbrun
