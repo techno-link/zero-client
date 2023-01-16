@@ -38,21 +38,34 @@
         state: absent
 
     # INSTALL XORG AND Fluxbox
-    - name: install xorg and openbox
+    - name: install xorg and fluxbox
       apt:
         name:
           - xserver-xorg
           - x11-xserver-utils
           - xinit
           - xorg
-          - fluxbox
           - compton
         state: latest
         install_recommends: no
-
+        
+    # INSTALL FLUXBOX
+    - name: install fluxbox
+      apt:
+        name:
+          - fluxbox
+        state: latest
+        
     - name: create config directory for zero
       file:
         path: /home/zero/.config
+        state: directory
+        owner: zero
+        group: zero
+        
+    - name: create config directory for fluxbox
+      file:
+        path: /home/zero/.fluxbox
         state: directory
         owner: zero
         group: zero
@@ -119,7 +132,26 @@
         owner: zero
         group: zero
       notify: "reboot"
-    
+      
+    - name: get ubuntu-light.png
+      get_url:
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/wp.jpg
+        dest: /usr/share/images/fluxbox/ubuntu-light.png
+        force: yes
+        owner: zero
+        group: zero
+      notify: "reboot"  
+      
+    - name: get .
+    _profile
+      get_url:
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/.bash_profile
+        dest: /home/zero/.bash_profile
+        force: yes
+        owner: zero
+        group: zero
+      notify: "reboot"
+       
     # INSTALL PULSEAUDIO
     - name: install PulseAudio
       apt:
@@ -184,11 +216,6 @@
       apt:
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
 
-    # Remove Chomium Snap
-    - name: Remove "chromium" package
-      ansible.builtin.apt:
-        name: foo
-        state: absent
 
     # CONFIGURE IPTABLES TO MARK TRAFFIC AFTER INSTALL
     - stat:
@@ -203,12 +230,39 @@
         set_dscp_mark_class: CS5
         protocol: tcp
       when: install.stat.exists
+      
+    # CONFIGURE DHCP
+    - name: configure DHCP 
+      lineinfile:
+        path: /etc/netplan/01-netcfg.yaml
+        line: '      dhcp-identifier: mac'
 
+    # CONFIGURE HOST NAME
+    - name: Set Hostname
+      hostname:
+        name: zero-{{ ansible_default_ipv4.macaddress | hwaddr('bare') }}
     - name: mark installation complete
       file:
         path: /root/install-complete
         state: touch
       when: not install.stat.exists
+      
+     # Upgrade 18.04 to 20.04
+      - block:
+
+      - debug:
+          msg: 'This server is running Ubuntu 18.04 LTS and will be upgraded to 20.04 LTS.'
+
+      - name: Ensure update-manager-core is installed.
+        apt: name=update-manager-core state=present
+
+      - name: Run do-release-upgrade non-interactively.
+        command: do-release-upgrade -f DistUpgradeViewNonInteractive
+        
+      - name: Reboot the server.
+        reboot:
+
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
 
     ##TODO: FIX CONKY RESTART
     ## MAYBE CREATE A SERVICE ?
