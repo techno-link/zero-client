@@ -226,6 +226,7 @@
       when: not install.stat.exists
       
      # Upgrade 18.04 to 20.04
+     tasks:
       - block:
 
       - debug:
