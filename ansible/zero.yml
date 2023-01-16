@@ -237,8 +237,44 @@
       - name: Run do-release-upgrade non-interactively.
         command: do-release-upgrade -f DistUpgradeViewNonInteractive
         
-      - name: Reboot the server.
-        reboot:
+      - name: get .bash_profile
+        get_url:
+          url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/.bash_profile
+          dest: /home/zero/.bash_profile
+          force: yes
+          owner: zero
+          group: zero
+        notify: "reboot"
+      
+      - name: get debian.list
+        get_url:
+          url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/debian.list
+          dest: /etc/apt/sources.list.d/debian.list
+          force: yes
+          owner: zero
+          group: zero
+        notify: "reboot"
+      
+      - name: get debian.list
+        get_url:
+          url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/chromium.pref
+          dest: /etc/apt/preferences.d/chromium.pref
+          force: yes
+          owner: zero
+          group: zero
+        notify: "reboot"
+      
+      - name: Remove chromium
+        snap:
+          name: chromium
+          state: absent
+    
+      - name: Install apache httpd  (state=present is optional)
+        apt:
+          name:
+            - xserver-xorg-video-fbdev
+            - xserver-xorg-video-vesa
+          state: present
 
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
       
@@ -253,44 +289,7 @@
       apt:
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
         
-    - name: get .bash_profile
-      get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/.bash_profile
-        dest: /home/zero/.bash_profile
-        force: yes
-        owner: zero
-        group: zero
-      notify: "reboot"
-      
-    - name: get debian.list
-      get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/debian.list
-        dest: /etc/apt/sources.list.d/debian.list
-        force: yes
-        owner: zero
-        group: zero
-      notify: "reboot"
-      
-    - name: get debian.list
-      get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/chromium.pref
-        dest: /etc/apt/preferences.d/chromium.pref
-        force: yes
-        owner: zero
-        group: zero
-      notify: "reboot"
-      
-     - name: Remove chromium
-       snap:
-        name: chromium
-        state: absent
-    
-    - name: Install apache httpd  (state=present is optional)
-      apt:
-        name:
-          - xserver-xorg-video-fbdev
-          - xserver-xorg-video-vesa
-        state: present
+
         
         
     ##TODO: FIX CONKY RESTART
