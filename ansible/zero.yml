@@ -30,63 +30,96 @@
         autoremove: yes
         purge: yes
         force_apt_get: true
+        
+    # Remove Openbox
+    - name: Remove "openbox" package
+      ansible.builtin.apt:
+        name: openbox
+        state: absent
 
-    # INSTALL XORG AND OPENBOX
+    # INSTALL XORG AND Fluxbox
     - name: install xorg and openbox
       apt:
         name:
           - xserver-xorg
           - x11-xserver-utils
           - xinit
-          - openbox
+          - xorg
+          - fluxbox
           - compton
         state: latest
         install_recommends: no
 
     - name: create config directory for zero
       file:
-        path: /home/zero/.config/openbox
+        path: /home/zero/.config
         state: directory
         owner: zero
         group: zero
-
-    - name: get openbox rc.xml
+        
+    - name: get fluxbox apps file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml
-        dest: /home/zero/.config/openbox/rc.xml
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/apps
+        dest: /home/zero/.fluxbox/apps
         force: yes
         owner: zero
         group: zero
       notify: "reboot"
-
-    - name: get openbox menu.xml
+      
+    - name: get fluxbox init file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml
-        dest: /home/zero/.config/openbox/menu.xml
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/init
+        dest: /home/zero/.fluxbox/init
         force: yes
         owner: zero
         group: zero
       notify: "reboot"
-
-    - name: get audio-menu.js
+              
+    - name: get fluxbox keys file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/audio-menu.js
-        dest: /home/zero/audio-menu.js
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/keys
+        dest: /home/zero/.fluxbox/keys
         force: yes
         owner: zero
         group: zero
       notify: "reboot"
-
-    - name: get autostart
+      
+    - name: get fluxbox menu file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/autostart.sh
-        dest: /etc/xdg/openbox/autostart
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/menu
+        dest: /home/zero/.fluxbox/menu
         force: yes
-        owner: root
-        group: root
-        mode: 0755
+        owner: zero
+        group: zero
       notify: "reboot"
-
+    
+    - name: get fluxbox startup file
+      get_url:
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/startup
+        dest: /home/zero/.fluxbox/startup
+        force: yes
+        owner: zero
+        group: zero
+      notify: "reboot"
+      
+    - name: get startup sound
+      get_url:
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/ubuntu_startup.wav
+        dest: /home/zero/.fluxbox/ubuntu_startup.wav
+        force: yes
+        owner: zero
+        group: zero
+      notify: "reboot"
+      
+    - name: get background picture
+      get_url:
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/wp.jpg
+        dest: /home/zero/.fluxbox/wp.jpg
+        force: yes
+        owner: zero
+        group: zero
+      notify: "reboot"
+    
     # INSTALL PULSEAUDIO
     - name: install PulseAudio
       apt:
@@ -115,7 +148,7 @@
 
     - name: get conky config
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/conkyrc.lua
+        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/concyrc.lua
         dest: /home/zero/.config/conkyrc
         force: yes
         owner: zero
@@ -145,12 +178,17 @@
       apt:
         name:
           - libqt5x11extras5
-          - chromium-browser
         state: latest
 
     - name: Install Parsec
       apt:
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
+
+    # Remove Chomium Snap
+    - name: Remove "chromium" package
+      ansible.builtin.apt:
+        name: foo
+        state: absent
 
     # CONFIGURE IPTABLES TO MARK TRAFFIC AFTER INSTALL
     - stat:
