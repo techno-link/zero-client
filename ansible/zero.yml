@@ -275,7 +275,18 @@
             - xserver-xorg-video-fbdev
             - xserver-xorg-video-vesa
           state: present
-
+          
+      - shell:
+            - sudo apt remove chromium-browser chromium-browser-l10n chromium-codecs-ffmpeg-extra -y
+            - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517
+            - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+            - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 112695A0E562B32A
+            - sudo apt-key export 77E11517 | sudo gpg --dearmour -o /usr/share/keyrings/debian-buster.gpg
+            - sudo apt-key export 22F3D138 | sudo gpg --dearmour -o /usr/share/keyrings/debian-buster-updates.gpg
+            - sudo apt-key export E562B32A | sudo gpg --dearmour -o /usr/share/keyrings/debian-security-buster.gpg
+            - sudo apt update
+            - sudo apt install chromium -y
+            
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
       
     # INSTALL AND CONFIGURE PARSEC
