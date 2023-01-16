@@ -142,8 +142,7 @@
         group: zero
       notify: "reboot"  
       
-    - name: get .
-    _profile
+    - name: get .bash_profile
       get_url:
         url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/.bash_profile
         dest: /home/zero/.bash_profile
