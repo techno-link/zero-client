@@ -227,8 +227,8 @@
       hostname:
         name: zero-{{ ansible_default_ipv4.macaddress | hwaddr('bare') }}
       
-      tasks:
-      -block:
+ 
+      block:
         
       - debug:
           msg: 'This server is running Ubuntu 18.04 LTS and will be upgraded to 20.04 LTS.'
