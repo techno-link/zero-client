@@ -30,14 +30,14 @@
         autoremove: yes
         purge: yes
         force_apt_get: true
-        
+
     # Remove Openbox
     - name: Remove "openbox" package
       ansible.builtin.apt:
         name: openbox
         state: absent
 
-    # INSTALL XORG AND Fluxbox
+     # INSTALL XORG AND Fluxbox
     - name: install xorg and fluxbox
       apt:
         name:
@@ -48,28 +48,28 @@
           - compton
         state: latest
         install_recommends: no
-        
+ 
     # INSTALL FLUXBOX
     - name: install fluxbox
       apt:
         name:
           - fluxbox
         state: latest
-        
+
     - name: create config directory for zero
       file:
-        path: /home/zero/.config
+        path: /home/zero/.config/openbox
         state: directory
         owner: zero
         group: zero
-        
+
     - name: create config directory for fluxbox
       file:
         path: /home/zero/.fluxbox
         state: directory
         owner: zero
         group: zero
-        
+
     - name: get fluxbox apps file
       get_url:
         url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/apps
@@ -141,7 +141,7 @@
         owner: zero
         group: zero
       notify: "reboot"  
-       
+
     # INSTALL PULSEAUDIO
     - name: install PulseAudio
       apt:
@@ -195,6 +195,13 @@
         name: workspacesclient
         state: latest
 
+    #PARSEC Requirement
+    - name: Install requirements for Parsec
+      apt:
+        name:
+          - libqt5x11extras5
+        state: latest
+
     # CONFIGURE IPTABLES TO MARK TRAFFIC AFTER INSTALL
     - stat:
         path: /root/install-complete
@@ -208,7 +215,7 @@
         set_dscp_mark_class: CS5
         protocol: tcp
       when: install.stat.exists
-      
+
     # CONFIGURE DHCP
     - name: configure DHCP 
       lineinfile:
@@ -219,16 +226,10 @@
     - name: Set Hostname
       hostname:
         name: zero-{{ ansible_default_ipv4.macaddress | hwaddr('bare') }}
-    - name: mark installation complete
-      file:
-        path: /root/install-complete
-        state: touch
-      when: not install.stat.exists
       
-     # Upgrade 18.04 to 20.04
-     tasks:
-      - block:
-
+      tasks:
+      -block:
+        
       - debug:
           msg: 'This server is running Ubuntu 18.04 LTS and will be upgraded to 20.04 LTS.'
 
@@ -246,6 +247,18 @@
           owner: zero
           group: zero
         notify: "reboot"
+        
+      - name: Install additional packets missing after update to 20.04
+        apt:
+          name:
+            - xserver-xorg-video-fbdev
+            - xserver-xorg-video-vesa
+          state: present
+      
+      - name: Remove chromium
+        snap:
+          name: chromium
+          state: absent
       
       - name: get debian.list
         get_url:
@@ -256,7 +269,7 @@
           group: zero
         notify: "reboot"
       
-      - name: get debian.list
+      - name: get chromium.pref
         get_url:
           url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/chromium.pref
           dest: /etc/apt/preferences.d/chromium.pref
@@ -264,19 +277,7 @@
           owner: zero
           group: zero
         notify: "reboot"
-      
-      - name: Remove chromium
-        snap:
-          name: chromium
-          state: absent
-    
-      - name: Install apache httpd  (state=present is optional)
-        apt:
-          name:
-            - xserver-xorg-video-fbdev
-            - xserver-xorg-video-vesa
-          state: present
-          
+        
       - name: Aditional scripts
         shell:
             - sudo apt remove chromium-browser chromium-browser-l10n chromium-codecs-ffmpeg-extra -y
@@ -288,9 +289,7 @@
             - sudo apt-key export E562B32A | sudo gpg --dearmour -o /usr/share/keyrings/debian-security-buster.gpg
             - sudo apt update
             - sudo apt install chromium -y
-            
-      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
-      
+              
     # INSTALL AND CONFIGURE PARSEC
     - name: Install requirements for Parsec
       apt:
@@ -302,9 +301,10 @@
       apt:
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
         
-
-        
-        
-    ##TODO: FIX CONKY RESTART
-    ## MAYBE CREATE A SERVICE ?
-    ## https://gist.github.com/zhsj/1d1d37e1dccc9551cfd1
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
+      
+    - name: mark installation complete
+      file:
+        path: /root/install-complete
+        state: touch
+      when: not install.stat.exists
