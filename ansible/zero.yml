@@ -38,7 +38,7 @@
         state: absent
 
      # INSTALL XORG AND Fluxbox
-    - name: install xorg and fluxbox
+    - name: install xorg
       apt:
         name:
           - xserver-xorg
@@ -58,7 +58,7 @@
 
     - name: create config directory for zero
       file:
-        path: /home/zero/.config/openbox
+        path: /home/zero/.config
         state: directory
         owner: zero
         group: zero
@@ -291,11 +291,6 @@
             - sudo apt install chromium -y
               
     # INSTALL AND CONFIGURE PARSEC
-    - name: Install requirements for Parsec
-      apt:
-        name:
-          - libqt5x11extras5
-        state: latest
 
     - name: Install Parsec
       apt:
