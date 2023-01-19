@@ -22,7 +22,7 @@
 
           - name: get debian.list
             get_url:
-                url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/debian.list
+                url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/debian.list
                 dest: /etc/apt/sources.list.d/debian.list
                 force: yes
                 owner: zero
@@ -31,7 +31,7 @@
 
           - name: get chromium.pref
             get_url:
-                url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/chromium.pref
+                url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/chromium.pref
                 dest: /etc/apt/preferences.d/chromium.pref
                 force: yes
                 owner: zero
@@ -75,7 +75,7 @@
               state: present
           - name: get ubuntu-light.png
             get_url:
-                url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/wp.jpg
+                url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/wp.jpg
                 dest: /usr/share/images/fluxbox/ubuntu-light.png
                 force: yes
                 owner: zero
