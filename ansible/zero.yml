@@ -70,7 +70,7 @@
 
     - name: get fluxbox apps file
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/apps
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/apps
         dest: /home/zero/.fluxbox/apps
         force: yes
         owner: zero
@@ -78,7 +78,7 @@
       
     - name: get fluxbox init file
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/init
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/init
         dest: /home/zero/.fluxbox/init
         force: yes
         owner: zero
@@ -86,7 +86,7 @@
               
     - name: get fluxbox keys file
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/keys
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/keys
         dest: /home/zero/.fluxbox/keys
         force: yes
         owner: zero
@@ -94,7 +94,7 @@
       
     - name: get fluxbox menu file
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/menu
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/menu
         dest: /home/zero/.fluxbox/menu
         force: yes
         owner: zero
@@ -102,7 +102,7 @@
     
     - name: get fluxbox startup file
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/startup
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/startup
         dest: /home/zero/.fluxbox/startup
         force: yes
         owner: zero
@@ -110,7 +110,7 @@
       
     - name: get startup sound
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/ubuntu_startup.wav
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/ubuntu_startup.wav
         dest: /home/zero/.fluxbox/ubuntu_startup.wav
         force: yes
         owner: zero
@@ -118,7 +118,7 @@
       
     - name: get background picture
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/wp.jpg
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/wp.jpg
         dest: /home/zero/.fluxbox/wp.jpg
         force: yes
         owner: zero
@@ -152,7 +152,7 @@
 
     - name: get conky config
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/concyrc.lua
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/concyrc.lua
         dest: /home/zero/.config/conkyrc
         force: yes
         owner: zero
@@ -194,7 +194,7 @@
         
     - name: get .bash_profile
       get_url:
-          url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/master/fluxbox/.bash_profile
+          url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/.bash_profile
           dest: /home/zero/.bash_profile
           force: yes
           owner: zero
@@ -220,7 +220,7 @@
 
     - name: get run-once.yml
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/test/ansible/run-once.yml
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/run-once.yml
         dest: /root/run-once.yml
         force: yes
         owner: root
@@ -229,7 +229,7 @@
 
     - name: get ansible cron
       get_url:
-        url: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/test/ansible/ansible-cron.sh
+        url: https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/ansible-cron.sh
         dest: /etc/cron.hourly/ansible
         force: yes
         owner: root
