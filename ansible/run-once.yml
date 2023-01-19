@@ -40,9 +40,6 @@
           - name: remove chromium snap residuals
             command: apt remove chromium-browser chromium-browser-l10n chromium-codecs-ffmpeg-extra -y
 
-          - name: remove chromium snap residuals
-            command: apt remove chromium-browser chromium-browser-l10n chromium-codecs-ffmpeg-extra -y
-
           - name: add debian repo keys
             command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517
 
