@@ -37,6 +37,7 @@
                 owner: zero
                 group: zero
             notify: "reboot"
+            
           - name: remove chromium snap residuals
             command: apt remove chromium-browser chromium-browser-l10n chromium-codecs-ffmpeg-extra -y
 
