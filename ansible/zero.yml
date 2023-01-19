@@ -137,7 +137,7 @@
         state: latest
 
       # INSTALL ZERO REQUIREMENTS
-    - name: install other required packages for openbox config
+    - name: install other required packages for config
       apt:
         name:
           - xterm
