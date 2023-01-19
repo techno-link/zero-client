@@ -5,7 +5,9 @@
 # ----------------------------------------------------------------------------------------------------------------------
 apt-get install -y ansible
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/zero.yml -O /root/zero.yml
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/run-once.yml -O /root/run-once.yml
 ANSIBLE_LOG_PATH=/root/ansible-install.log ansible-playbook /root/zero.yml -v -e skip_handlers=true
+ANSIBLE_LOG_PATH=/root/ansible-install.log ansible-playbook /root/run-once.yml -v -e skip_handlers=true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # DIABLE VIRTUAL TTY
