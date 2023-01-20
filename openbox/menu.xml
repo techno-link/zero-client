@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<openbox_menu xmlns="http://openbox.org/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://openbox.org/
+                file:///usr/share/openbox/menu.xsd">
+
+<menu id="root-menu" label="Zero Client">
+  <item label="Amazon Workspaces" icon="/opt/workspacesclient/Assets/AppIcon-512.png">
+    <action name="Execute"><execute>/opt/workspacesclient/workspacesclient</execute></action>
+  </item>
+  <item label="Parsec" icon="/usr/share/icons/hicolor/256x256/apps/parsecd.png">
+    <action name="Execute"><execute>parsecd</execute></action>
+  </item>
+  <separator />
+  <menu id="audio" label="Audio" execute="node /home/zero/audio-menu.js" />
+  <separator />
+  <item label="Reboot">
+    <action name="Execute"><execute>/sbin/reboot</execute></action>
+  </item>
+  <item label="Shutdown">
+    <action name="Execute"><execute>/sbin/poweroff</execute></action>
+  </item>
+</menu>
+
+</openbox_menu>
