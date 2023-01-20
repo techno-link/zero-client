@@ -162,7 +162,7 @@
     - name: Add apt key for workspaces repo
       apt_key:
         url: https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc
-        state: present
+        state: present 
 
     - name: Add workspaces repo
       apt_repository:
@@ -170,6 +170,15 @@
         filename: amazon-workspaces-clients
         update_cache: yes
         state: present
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
+
+    - name: Add workspaces repo
+      apt_repository:
+        repo: deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu focal main
+        filename: amazon-workspaces-clients
+        update_cache: yes
+        state: present
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
 
     - name: Install workspaces
       apt:
