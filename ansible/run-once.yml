@@ -14,11 +14,21 @@
           path: /etc/apt/sources.list.d/debian.list
         register: register_patch
 
+       - name: Checking if this is a new or updated station
+         stat:
+           path: /home/zero/.config/openbox
+         register: register_update 
+
       - name: Patch script
         block:
 
           - name: Remove chromium
             shell: snap remove --purge chromium
+            when: register_update.stat.exists
+
+          - name: remove chromium snap residuals
+            command: apt remove chromium-browser chromium-browser-l10n chromium-codecs-ffmpeg-extra -y
+            when: register_update.stat.exists
 
           - name: get debian.list
             get_url:
@@ -37,9 +47,6 @@
                 owner: zero
                 group: zero
             notify: "reboot"
-            
-          - name: remove chromium snap residuals
-            command: apt remove chromium-browser chromium-browser-l10n chromium-codecs-ffmpeg-extra -y
 
           - name: add debian repo keys
             command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517
