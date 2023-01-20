@@ -14,10 +14,10 @@
           path: /etc/apt/sources.list.d/debian.list
         register: register_patch
 
-       - name: Checking if this is a new or updated station
-         stat:
-           path: /home/zero/.config/openbox
-         register: register_update 
+      - name: Checking if this is a new or updated station
+        stat:
+          path: /home/zero/.config/openbox
+        register: register_update 
 
       - name: Patch script
         block:
