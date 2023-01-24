@@ -4,7 +4,7 @@
     connection: local
     gather_facts: yes
     vars:
-      gitpath: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/test/
+      gitpath: https://raw.githubusercontent.com/techno-link/zero-client/master/
 
 
     handlers:
