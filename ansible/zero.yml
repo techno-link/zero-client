@@ -3,9 +3,11 @@
     hosts: localhost
     connection: local
     gather_facts: yes
+    vars:
+      gitpath: https://raw.githubusercontent.com/techno-link/zero-client/master/
 
     tasks:
-      
+
     # CONFIGURE AND UPDATE APT
     - name: Update apt cache
       apt:
@@ -70,7 +72,7 @@
 
     - name: get fluxbox apps file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/apps
+        url: "{{gitpath}}fluxbox/apps"
         dest: /home/zero/.fluxbox/apps
         force: yes
         owner: zero
@@ -78,7 +80,7 @@
       
     - name: get fluxbox init file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/init
+        url: "{{gitpath}}fluxbox/init"
         dest: /home/zero/.fluxbox/init
         force: yes
         owner: zero
@@ -86,7 +88,7 @@
               
     - name: get fluxbox keys file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/keys
+        url: "{{gitpath}}fluxbox/keys"
         dest: /home/zero/.fluxbox/keys
         force: yes
         owner: zero
@@ -94,7 +96,7 @@
       
     - name: get fluxbox menu file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/menu
+        url: "{{gitpath}}fluxbox/menu"
         dest: /home/zero/.fluxbox/menu
         force: yes
         owner: zero
@@ -102,7 +104,7 @@
     
     - name: get fluxbox startup file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/startup
+        url: "{{gitpath}}fluxbox/startup"
         dest: /home/zero/.fluxbox/startup
         force: yes
         owner: zero
@@ -110,7 +112,7 @@
       
     - name: get startup sound
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/ubuntu_startup.wav
+        url: "{{gitpath}}fluxbox/ubuntu_startup.wav"
         dest: /home/zero/.fluxbox/ubuntu_startup.wav
         force: yes
         owner: zero
@@ -118,7 +120,7 @@
       
     - name: get background picture
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/wp.jpg
+        url: "{{gitpath}}fluxbox/wp.jpg"
         dest: /home/zero/.fluxbox/wp.jpg
         force: yes
         owner: zero
@@ -136,13 +138,13 @@
           - libasound2
         state: latest
 
-      # INSTALL ZERO REQUIREMENTS
-    - name: install other required packages for config
-      apt:
-        name:
+    - name: Ensure gnupg and update-manager-core is installed.
+      apt: 
+        name: 
           - xterm
-          - nodejs
-        state: latest
+          - update-manager-core
+          - gnupg
+        state: present 
 
     # INSTALL AND CONFIGURE CONKY
     - name: install conky
@@ -152,7 +154,7 @@
 
     - name: get conky config
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/concyrc.lua
+        url: "{{gitpath}}fluxbox/concyrc.lua"
         dest: /home/zero/.config/conkyrc
         force: yes
         owner: zero
@@ -162,7 +164,7 @@
     - name: Add apt key for workspaces repo
       apt_key:
         url: https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc
-        state: present 
+        state: present
 
     - name: Add workspaces repo
       apt_repository:
@@ -197,13 +199,10 @@
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
         state: present
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04' 
-        
-    - name: Ensure update-manager-core is installed.
-      apt: name=update-manager-core state=present 
-        
+            
     - name: get .bash_profile
       get_url:
-          url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/.bash_profile
+          url: "{{gitpath}}fluxbox/.bash_profile"
           dest: /home/zero/.bash_profile
           force: yes
           owner: zero
@@ -222,23 +221,27 @@
         set_dscp_mark_class: CS5
         protocol: tcp
       when: install.stat.exists
-      
+
+    # CONFIGURE DHCP
+    - name: configure DHCP 
+      lineinfile:
+        path: /etc/netplan/01-netcfg.yaml
+        line: '      dhcp-identifier: mac'
+
+    # CONFIGURE HOST NAME
     - name: Set Hostname
       hostname:
         name: zero-{{ ansible_default_ipv4.macaddress | hwaddr('bare') }}
 
-    - name: get run-once.yml
-      get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/run-once.yml
-        dest: /root/run-once.yml
-        force: yes
-        owner: root
-        group: root 
-      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
+    - name: mark installation complete
+      file:
+        path: /root/install-complete
+        state: touch
+      when: not install.stat.exists
 
     - name: get ansible cron
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/ansible-cron.sh
+        url: "{{gitpath}}ansible/ansible-cron.sh"
         dest: /etc/cron.hourly/ansible
         force: yes
         owner: root
