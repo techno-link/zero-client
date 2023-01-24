@@ -3,6 +3,9 @@
     hosts: localhost
     connection: local
     gather_facts: yes
+    vars:
+      gitpath: https://raw.githubusercontent.com/aleks-ander/zero-client-update-to-fluxbox-20.04/test/
+
 
     handlers:
     - name: reboot
@@ -13,11 +16,11 @@
         stat:
           path: /etc/apt/sources.list.d/debian.list
         register: register_patch
-
+        
       - name: Checking if this is a new or updated station
         stat:
           path: /home/zero/.config/openbox
-        register: register_update 
+        register: register_update   
 
       - name: Patch script
         block:
@@ -32,7 +35,7 @@
 
           - name: get debian.list
             get_url:
-                url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/debian.list
+                url: "{{gitpath}}fluxbox/debian.list"
                 dest: /etc/apt/sources.list.d/debian.list
                 force: yes
                 owner: zero
@@ -41,13 +44,13 @@
 
           - name: get chromium.pref
             get_url:
-                url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/chromium.pref
+                url: "{{gitpath}}fluxbox/chromium.pref"
                 dest: /etc/apt/preferences.d/chromium.pref
                 force: yes
                 owner: zero
                 group: zero
             notify: "reboot"
-
+         
           - name: add debian repo keys
             command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517
 
@@ -82,7 +85,7 @@
               state: present
           - name: get ubuntu-light.png
             get_url:
-                url: https://raw.githubusercontent.com/techno-link/zero-client/master/fluxbox/wp.jpg
+                url: "{{gitpath}}fluxbox/wp.jpg"
                 dest: /usr/share/images/fluxbox/ubuntu-light.png
                 force: yes
                 owner: zero
