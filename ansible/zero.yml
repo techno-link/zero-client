@@ -2,12 +2,12 @@
   - name: "configure zero client"
     hosts: localhost
     connection: local
-
-    handlers:
-    - name: reboot
-      command: reboot
+    gather_facts: yes
+    vars:
+      gitpath: https://raw.githubusercontent.com/techno-link/zero-client/master/
 
     tasks:
+
     # CONFIGURE AND UPDATE APT
     - name: Update apt cache
       apt:
@@ -31,61 +31,100 @@
         purge: yes
         force_apt_get: true
 
-    # INSTALL XORG AND OPENBOX
-    - name: install xorg and openbox
+    # Remove Openbox
+    - name: Remove "openbox" package
+      apt:
+        name: openbox
+        state: absent
+
+     # INSTALL XORG AND Fluxbox
+    - name: install xorg
       apt:
         name:
           - xserver-xorg
           - x11-xserver-utils
           - xinit
-          - openbox
+          - xorg
           - compton
         state: latest
         install_recommends: no
+        
+    # INSTALL FLUXBOX
+    - name: install fluxbox
+      apt:
+        name:
+          - fluxbox
+        state: latest
 
     - name: create config directory for zero
       file:
-        path: /home/zero/.config/openbox
+        path: /home/zero/.config
         state: directory
         owner: zero
         group: zero
 
-    - name: get openbox rc.xml
+    - name: create config directory for fluxbox
+      file:
+        path: /home/zero/.fluxbox
+        state: directory
+        owner: zero
+        group: zero
+
+    - name: get fluxbox apps file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/rc.xml
-        dest: /home/zero/.config/openbox/rc.xml
+        url: "{{gitpath}}fluxbox/apps"
+        dest: /home/zero/.fluxbox/apps
         force: yes
         owner: zero
         group: zero
-      notify: "reboot"
-
-    - name: get openbox menu.xml
+      
+    - name: get fluxbox init file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/menu.xml
-        dest: /home/zero/.config/openbox/menu.xml
+        url: "{{gitpath}}fluxbox/init"
+        dest: /home/zero/.fluxbox/init
         force: yes
         owner: zero
         group: zero
-      notify: "reboot"
-
-    - name: get audio-menu.js
+              
+    - name: get fluxbox keys file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/audio-menu.js
-        dest: /home/zero/audio-menu.js
+        url: "{{gitpath}}fluxbox/keys"
+        dest: /home/zero/.fluxbox/keys
         force: yes
         owner: zero
         group: zero
-      notify: "reboot"
-
-    - name: get autostart
+      
+    - name: get fluxbox menu file
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/autostart.sh
-        dest: /etc/xdg/openbox/autostart
+        url: "{{gitpath}}fluxbox/menu"
+        dest: /home/zero/.fluxbox/menu
         force: yes
-        owner: root
-        group: root
-        mode: 0755
-      notify: "reboot"
+        owner: zero
+        group: zero
+    
+    - name: get fluxbox startup file
+      get_url:
+        url: "{{gitpath}}fluxbox/startup"
+        dest: /home/zero/.fluxbox/startup
+        force: yes
+        owner: zero
+        group: zero
+      
+    - name: get startup sound
+      get_url:
+        url: "{{gitpath}}fluxbox/ubuntu_startup.wav"
+        dest: /home/zero/.fluxbox/ubuntu_startup.wav
+        force: yes
+        owner: zero
+        group: zero
+      
+    - name: get background picture
+      get_url:
+        url: "{{gitpath}}fluxbox/wp.jpg"
+        dest: /home/zero/.fluxbox/wp.jpg
+        force: yes
+        owner: zero
+        group: zero 
 
     # INSTALL PULSEAUDIO
     - name: install PulseAudio
@@ -99,13 +138,13 @@
           - libasound2
         state: latest
 
-      # INSTALL ZERO REQUIREMENTS
-    - name: install other required packages for openbox config
-      apt:
-        name:
+    - name: Ensure gnupg and update-manager-core is installed.
+      apt: 
+        name: 
           - xterm
-          - nodejs
-        state: latest
+          - update-manager-core
+          - gnupg
+        state: present 
 
     # INSTALL AND CONFIGURE CONKY
     - name: install conky
@@ -115,12 +154,11 @@
 
     - name: get conky config
       get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/master/openbox/conkyrc.lua
+        url: "{{gitpath}}fluxbox/concyrc.lua"
         dest: /home/zero/.config/conkyrc
         force: yes
         owner: zero
         group: zero
-      notify: "reboot"
 
     # INSTALL AND CONFIGURE WORKSPACES
     - name: Add apt key for workspaces repo
@@ -134,23 +172,41 @@
         filename: amazon-workspaces-clients
         update_cache: yes
         state: present
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
+
+    - name: Add workspaces repo
+      apt_repository:
+        repo: deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu focal main
+        filename: amazon-workspaces-clients
+        update_cache: yes
+        state: present
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
 
     - name: Install workspaces
       apt:
         name: workspacesclient
         state: latest
 
-    # INSTALL AND CONFIGURE WORKSPACES
+    #PARSEC Requirement
     - name: Install requirements for Parsec
       apt:
         name:
           - libqt5x11extras5
-          - chromium-browser
         state: latest
-
+        
     - name: Install Parsec
       apt:
         deb: https://builds.parsecgaming.com/package/parsec-linux.deb
+        state: present
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04' 
+            
+    - name: get .bash_profile
+      get_url:
+          url: "{{gitpath}}fluxbox/.bash_profile"
+          dest: /home/zero/.bash_profile
+          force: yes
+          owner: zero
+          group: zero      
 
     # CONFIGURE IPTABLES TO MARK TRAFFIC AFTER INSTALL
     - stat:
@@ -166,12 +222,33 @@
         protocol: tcp
       when: install.stat.exists
 
+    # CONFIGURE DHCP
+    - name: configure DHCP 
+      lineinfile:
+        path: /etc/netplan/01-netcfg.yaml
+        line: '      dhcp-identifier: mac'
+
+    # CONFIGURE HOST NAME
+    - name: Set Hostname
+      hostname:
+        name: zero-{{ ansible_default_ipv4.macaddress | hwaddr('bare') }}
+
     - name: mark installation complete
       file:
         path: /root/install-complete
         state: touch
       when: not install.stat.exists
 
-    ##TODO: FIX CONKY RESTART
-    ## MAYBE CREATE A SERVICE ?
-    ## https://gist.github.com/zhsj/1d1d37e1dccc9551cfd1
+    - name: get ansible cron
+      get_url:
+        url: "{{gitpath}}ansible/ansible-cron.sh"
+        dest: /etc/cron.hourly/ansible
+        force: yes
+        owner: root
+        group: root 
+        mode: a+x
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
+
+    - name: Run do-release-upgrade non-interactively.
+      shell: do-release-upgrade -f DistUpgradeViewNonInteractive
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'

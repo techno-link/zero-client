@@ -5,7 +5,9 @@
 # ----------------------------------------------------------------------------------------------------------------------
 apt-get install -y ansible
 wget https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/zero.yml -O /root/zero.yml
+wget https://raw.githubusercontent.com/techno-link/zero-client/master/ansible/run-once.yml -O /root/run-once.yml
 ANSIBLE_LOG_PATH=/root/ansible-install.log ansible-playbook /root/zero.yml -v -e skip_handlers=true
+ANSIBLE_LOG_PATH=/root/ansible-install.log ansible-playbook /root/run-once.yml -v -e skip_handlers=true
 
 # ----------------------------------------------------------------------------------------------------------------------
 # DIABLE VIRTUAL TTY
@@ -27,8 +29,8 @@ ExecStart=-/sbin/agetty --skip-login --noissue --autologin zero --noclear %I $TE
 Type=idle
 EOF
 
-echo '[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx >/dev/null 2>&1' >/home/zero/.bash_profile
-chown zero:zero /home/zero/.bash_profile
+#echo '[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx >/dev/null 2>&1' >/home/zero/.bash_profile
+#chown zero:zero /home/zero/.bash_profile
 
 touch /home/zero/.hushlogin
 chown zero:zero /home/zero/.hushlogin

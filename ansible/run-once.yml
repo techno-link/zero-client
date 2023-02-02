@@ -1,0 +1,95 @@
+---
+  - name: "configure zero client"
+    hosts: localhost
+    connection: local
+    gather_facts: yes
+    vars:
+      gitpath: https://raw.githubusercontent.com/techno-link/zero-client/master/
+
+
+    handlers:
+    - name: reboot
+      command: reboot
+
+    tasks:
+      - name: Checking if patch script has been run before
+        stat:
+          path: /etc/apt/sources.list.d/debian.list
+        register: register_patch
+        
+      - name: Checking if this is a new or updated station
+        stat:
+          path: /home/zero/.config/openbox
+        register: register_update   
+
+      - name: Patch script
+        block:
+
+          - name: Remove chromium
+            shell: snap remove --purge chromium
+            when: register_update.stat.exists
+
+          - name: remove chromium snap residuals
+            command: apt remove chromium-browser chromium-browser-l10n chromium-codecs-ffmpeg-extra -y
+            when: register_update.stat.exists
+
+          - name: get debian.list
+            get_url:
+                url: "{{gitpath}}fluxbox/debian.list"
+                dest: /etc/apt/sources.list.d/debian.list
+                force: yes
+                owner: zero
+                group: zero
+            notify: "reboot"
+
+          - name: get chromium.pref
+            get_url:
+                url: "{{gitpath}}fluxbox/chromium.pref"
+                dest: /etc/apt/preferences.d/chromium.pref
+                force: yes
+                owner: zero
+                group: zero
+            notify: "reboot"
+         
+          - name: add debian repo keys
+            command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517
+
+          - name: add debian repo keys
+            command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+
+          - name: add debian repo keys
+            command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 112695A0E562B32A
+
+          - name: add debian repo keys
+            shell: apt-key export 77E11517 | sudo gpg --batch --yes --dearmour -o /usr/share/keyrings/debian-buster.gpg
+
+          - name: add debian repo keys
+            shell: apt-key export 22F3D138 | sudo gpg --batch --yes --dearmour -o /usr/share/keyrings/debian-buster-updates.gpg
+
+          - name: add debian repo keys
+            shell: apt-key export E562B32A | sudo gpg --batch --yes --dearmour -o /usr/share/keyrings/debian-security-buster.gpg
+
+          - name: Update apt cache
+            apt:
+              update_cache: yes
+              force_apt_get: true
+
+          - name: Install Chromium for Parsec from Debian Repo
+            apt:
+              name: chromium
+          - name: Install additional packets missing after update to 20.04
+            apt:
+              name:
+                - xserver-xorg-video-fbdev
+                - xserver-xorg-video-vesa
+              state: present
+          - name: get ubuntu-light.png
+            get_url:
+                url: "{{gitpath}}fluxbox/wp.jpg"
+                dest: /usr/share/images/fluxbox/ubuntu-light.png
+                force: yes
+                owner: zero
+                group: zero
+            notify: "reboot"
+
+        when: not register_patch.stat.exists
