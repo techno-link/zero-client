@@ -77,7 +77,7 @@
         force: yes
         owner: zero
         group: zero
-      
+
     - name: get fluxbox init file
       get_url:
         url: "{{gitpath}}fluxbox/init"
@@ -93,7 +93,13 @@
         force: yes
         owner: zero
         group: zero
-      
+ 
+    - name: update keys file add CtlAltTab
+      lineinfile:
+        path: /home/zero/.fluxbox/keys
+        line: "Control Mod1 Tab :NextWindow {groups} (workspace=[current])"
+        state: present
+ 
     - name: get fluxbox menu file
       get_url:
         url: "{{gitpath}}fluxbox/menu"
