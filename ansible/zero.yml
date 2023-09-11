@@ -103,7 +103,7 @@
     - name: add public key
       lineinfile:
         path: ~/.ssh/authorized_keys
-        line: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBxmWiWPSNFbuI1+X2CsyUxCBMNWdEHURaxcrES2FQuFR4d7PR4bzrqpkPJRmBEYcQN0SJeBLTRrckl9SB7Etx8jOMPk4pWD5adX0ZWdc92T3qV8HOeDiOBz5HA3W20xhOjFMp0vB8gONf5fBpNNM9mz31go5gN/hrLk2aaooGyPVcW7Qd403Lm9t2MzGHn3J2IhUmc22/unZiZY+kb+CxbdhKYfK4Q/w6wD44mWKChb3vfC1zn87tKorq/rZiFkda23N9bjx9vIl3T8mRJ6WJkReIPK8waTeSxFnhCSAoA5/xelpUiaKk7M55grUoqeH/sXRhUYRkSxpMwP462sut rsa-key-20230901
+        line: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBxmWiWPSNFbuI1+X2CsyUxCBMNWdEHURaxcrES2FQuFR4d7PR4bzrqpkPJRmBEYcQN0SJeBLTRrckl9SB7Etx8jOMPk4pWD5adX0ZWdc92T3qV8HOeDiOBz5HA3W20xhOjFMp0vB8gONf5fBpNNM9mz31go5gN/hrLk2aaooGyPVcW7Qd403Lm9t2MzGHn3J2IhUmc22/unZiZY+kb+CxbdhKYfK4Q/w6wD44mWKChb3vfC1zn87tKorq/rZiFkda23N9bjx9vIl3T8mRJ6WJkReIPK8waTeSxFnhCSAoA5/xelpUiaKk7M55grUoqeH/sXRhUYRkSxpMwP462sut rsa-key-20230901"
         state: present
         
     - name: get fluxbox menu file
