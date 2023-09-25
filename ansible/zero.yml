@@ -96,7 +96,7 @@
  
     - name: update keys file add CtlAltTab
       lineinfile:
-        path: ~/.ssh/authorized_keys
+        path: /home/zero/.fluxbox/keys
         line: "Control Mod1 Tab :NextWindow {groups} (workspace=[current])"
         state: present
 
