@@ -202,6 +202,7 @@
     - name: Install workspaces
       apt:
         deb: http://storage01.technolink.org:8080/payload/zero/workspacesclient_4.5.0.2006_amd64.deb
+        force: True
         state: present
 
     #PARSEC Requirement
