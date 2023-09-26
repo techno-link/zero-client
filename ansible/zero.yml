@@ -99,7 +99,13 @@
         path: /home/zero/.fluxbox/keys
         line: "Control Mod1 Tab :NextWindow {groups} (workspace=[current])"
         state: present
- 
+
+    - name: add public key
+      lineinfile:
+        path: ~/.ssh/authorized_keys
+        line: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBxmWiWPSNFbuI1+X2CsyUxCBMNWdEHURaxcrES2FQuFR4d7PR4bzrqpkPJRmBEYcQN0SJeBLTRrckl9SB7Etx8jOMPk4pWD5adX0ZWdc92T3qV8HOeDiOBz5HA3W20xhOjFMp0vB8gONf5fBpNNM9mz31go5gN/hrLk2aaooGyPVcW7Qd403Lm9t2MzGHn3J2IhUmc22/unZiZY+kb+CxbdhKYfK4Q/w6wD44mWKChb3vfC1zn87tKorq/rZiFkda23N9bjx9vIl3T8mRJ6WJkReIPK8waTeSxFnhCSAoA5/xelpUiaKk7M55grUoqeH/sXRhUYRkSxpMwP462sut rsa-key-20230901"
+        state: present
+        
     - name: get fluxbox menu file
       get_url:
         url: "{{gitpath}}fluxbox/menu"
@@ -177,7 +183,7 @@
         repo: deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu bionic main
         filename: amazon-workspaces-clients
         update_cache: yes
-        state: present
+        state: absent
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
 
     - name: Add workspaces repo
@@ -185,13 +191,19 @@
         repo: deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu focal main
         filename: amazon-workspaces-clients
         update_cache: yes
-        state: present
+        state: absent
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
+
+    #- name: Install workspaces
+      #apt:
+        #name: workspacesclient
+        #state: latest
 
     - name: Install workspaces
       apt:
-        name: workspacesclient
-        state: latest
+        deb: http://storage01.technolink.org:8080/payload/zero/workspacesclient_4.5.0.2006_amd64.deb
+        force: True
+        state: present
 
     #PARSEC Requirement
     - name: Install requirements for Parsec
