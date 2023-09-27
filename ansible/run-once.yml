@@ -50,7 +50,14 @@
                 owner: zero
                 group: zero
             notify: "reboot"
-         
+            
+          - name: Ensure gnupg and update-manager-core is installed.
+            apt: 
+              name: 
+                - update-manager-core
+                - gnupg
+              state: present           
+              
           - name: add debian repo keys
             command: apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DCC9EFBF77E11517
 
