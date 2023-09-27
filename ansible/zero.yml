@@ -216,6 +216,7 @@
       apt:
         deb: https://builds.parsec.app/package/parsec-linux.deb
         state: present
+        force: True
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04' 
             
     - name: get .bash_profile
