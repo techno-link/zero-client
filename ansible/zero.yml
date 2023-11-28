@@ -177,7 +177,7 @@
         repo: deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu bionic main
         filename: amazon-workspaces-clients
         update_cache: yes
-        state: absent
+        state: present
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
 
     - name: Add workspaces repo
@@ -185,19 +185,19 @@
         repo: deb [arch=amd64] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu focal main
         filename: amazon-workspaces-clients
         update_cache: yes
-        state: absent
+        state: present
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
-
-    #- name: Install workspaces
-      #apt:
-        #name: workspacesclient
-        #state: latest
 
     - name: Install workspaces
       apt:
-        deb: http://storage01.technolink.org:8080/payload/zero/workspacesclient_4.5.0.2006_amd64.deb
-        force: True
-        state: present
+        name: workspacesclient
+        state: latest
+
+    #- name: Install workspaces
+      #apt:
+        #deb: http://storage01.technolink.org:8080/payload/zero/workspacesclient_4.5.0.2006_amd64.deb
+        #force: True
+        #state: present
 
     #PARSEC Requirement
     - name: Install requirements for Parsec
