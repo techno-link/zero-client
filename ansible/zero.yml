@@ -35,27 +35,21 @@
     - name: Remove "openbox" package
       apt:
         name: openbox
-        state: absent
-
-     # INSTALL XORG AND Fluxbox
-    - name: install xorg
-      apt:
-        name:
-          - xserver-xorg
-          - x11-xserver-utils
-          - xinit
-          - xorg
-          - compton
         state: latest
         install_recommends: no
-        
-    # INSTALL FLUXBOX
-    - name: install fluxbox
-      apt:
-        name:
-          - fluxbox
-        state: latest
 
+#     # INSTALL XORG AND Fluxbox
+#    - name: install xorg
+#      apt:
+#        name:
+#          - xserver-xorg
+#          - x11-xserver-utils
+#          - xinit
+#          - xorg
+#          - compton
+#        state: latest
+#        install_recommends: no
+        
     - name: create config directory for zero
       file:
         path: /home/zero/.config
