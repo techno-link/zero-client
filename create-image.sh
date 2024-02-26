@@ -44,7 +44,7 @@ chroot $ROOT_MOUNT_PATH
 
 # MODIFY SYSTEM
 apt update
-apt install -y linux-image-amd64
+apt install -y linux-image-generic
 apt install -y grub-efi-amd64
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --no-nvram
 update-grub
@@ -63,6 +63,7 @@ exit
 umount $ROOT_MOUNT_PATH/proc
 umount $ROOT_MOUNT_PATH/sys
 umount $ROOT_MOUNT_PATH/dev
+umount $ROOT_MOUNT_PATH/boot/efi
 umount $ROOT_MOUNT_PATH
 losetup -d /dev/loop0
 
