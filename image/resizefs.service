@@ -1,0 +1,11 @@
+[Unit]
+Description=Expand Root Filesystem
+Before=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/resizefs.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

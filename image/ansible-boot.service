@@ -1,0 +1,12 @@
+[Unit]
+Description=Ansible Boot Update
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/ansible-boot.sh
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
