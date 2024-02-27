@@ -2,8 +2,9 @@
 set -euox pipefail
 
 # KERNEL AND GRUB
-apt install -y linux-image-generic grub-efi-amd64
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck
+apt install -y linux-image-generic grub-efi-amd64 kbd
+mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=debian --recheck
 update-grub
 
 # INSTALL ANSIBLE
@@ -23,6 +24,12 @@ systemctl enable resizefs.service
 # ADD DEFAULT USER
 useradd -m -d /home/zero zero
 
+### DEV OPTIONS TODO: REMOVE
+usermod -aG sudo zero
+echo "zero:123456789" | chpasswd
+echo "root:123456789" | chpasswd
+echo -e "\033[31m!!! MODIFIED FOR DEV !!!\033[0m"
+### END DEV OPTIONS
+
 # RUN ANSIBLE INSIDE CHROOT
 ANSIBLE_LOG_PATH=/root/ansible.log ansible-playbook /root/zero.yml -v
-

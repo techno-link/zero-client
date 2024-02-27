@@ -8,7 +8,7 @@ ANSIBLE_DIR="$SCRIPT_DIR/../ansible"
 ROOT_MOUNT_PATH="/mnt/zero-img/"
 
 # CREATE EMPTY IMAGE
-dd if=/dev/zero of=zero-client.img bs=1G count=6
+dd if=/dev/zero of=zero-client.img bs=1G count=4
 
 # POSE THE IMAGE AS BLOCK DEVICE ON /dev/loop0
 losetup -fP zero-client.img
@@ -30,13 +30,15 @@ mount /dev/loop0p2 $ROOT_MOUNT_PATH
 
 debootstrap --arch=amd64 jammy $ROOT_MOUNT_PATH http://archive.ubuntu.com/ubuntu/
 
-mkdir -p $ROOT_MOUNT_PATH/boot/efi
-mount /dev/loop0p1 $ROOT_MOUNT_PATH/boot/efi
+mkdir -p $ROOT_MOUNT_PATH/efi
+mount /dev/loop0p1 $ROOT_MOUNT_PATH/efi
 
 # PREPARE FOR CHROOT
 mount --bind /dev $ROOT_MOUNT_PATH/dev
+mount --bind /dev/pts $ROOT_MOUNT_PATH/dev/pts
 mount --bind /proc $ROOT_MOUNT_PATH/proc
 mount --bind /sys $ROOT_MOUNT_PATH/sys
+mount --bind /run $ROOT_MOUNT_PATH/run
 
 # CUSTOM SERVICES
 cp "$SERVICES_DIR/resizefs.sh" "$ROOT_MOUNT_PATH/usr/local/bin/resizefs.sh"
@@ -54,9 +56,11 @@ chroot $ROOT_MOUNT_PATH /root/modify-chroot.sh
 rm "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
 
 # CLEANUP
+umount $ROOT_MOUNT_PATH/dev/pts
+umount $ROOT_MOUNT_PATH/dev
 umount $ROOT_MOUNT_PATH/proc
 umount $ROOT_MOUNT_PATH/sys
-umount $ROOT_MOUNT_PATH/dev
-umount $ROOT_MOUNT_PATH/boot/efi
+umount $ROOT_MOUNT_PATH/runste
+umount $ROOT_MOUNT_PATH/efi
 umount $ROOT_MOUNT_PATH
 losetup -d /dev/loop0

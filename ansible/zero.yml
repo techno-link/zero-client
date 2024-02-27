@@ -22,6 +22,12 @@
     # ------------------------------------------------------------------------------------------------------------------
     # UPDATE AND CLEANUP APT
     # ------------------------------------------------------------------------------------------------------------------
+    - name: Add the Universe repository
+      ansible.builtin.apt_repository:
+        repo: 'deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe'
+        state: present
+        update_cache: yes
+
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: yes
@@ -92,7 +98,7 @@
 
     - name: Check if .bash_profile exists
       ansible.builtin.stat:
-        path: "{{ home_directory }}/.bash_profile"
+        path: "/home/zero/.bash_profile"
       register: bash_profile
 
     - name: Add X server start script to .bash_profile
