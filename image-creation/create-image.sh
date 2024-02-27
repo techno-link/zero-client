@@ -5,7 +5,7 @@ set -euox pipefail
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 SERVICES_DIR="$SCRIPT_DIR/../services"
 ANSIBLE_DIR="$SCRIPT_DIR/../ansible"
-ROOT_MOUNT_PATH="/mnt/zero-img/"
+ROOT_MOUNT_PATH="/mnt/zero-img"
 
 # CREATE EMPTY IMAGE
 dd if=/dev/zero of=zero-client.img bs=1G count=4
@@ -21,7 +21,7 @@ losetup -fP zero-client.img
 } | sfdisk /dev/loop0
 
 # FORMAT THE PARTITIONS
-mkfs.vfat -F 32 /dev/loop0p1 # Format the EFI partition as FAT32
+mkfs.vfat -F32 /dev/loop0p1  # Format the EFI partition as FAT32
 mkfs.ext4 /dev/loop0p2       # Format the Linux partition as ext4
 
 # MOUNT THE BLOCK DEVICE AND BOOTSTRAP
@@ -49,6 +49,22 @@ cp "$SERVICES_DIR/ansible-boot.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ans
 # ANSIBLE PLAYBOOKS
 cp "$ANSIBLE_DIR/zero.yml" "$ROOT_MOUNT_PATH/root/zero.yml"
 
+# CONFIGURE FSTAB
+EFI_UUID=$(blkid -s UUID -o value /dev/loop0p1)
+LINUX_UUID=$(blkid -s UUID -o value /dev/loop0p2)
+
+cat << EOF > $ROOT_MOUNT_PATH/etc/fstab
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+#
+# <file system> <mount point> <type> <options> <dump> <pass>
+/dev/disk/by-uuid/$LINUX_UUID / ext4 defaults 0 1
+/dev/disk/by-uuid/$EFI_UUID /efi vfat defaults 0 1
+EOF
+
 # CHROOT
 cp "$SCRIPT_DIR/modify-chroot.sh" "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
 chmod +x "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
@@ -59,8 +75,9 @@ rm "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
 umount $ROOT_MOUNT_PATH/dev/pts
 umount $ROOT_MOUNT_PATH/dev
 umount $ROOT_MOUNT_PATH/proc
-umount $ROOT_MOUNT_PATH/sys
-umount $ROOT_MOUNT_PATH/runste
+umount $ROOT_MOUNT_PATH/run
 umount $ROOT_MOUNT_PATH/efi
+umount $ROOT_MOUNT_PATH/sys/firmware/efi/efivars
+umount $ROOT_MOUNT_PATH/sys
 umount $ROOT_MOUNT_PATH
 losetup -d /dev/loop0
