@@ -2,8 +2,7 @@
 set -euox pipefail
 
 # KERNEL AND GRUB
-apt install -y linux-image-generic
-apt install -y grub-efi-amd64
+apt install -y linux-image-generic grub-efi-amd64
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck
 update-grub
 
@@ -24,4 +23,6 @@ systemctl enable resizefs.service
 # ADD DEFAULT USER
 useradd -m -d /home/zero zero
 
-# TODO: RUN ANSIBLE IN CHROOT
+# RUN ANSIBLE INSIDE CHROOT
+ANSIBLE_LOG_PATH=/root/ansible.log ansible-playbook /root/zero.yml -v
+

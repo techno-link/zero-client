@@ -4,6 +4,7 @@ set -euox pipefail
 # VARS
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
 SERVICES_DIR="$SCRIPT_DIR/../services"
+ANSIBLE_DIR="$SCRIPT_DIR/../ansible"
 ROOT_MOUNT_PATH="/mnt/zero-img/"
 
 # CREATE EMPTY IMAGE
@@ -43,6 +44,9 @@ cp "$SERVICES_DIR/resizefs.service" "$ROOT_MOUNT_PATH/etc/systemd/system/resizef
 cp "$SERVICES_DIR/ansible-boot.sh" "$ROOT_MOUNT_PATH/usr/local/bin/ansible-boot.sh"
 cp "$SERVICES_DIR/ansible-boot.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-boot.service"
 
+# ANSIBLE PLAYBOOKS
+cp "$ANSIBLE_DIR/zero.yml" "$ROOT_MOUNT_PATH/root/zero.yml"
+
 # CHROOT
 cp "$SCRIPT_DIR/modify-chroot.sh" "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
 chmod +x "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
@@ -56,7 +60,3 @@ umount $ROOT_MOUNT_PATH/dev
 umount $ROOT_MOUNT_PATH/boot/efi
 umount $ROOT_MOUNT_PATH
 losetup -d /dev/loop0
-
-# ANSIBLE ADD
-# 1. DISABLE TTY 2 to 6
-# 2. SET AUTOLOGIN
