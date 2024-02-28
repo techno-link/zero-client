@@ -1,22 +1,20 @@
-#!/bin/bash
-
 # Disable any form of screen saver / screen blanking / power management
-xset s off
-xset s noblank
-xset -dpms
+xset s off &
+xset s noblank &
+xset -dpms &
 
 # Set Wallpaper
-xsetroot -solid "#0C1A2A"
-feh --bg-center /home/zero/.config/openbox/wallpaper.jpg
+xsetroot -solid "#0C1A2A" &
+feh --bg-center /home/zero/.config/openbox/wallpaper.jpg &
 
 # Autostart Composite Manager
-picom -b
+picom -b &
 
 # Autostart Conky
-conky -c /zero/home/.config/conkyrc
+conky -c /home/zero/.config/conky/conkyrc &
 
 # Autostart PulseAudio
-start-pulseaudio-x11
+start-pulseaudio-x11 &
 
 # Autostart Workspace Client
-/opt/workspacesclient/workspacesclient
+/opt/workspacesclient/workspacesclient &

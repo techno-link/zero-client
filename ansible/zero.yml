@@ -127,7 +127,7 @@
         state: latest
 
     - name: mark traffic through ip tables
-      iptables:
+      ansible.builtin.iptables:
         chain: OUTPUT
         jump: DSCP
         table: mangle
@@ -135,7 +135,8 @@
         protocol: tcp
       when: not in_chroot.stat.exists
 
-    - name: Update hostname with MAC address
+    - name: Update hostname
+      # TODO: FIX ME WITH LATEST BRANCH NAME OR SOME VERSION ?
       ansible.builtin.hostname:
         name: "ZC-DEV"
 
@@ -195,11 +196,11 @@
         force: yes
 
     # ------------------------------------------------------------------------------------------------------------------
-    # DIRECTORIES
+    # WORKSPACE CONFIG
     # ------------------------------------------------------------------------------------------------------------------
     - name: Create required directories for zero user
       ansible.builtin.file:
-        path: {{ item }}
+        path: "{{ item }}"
         state: directory
         owner: zero
         group: zero
@@ -208,71 +209,22 @@
         "/home/zero/.config/openbox",
         "/home/zero/Downloads",
       ]
-      notify: Reload systemd
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # WORKSPACE CONFIG
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Create config directory for zero
-      file:
-        path: /home/zero/.config/openbox
-        state: directory
-        owner: zero
-        group: zero
-
-    - name: Get openbox rc.xml
+    - name: Get workspace configs
       ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/rc.xml
-        dest: /home/zero/.config/openbox/rc.xml
+        url: "https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/{{ item.file }}"
+        dest: "{{ item.dest }}"
         force: yes
         owner: zero
         group: zero
-      notify: Reboot
-
-    - name: Get openbox menu.xml
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/menu.xml
-        dest: /home/zero/.config/openbox/menu.xml
-        force: yes
-        owner: zero
-        group: zero
-      notify: Reboot
-
-    - name: Get audio-menu.js
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/audio-menu.js
-        dest: /home/zero/.config/openbox/audio-menu.js
-        force: yes
-        owner: zero
-        group: zero
-      notify: Reboot
-
-    - name: Get autostart
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/autostart.sh
-        dest: /etc/xdg/openbox/autostart
-        force: yes
-        owner: root
-        group: root
-        mode: '0755'
-      notify: Reboot
-
-    - name: Get conky config
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/conkyrc.lua
-        dest: /home/zero/.config/conkyrc
-        force: yes
-        owner: zero
-        group: zero
-      notify: Reboot
-
-    - name: Get wallpaper image
-      ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/wallpaper.jpg
-        dest: /home/zero/.config/openbox/wallpaper.jpg
-        force: yes
-        owner: zero
-        group: zero
+        mode: "{{ item.mode | default(omit) }}"
+      loop:
+        - { file: 'rc.xml', dest: '/home/zero/.config/openbox/rc.xml' }
+        - { file: 'menu.xml', dest: '/home/zero/.config/openbox/menu.xml' }
+        - { file: 'audio-menu.js', dest: '/home/zero/.config/openbox/audio-menu.js', mode: '0755' }
+        - { file: 'autostart.sh', dest: '/home/zero/.config/openbox/autostart', mode: '0755' }
+        - { file: 'conkyrc.lua', dest: '/home/zero/.config/conkyrc' }
+        - { file: 'wallpaper.jpg', dest: '/home/zero/.config/openbox/wallpaper.jpg' }
       notify: Reboot
 
     # ------------------------------------------------------------------------------------------------------------------
