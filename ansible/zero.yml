@@ -73,7 +73,7 @@
 
     - name: Configure autologin for tty1
       ansible.builtin.copy:
-        dest: "/etc/systemd/system/getty@tty1.service.d/override.conf"
+        dest: '/etc/systemd/system/getty@tty1.service.d/override.conf'
         content: |
           [Service]
           ExecStart=
@@ -98,7 +98,7 @@
     # ------------------------------------------------------------------------------------------------------------------
     - name: Create Netplan configuration for DHCP
       ansible.builtin.copy:
-        dest: /etc/netplan/01-dhcp.yaml
+        dest: '/etc/netplan/01-dhcp.yaml'
         content: |
           network:
             version: 2
@@ -171,12 +171,12 @@
 
     - name: Check if .bash_profile exists
       ansible.builtin.stat:
-        path: "/home/zero/.bash_profile"
+        path: '/home/zero/.bash_profile'
       register: bash_profile
 
     - name: Replace .bash_profile with X server start script if contents are different
       ansible.builtin.copy:
-        dest: "/home/zero/.bash_profile"
+        dest: '/home/zero/.bash_profile'
         content: |
           if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
               startx
@@ -188,7 +188,7 @@
 
     - name: Configure .xinitrc to start Openbox
       ansible.builtin.copy:
-        dest: "/home/zero/.xinitrc"
+        dest: '/home/zero/.xinitrc'
         content: "exec openbox-session\n"
         mode: '0644'
         owner: zero
@@ -205,9 +205,10 @@
         owner: zero
         group: zero
       loop: [
-        "/home/zero/.config",
-        "/home/zero/.config/openbox",
-        "/home/zero/Downloads",
+        '/home/zero/.config',
+        '/home/zero/.config/openbox',
+        '/home/zero/.config/conky',
+        '/home/zero/Downloads',
       ]
 
     - name: Get workspace configs
@@ -232,14 +233,14 @@
     # ------------------------------------------------------------------------------------------------------------------
     - name: Download the AWS Workspaces package if it has been updated
       ansible.builtin.get_url:
-        url: https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb
-        dest: /home/zero/Downloads/workspace_client.deb
+        url: 'https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb'
+        dest: '/home/zero/Downloads/workspace_client.deb'
         force: yes
         mode: '0755'
 
     - name: Install the downloaded AWS Workspaces package
       ansible.builtin.apt:
-        deb: /home/zero/Downloads/workspace_client.deb
+        deb: '/home/zero/Downloads/workspace_client.deb'
 
     # ------------------------------------------------------------------------------------------------------------------
     # PARSEC CLIENT INSTALL
@@ -251,13 +252,17 @@
           - firefox
         state: latest
 
+    - name: Set default x-www-browser to Firefox
+      ansible.builtin.command:
+        cmd: 'update-alternatives --set x-www-browser /usr/bin/firefox'
+
     - name: Download the Parsec package if it has been updated
       ansible.builtin.get_url:
-        url: https://builds.parsec.app/package/parsec-linux.deb
-        dest: /home/zero/Downloads/parsec-linux.deb
+        url: 'https://builds.parsec.app/package/parsec-linux.deb'
+        dest: '/home/zero/Downloads/parsec-linux.deb'
         force: yes
         mode: '0755'
 
     - name: Install the downloaded Parsec package
       ansible.builtin.apt:
-        deb: /home/zero/Downloads/parsec-linux.deb
+        deb: '/home/zero/Downloads/parsec-linux.deb'
