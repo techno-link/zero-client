@@ -21,8 +21,8 @@ losetup -fP zero-client.img
 } | sfdisk /dev/loop0
 
 # FORMAT THE PARTITIONS
-mkfs.vfat -F32 /dev/loop0p1  # Format the EFI partition as FAT32
-mkfs.ext4 /dev/loop0p2       # Format the Linux partition as ext4
+mkfs.vfat -F32 /dev/loop0p1 # Format the EFI partition as FAT32
+mkfs.ext4 /dev/loop0p2      # Format the Linux partition as ext4
 
 # MOUNT THE BLOCK DEVICE AND BOOTSTRAP
 mkdir -p $ROOT_MOUNT_PATH
@@ -40,6 +40,9 @@ mount --bind /proc $ROOT_MOUNT_PATH/proc
 mount --bind /sys $ROOT_MOUNT_PATH/sys
 mount --bind /run $ROOT_MOUNT_PATH/run
 
+# MARK CHROOT
+touch "$ROOT_MOUNT_PATH/root/in_chroot"
+
 # CUSTOM SERVICES
 cp "$SERVICES_DIR/resizefs.sh" "$ROOT_MOUNT_PATH/usr/local/bin/resizefs.sh"
 cp "$SERVICES_DIR/resizefs.service" "$ROOT_MOUNT_PATH/etc/systemd/system/resizefs.service"
@@ -53,7 +56,7 @@ cp "$ANSIBLE_DIR/zero.yml" "$ROOT_MOUNT_PATH/root/zero.yml"
 EFI_UUID=$(blkid -s UUID -o value /dev/loop0p1)
 LINUX_UUID=$(blkid -s UUID -o value /dev/loop0p2)
 
-cat << EOF > $ROOT_MOUNT_PATH/etc/fstab
+cat <<EOF >$ROOT_MOUNT_PATH/etc/fstab
 # /etc/fstab: static file system information.
 #
 # Use 'blkid' to print the universally unique identifier for a
@@ -61,7 +64,7 @@ cat << EOF > $ROOT_MOUNT_PATH/etc/fstab
 # that works even if disks are added and removed. See fstab(5).
 #
 # <file system> <mount point> <type> <options> <dump> <pass>
-/dev/disk/by-uuid/$LINUX_UUID / ext4 defaults 0 1
+/dev/disk/by-uuid/$LINUX_UUID / ext4 defaults,noatime,nodiratime 0 1
 /dev/disk/by-uuid/$EFI_UUID /efi vfat defaults 0 1
 EOF
 
@@ -72,6 +75,8 @@ chroot $ROOT_MOUNT_PATH /root/modify-chroot.sh
 rm "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
 
 # CLEANUP
+rm "$ROOT_MOUNT_PATH/root/in_chroot"
+sync
 umount $ROOT_MOUNT_PATH/dev/pts
 umount $ROOT_MOUNT_PATH/dev
 umount $ROOT_MOUNT_PATH/proc
@@ -80,4 +85,6 @@ umount $ROOT_MOUNT_PATH/efi
 umount $ROOT_MOUNT_PATH/sys/firmware/efi/efivars
 umount $ROOT_MOUNT_PATH/sys
 umount $ROOT_MOUNT_PATH
+fsck.vfat -v -a /dev/loop0p1
+fsck.ext4 -f -v -y /dev/loop0p2
 losetup -d /dev/loop0

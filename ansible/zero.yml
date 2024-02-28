@@ -20,16 +20,14 @@
     - name: Apply netplan configuration
       ansible.builtin.command:
         cmd: netplan apply
-      listen: "apply netplan configuration"
-
-    - name: Restart network
-      ansible.builtin.service:
-        name: networking
-        state: restarted
-      listen: "restart network"
-
+      when: not in_chroot.stat.exists
 
   tasks:
+    - name: Check if the file exists
+      ansible.builtin.stat:
+        path: /root/in_chroot
+      register: in_chroot
+
     # ------------------------------------------------------------------------------------------------------------------
     # UPDATE AND CLEANUP APT
     # ------------------------------------------------------------------------------------------------------------------
@@ -67,17 +65,16 @@
         mode: '0755'
 
     - name: Configure autologin for tty1
-      ansible.builtin.blockinfile:
-        path: /etc/systemd/system/getty@tty1.service.d/override.conf
-        create: yes
-        block: |
+      ansible.builtin.copy:
+        dest: "/etc/systemd/system/getty@tty1.service.d/override.conf"
+        content: |
           [Service]
           ExecStart=
           ExecStart=-/sbin/agetty --autologin zero --noclear %I 38400 linux
-        marker: "# {mark} ANSIBLE MANAGED BLOCK for autologin"
         owner: root
         group: root
         mode: '0644'
+        force: yes
       notify: Reload systemd and restart getty@tty1
 
     - name: Disable other TTYs (tty2-tty6)
@@ -100,16 +97,27 @@
             version: 2
             renderer: networkd
             ethernets:
-              en*:
+              primary:
+                match:
+                  name: en*
                 dhcp4: true
                 dhcp-identifier: mac
-              eth*:
-                dhcp4: true
-                dhcp-identifier: mac3
         owner: root
         group: root
         mode: '0644'
+        force: yes
       notify: Apply netplan configuration
+
+    - name: Install basic network debugging tools
+      ansible.builtin.apt:
+        name:
+          - iptables
+          - dnsutils
+          - iputils-ping
+          - traceroute
+          - net-tools
+          - tcpdump
+        state: latest
 
     - name: mark traffic through ip tables
       iptables:
@@ -118,17 +126,11 @@
         table: mangle
         set_dscp_mark_class: CS5
         protocol: tcp
-      when: install.stat.exists
-
-    - name: Extract MAC address of the primary Ethernet interface
-      set_fact:
-        mac_address: "{{ ansible_facts['net'][ansible_facts.interfaces | select('match', '^e') | first]['macaddress'] | replace(':', '') | upper }}"
+      when: not in_chroot.stat.exists
 
     - name: Update hostname with MAC address
       ansible.builtin.hostname:
-        name: "ZC-{{ mac_address }}"
-      when: ansible_virtualization_type != "chroot"
-      notify: Restart network
+        name: "ZC-DEV"
 
     # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI
@@ -161,17 +163,18 @@
         path: "/home/zero/.bash_profile"
       register: bash_profile
 
-    - name: Add X server start script to .bash_profile
-      ansible.builtin.lineinfile:
-        path: "/home/zero/.bash_profile"
-        create: yes
-        line: |
+    - name: Replace .bash_profile with X server start script if contents are different
+      ansible.builtin.copy:
+        dest: "/home/zero/.bash_profile"
+        content: |
           if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
               startx
           fi
-        mode: '0644'
         owner: zero
         group: zero
+        mode: '0644'
+        force: yes
+
 
     - name: Configure .xinitrc to start Openbox
       ansible.builtin.copy:
@@ -180,4 +183,6 @@
         mode: '0644'
         owner: zero
         group: zero
+        force: yes
+
 
