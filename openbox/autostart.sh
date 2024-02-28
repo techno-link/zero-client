@@ -15,6 +15,3 @@ conky -c /home/zero/.config/conky/conkyrc &
 
 # Autostart PulseAudio
 start-pulseaudio-x11 &
-
-# Autostart Workspace Client
-/opt/workspacesclient/workspacesclient &

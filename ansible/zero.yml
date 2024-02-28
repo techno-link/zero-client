@@ -63,27 +63,8 @@
         purge: yes
 
     # ------------------------------------------------------------------------------------------------------------------
-    # CONFIGURE TTY AND AUTOLOGIN
+    # CONFIGURE TTY
     # ------------------------------------------------------------------------------------------------------------------
-    - name: Ensure the getty@tty1 override directory exists
-      ansible.builtin.file:
-        path: /etc/systemd/system/getty@tty1.service.d
-        state: directory
-        mode: '0755'
-
-    - name: Configure autologin for tty1
-      ansible.builtin.copy:
-        dest: '/etc/systemd/system/getty@tty1.service.d/override.conf'
-        content: |
-          [Service]
-          ExecStart=
-          ExecStart=-/sbin/agetty --autologin zero --noclear %I 38400 linux
-        owner: root
-        group: root
-        mode: '0644'
-        force: yes
-      notify: Reload systemd and restart getty@tty1
-
     - name: Disable other TTYs (tty2-tty6)
       ansible.builtin.systemd:
         name: getty@tty{{ item }}
@@ -141,60 +122,65 @@
         name: "ZC-DEV"
 
     # ------------------------------------------------------------------------------------------------------------------
+    # LIGHT DM
+    # ------------------------------------------------------------------------------------------------------------------
+    - name: Install LightDM
+      ansible.builtin.apt:
+        name: lightdm
+        state: present
+
+    - name: Ensure LightDM is set as the default display manager
+      ansible.builtin.lineinfile:
+        path: /etc/X11/default-display-manager
+        line: '/usr/sbin/lightdm'
+        create: yes
+        state: present
+
+    - name: Ensure LightDM is enabled and running
+      ansible.builtin.systemd:
+        name: lightdm
+        enabled: yes
+        state: started
+
+
+    # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI INSTALLATION
     # ------------------------------------------------------------------------------------------------------------------
     - name: Install X Window System, Openbox, and additional utilities
       ansible.builtin.apt:
         name:
-          - xorg
+          - lightdm
           - openbox
           - python3-xdg
           - stterm
-          - x11-xserver-utils
-          - xinit
           - picom
-          - nodejs
           - conky
           - feh
         state: present
 
+    - name: Ensure LightDM is set as the default display manager
+      ansible.builtin.lineinfile:
+        path: '/etc/X11/default-display-manager'
+        line: '/usr/sbin/lightdm'
+        create: yes
+        state: present
 
-    - name: Install audio software
-      ansible.builtin.apt:
-        name:
-          - pulseaudio
-          - pavucontrol
-          - alsa-base
-          - alsa-utils
-          - linux-sound-base
-          - libasound2
-        state: latest
+    - name: Ensure LightDM is enabled and running
+      ansible.builtin.systemd:
+        name: lightdm
+        enabled: yes
+        state: started
 
-    - name: Check if .bash_profile exists
-      ansible.builtin.stat:
-        path: '/home/zero/.bash_profile'
-      register: bash_profile
-
-    - name: Replace .bash_profile with X server start script if contents are different
+    - name: Configure LightDM for auto-login
       ansible.builtin.copy:
-        dest: '/home/zero/.bash_profile'
+        dest: '/etc/lightdm/lightdm.conf.d/01_autologin.conf'
         content: |
-          if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
-              startx
-          fi
-        owner: zero
-        group: zero
+          [Seat:*]
+          autologin-user=zero
+          user-session=openbox
+        owner: root
+        group: root
         mode: '0644'
-        force: yes
-
-    - name: Configure .xinitrc to start Openbox
-      ansible.builtin.copy:
-        dest: '/home/zero/.xinitrc'
-        content: "exec openbox-session\n"
-        mode: '0644'
-        owner: zero
-        group: zero
-        force: yes
 
     # ------------------------------------------------------------------------------------------------------------------
     # WORKSPACE CONFIG
@@ -216,18 +202,33 @@
       ansible.builtin.get_url:
         url: "https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/{{ item.file }}"
         dest: "{{ item.dest }}"
-        force: yes
+        force: no
         owner: zero
         group: zero
         mode: "{{ item.mode | default(omit) }}"
       loop:
         - { file: 'rc.xml', dest: '/home/zero/.config/openbox/rc.xml' }
         - { file: 'menu.xml', dest: '/home/zero/.config/openbox/menu.xml' }
-        - { file: 'audio-menu.js', dest: '/home/zero/.config/openbox/audio-menu.js', mode: '0755' }
         - { file: 'autostart.sh', dest: '/home/zero/.config/openbox/autostart', mode: '0755' }
         - { file: 'conkyrc.lua', dest: '/home/zero/.config/conky/conkyrc' }
         - { file: 'wallpaper.jpg', dest: '/home/zero/.config/openbox/wallpaper.jpg' }
       notify: Reboot
+
+    - name: Ensure /etc/sudoers.d exists
+      ansible.builtin.file:
+        path: /etc/sudoers.d
+        state: directory
+        mode: '0755'
+
+    - name: Set sudoers file for poweroff and reboot commands
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/poweroff_reboot
+        content: 'zero ALL=(ALL) NOPASSWD: /sbin/poweroff, /sbin/reboot'
+        owner: root
+        group: root
+        mode: '0440'
+        validate: '/usr/sbin/visudo -cf %s'
+
 
     # ------------------------------------------------------------------------------------------------------------------
     # AWS WORKSPACES CLIENT INSTALL
@@ -244,9 +245,6 @@
         dest: '/home/zero/Downloads/workspace_client.deb'
         force: yes
         mode: '0755'
-
-
-
 
     - name: Install the downloaded AWS Workspaces package
       ansible.builtin.apt:

@@ -13,8 +13,6 @@
     <action name="Execute"><execute>parsecd</execute></action>
   </item>
   <separator />
-  <menu id="audio" label="Audio" execute="node /home/zero/audio-menu.js" />
-  <separator />
   <item label="Reboot">
     <action name="Execute"><execute>/sbin/reboot</execute></action>
   </item>

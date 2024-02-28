@@ -39,11 +39,15 @@ conky.text = [[
 KERNEL
 $hr
 $kernel
+
+
 NETWORK
 $hr
 INT: ${alignr} ${execi 60 (ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')}
 MAC: ${alignr} ${execi 60 cat /sys/class/net/$(ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')/address }
 IP: ${alignr} ${execi 60 hostname -I | tr -d '[:space:]'}
+
+
 SYSTEM
 $hr
 UPTIME: ${alignr} $uptime
