@@ -17,6 +17,17 @@
       ansible.builtin.systemd:
         daemon_reload: yes
 
+    - name: Apply netplan configuration
+      ansible.builtin.command:
+        cmd: netplan apply
+      listen: "apply netplan configuration"
+
+    - name: Restart network
+      ansible.builtin.service:
+        name: networking
+        state: restarted
+      listen: "restart network"
+
 
   tasks:
     # ------------------------------------------------------------------------------------------------------------------
@@ -56,11 +67,14 @@
         mode: '0755'
 
     - name: Configure autologin for tty1
-      ansible.builtin.lineinfile:
+      ansible.builtin.blockinfile:
         path: /etc/systemd/system/getty@tty1.service.d/override.conf
         create: yes
-        regexp: '^ExecStart='
-        line: 'ExecStart=-/sbin/agetty --autologin zero --noclear %I 38400 linux'
+        block: |
+          [Service]
+          ExecStart=
+          ExecStart=-/sbin/agetty --autologin zero --noclear %I 38400 linux
+        marker: "# {mark} ANSIBLE MANAGED BLOCK for autologin"
         owner: root
         group: root
         mode: '0644'
@@ -76,14 +90,60 @@
       notify: Reload systemd
 
     # ------------------------------------------------------------------------------------------------------------------
+    # NETWORK CONFIG
+    # ------------------------------------------------------------------------------------------------------------------
+    - name: Create Netplan configuration for DHCP
+      ansible.builtin.copy:
+        dest: /etc/netplan/01-dhcp.yaml
+        content: |
+          network:
+            version: 2
+            renderer: networkd
+            ethernets:
+              en*:
+                dhcp4: true
+                dhcp-identifier: mac
+              eth*:
+                dhcp4: true
+                dhcp-identifier: mac3
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Apply netplan configuration
+
+    - name: mark traffic through ip tables
+      iptables:
+        chain: OUTPUT
+        jump: DSCP
+        table: mangle
+        set_dscp_mark_class: CS5
+        protocol: tcp
+      when: install.stat.exists
+
+    - name: Extract MAC address of the primary Ethernet interface
+      set_fact:
+        mac_address: "{{ ansible_facts['net'][ansible_facts.interfaces | select('match', '^e') | first]['macaddress'] | replace(':', '') | upper }}"
+
+    - name: Update hostname with MAC address
+      ansible.builtin.hostname:
+        name: "ZC-{{ mac_address }}"
+      when: ansible_virtualization_type != "chroot"
+      notify: Restart network
+
+    # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI
     # ------------------------------------------------------------------------------------------------------------------
-    - name: Install Openbox and related packages
+    - name: Install X Window System, Openbox, and additional utilities
       ansible.builtin.apt:
         name:
+          - xorg
           - openbox
-          - xterm
-        state: latest
+          - stterm
+          - x11-xserver-utils
+          - xinit
+          - picom
+        state: present
+
 
     - name: Install audio software
       ansible.builtin.apt:
