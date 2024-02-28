@@ -1,9 +1,0 @@
-xset s off
-xset s noblank
-xset -dpms
-compton -b -c
-fbsetbg -f /home/zero/.fluxbox/wp.jpg
-conky -c /home/zero/.config/conkyrc
-alsabat --file=/home/zero/.fluxbox/ubuntu_startup.wav
-/opt/workspacesclient/workspacesclient &
-exec fluxbox
