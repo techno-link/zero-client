@@ -148,6 +148,7 @@
         name:
           - xorg
           - openbox
+          - python3-xdg
           - stterm
           - x11-xserver-utils
           - xinit
@@ -231,12 +232,21 @@
     # ------------------------------------------------------------------------------------------------------------------
     # AWS WORKSPACES CLIENT INSTALL
     # ------------------------------------------------------------------------------------------------------------------
+    - name: Install requirements for AWS Workspaces
+      ansible.builtin.apt:
+        name:
+          - libwebkit2gtk-4.0-dev
+        state: latest
+
     - name: Download the AWS Workspaces package if it has been updated
       ansible.builtin.get_url:
         url: 'https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb'
         dest: '/home/zero/Downloads/workspace_client.deb'
         force: yes
         mode: '0755'
+
+
+
 
     - name: Install the downloaded AWS Workspaces package
       ansible.builtin.apt:
