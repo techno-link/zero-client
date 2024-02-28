@@ -126,7 +126,7 @@
           - tcpdump
         state: latest
 
-    - name: mark traffic through ip tables
+    - name: Mark traffic through ip tables
       ansible.builtin.iptables:
         chain: OUTPUT
         jump: DSCP
