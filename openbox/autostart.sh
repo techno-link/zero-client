@@ -13,7 +13,7 @@ feh --bg-center /home/zero/.config/openbox/wallpaper.jpg
 picom -b
 
 # Autostart Conky
-conky -c /etc/conky/conkyrc # Consider using a system-wide config if this is for all users
+conky -c /zero/home/.config/conkyrc
 
 # Autostart PulseAudio
 start-pulseaudio-x11
