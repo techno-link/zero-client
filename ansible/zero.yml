@@ -223,7 +223,7 @@
         - { file: 'menu.xml', dest: '/home/zero/.config/openbox/menu.xml' }
         - { file: 'audio-menu.js', dest: '/home/zero/.config/openbox/audio-menu.js', mode: '0755' }
         - { file: 'autostart.sh', dest: '/home/zero/.config/openbox/autostart', mode: '0755' }
-        - { file: 'conkyrc.lua', dest: '/home/zero/.config/conkyrc' }
+        - { file: 'conkyrc.lua', dest: '/home/zero/.config/conky/conkyrc' }
         - { file: 'wallpaper.jpg', dest: '/home/zero/.config/openbox/wallpaper.jpg' }
       notify: Reboot
 

@@ -160,7 +160,7 @@
   <keyboard>
     <keybind key="S-C-A-W-t">
       <action name="Execute">
-        <command>xterm</command>
+        <command>stterm</command>
       </action>
     </keybind>
   </keyboard>
