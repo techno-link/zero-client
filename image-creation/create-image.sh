@@ -79,6 +79,7 @@ sync
 umount $ROOT_MOUNT_PATH/dev/pts
 umount $ROOT_MOUNT_PATH/dev
 umount $ROOT_MOUNT_PATH/proc
+umount $ROOT_MOUNT_PATH/run/snapd/ns
 umount $ROOT_MOUNT_PATH/run
 umount $ROOT_MOUNT_PATH/efi
 umount $ROOT_MOUNT_PATH/sys/firmware/efi/efivars

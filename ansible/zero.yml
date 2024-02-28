@@ -248,7 +248,7 @@
       ansible.builtin.apt:
         name:
           - libqt5x11extras5
-          - chromium-browser
+          - firefox
         state: latest
 
     - name: Download the Parsec package if it has been updated
