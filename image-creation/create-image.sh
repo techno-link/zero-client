@@ -44,9 +44,8 @@ mount --bind /run $ROOT_MOUNT_PATH/run
 touch "$ROOT_MOUNT_PATH/root/in_chroot"
 
 # CUSTOM SERVICES
-cp "$SERVICES_DIR/resizefs.sh" "$ROOT_MOUNT_PATH/usr/local/bin/resizefs.sh"
-cp "$SERVICES_DIR/resizefs.service" "$ROOT_MOUNT_PATH/etc/systemd/system/resizefs.service"
-cp "$SERVICES_DIR/ansible-boot.sh" "$ROOT_MOUNT_PATH/usr/local/bin/ansible-boot.sh"
+cp "$SERVICES_DIR/ansible-boot.sh" "$ROOT_MOUNT_PATH/usr/local/sbin/ansible-boot.sh"
+chmod +x "$ROOT_MOUNT_PATH/usr/local/sbin/ansible-boot.sh"
 cp "$SERVICES_DIR/ansible-boot.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-boot.service"
 
 # ANSIBLE PLAYBOOKS
@@ -85,6 +84,4 @@ umount $ROOT_MOUNT_PATH/efi
 umount $ROOT_MOUNT_PATH/sys/firmware/efi/efivars
 umount $ROOT_MOUNT_PATH/sys
 umount $ROOT_MOUNT_PATH
-fsck.vfat -v -a /dev/loop0p1
-fsck.ext4 -f -v -y /dev/loop0p2
 losetup -d /dev/loop0
