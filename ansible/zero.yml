@@ -117,35 +117,19 @@
       when: not in_chroot.stat.exists
 
     - name: Update hostname
-      # TODO: FIX ME WITH LATEST BRANCH NAME OR SOME VERSION ?
       ansible.builtin.hostname:
-        name: "ZC-DEV"
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # LIGHT DM
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Install LightDM
-      ansible.builtin.apt:
-        name: lightdm
-        state: present
-
-    - name: Ensure LightDM is set as the default display manager
-      ansible.builtin.lineinfile:
-        path: /etc/X11/default-display-manager
-        line: '/usr/sbin/lightdm'
-        create: yes
-        state: present
-
-    - name: Ensure LightDM is enabled and running
-      ansible.builtin.systemd:
-        name: lightdm
-        enabled: yes
-        state: started
-
+        name: "LINKIN-ZERO-CLIENT"
 
     # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI INSTALLATION
     # ------------------------------------------------------------------------------------------------------------------
+    - name: Pre-seed selection for LightDM as the default display manager
+      ansible.builtin.debconf:
+        name: lightdm
+        question: lightdm/default-display-manager
+        vtype: select
+        value: /usr/sbin/lightdm
+
     - name: Install X Window System, Openbox, and additional utilities
       ansible.builtin.apt:
         name:
@@ -156,20 +140,7 @@
           - picom
           - conky
           - feh
-        state: present
-
-    - name: Ensure LightDM is set as the default display manager
-      ansible.builtin.lineinfile:
-        path: '/etc/X11/default-display-manager'
-        line: '/usr/sbin/lightdm'
-        create: yes
-        state: present
-
-    - name: Ensure LightDM is enabled and running
-      ansible.builtin.systemd:
-        name: lightdm
-        enabled: yes
-        state: started
+        state: latest
 
     - name: Configure LightDM for auto-login
       ansible.builtin.copy:
@@ -177,10 +148,17 @@
         content: |
           [Seat:*]
           autologin-user=zero
+          autologin-user-timeout=0
           user-session=openbox
         owner: root
         group: root
         mode: '0644'
+
+    - name: Ensure LightDM is enabled and running
+      ansible.builtin.systemd:
+        name: lightdm
+        enabled: yes
+        state: started
 
     # ------------------------------------------------------------------------------------------------------------------
     # WORKSPACE CONFIG
@@ -243,7 +221,7 @@
       ansible.builtin.get_url:
         url: 'https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb'
         dest: '/home/zero/Downloads/workspace_client.deb'
-        force: yes
+        force: no
         mode: '0755'
 
     - name: Install the downloaded AWS Workspaces package
@@ -257,18 +235,24 @@
       ansible.builtin.apt:
         name:
           - libqt5x11extras5
-          - firefox
         state: latest
 
-    - name: Set default x-www-browser to Firefox
-      ansible.builtin.command:
-        cmd: 'update-alternatives --set x-www-browser /usr/bin/firefox'
+    - name: Download Google Chrome Debian package
+      ansible.builtin.get_url:
+        url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        dest: "/home/zero/Downloads/google-chrome.deb"
+        force: no
+        mode: '0755'
+
+    - name: Install Google Chrome
+      ansible.builtin.apt:
+        deb: "/home/zero/google-chrome.deb"
 
     - name: Download the Parsec package if it has been updated
       ansible.builtin.get_url:
         url: 'https://builds.parsec.app/package/parsec-linux.deb'
         dest: '/home/zero/Downloads/parsec-linux.deb'
-        force: yes
+        force: no
         mode: '0755'
 
     - name: Install the downloaded Parsec package
