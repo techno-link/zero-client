@@ -39,6 +39,17 @@
         state: present
         update_cache: yes
 
+    - name: Download Google Chrome signing key
+      ansible.builtin.apt_key:
+        url: https://dl.google.com/linux/linux_signing_key.pub
+        state: present
+
+    - name: Add Google Chrome repository
+      ansible.builtin.apt_repository:
+        repo: 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main'
+        state: present
+        filename: 'google-chrome'
+
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: yes
@@ -209,7 +220,6 @@
         mode: '0440'
         validate: '/usr/sbin/visudo -cf %s'
 
-
     # ------------------------------------------------------------------------------------------------------------------
     # AWS WORKSPACES CLIENT INSTALL
     # ------------------------------------------------------------------------------------------------------------------
@@ -217,6 +227,7 @@
       ansible.builtin.apt:
         name:
           - libwebkit2gtk-4.0-dev
+          - google-chrome-stable
         state: latest
 
     - name: Download the AWS Workspaces package if it has been updated
@@ -233,47 +244,11 @@
     # ------------------------------------------------------------------------------------------------------------------
     # PARSEC CLIENT INSTALL
     # ------------------------------------------------------------------------------------------------------------------
-    - name: Add Debian signing keys
-      ansible.builtin.apt_key:
-        keyserver: keyserver.ubuntu.com
-        id: "{{ item }}"
-      loop: ['DCC9EFBF77E11517', '648ACFD622F3D138', '112695A0E562B32A']
-
-    - name: Add the Debian "buster" repository
-      ansible.builtin.copy:
-        dest: /etc/apt/sources.list.d/debian.list
-        content: |
-          deb [arch=amd64 signed-by=/usr/share/keyrings/debian-buster.gpg] http://deb.debian.org/debian buster main
-          deb [arch=amd64 signed-by=/usr/share/keyrings/debian-buster-updates.gpg] http://deb.debian.org/debian buster-updates main
-          deb [arch=amd64 signed-by=/usr/share/keyrings/debian-security-buster.gpg] http://deb.debian.org/debian-security buster/updates main
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: Configure apt pinning for Chromium
-      ansible.builtin.copy:
-        dest: /etc/apt/preferences.d/chromium.pref
-        content: |
-          # Note: 2 blank lines are required between entries
-          Package: *
-          Pin: release a=eoan
-          Pin-Priority: 500
-          
-          Package: *
-          Pin: origin "deb.debian.org"
-          Pin-Priority: 300
-          
-          Package: chromium*
-          Pin: origin "deb.debian.org"
-          Pin-Priority: 700
-        owner: root
-        group: root
-        mode: '0644'
-
     - name: Install requirements for Parsec
       ansible.builtin.apt:
         name:
           - libqt5x11extras5
+          - google-chrome-stable
         state: latest
 
     - name: Download the Parsec package if it has been updated

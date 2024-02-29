@@ -12,11 +12,6 @@ apt install -y software-properties-common
 add-apt-repository --yes --update ppa:ansible/ansible
 apt install -y ansible
 
-# CLEANUP APT
-apt autoclean
-apt autoremove -y --purge
-apt clean
-
 # CUSTOM SCRIPT AND SERVICES
 systemctl enable ansible-boot.service
 
@@ -32,3 +27,8 @@ echo -e "\033[31m!!! MODIFIED FOR DEV !!!\033[0m"
 
 # RUN ANSIBLE INSIDE CHROOT
 ANSIBLE_LOG_PATH=/root/ansible.log ansible-playbook /root/zero.yml -v
+
+# CLEANUP APT
+apt autoclean
+apt autoremove -y --purge
+apt clean

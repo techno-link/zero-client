@@ -8,7 +8,7 @@ ANSIBLE_DIR="$SCRIPT_DIR/../ansible"
 ROOT_MOUNT_PATH="/mnt/zero-img"
 
 # CREATE EMPTY IMAGE
-dd if=/dev/zero of=zero-client.img bs=1G count=6
+dd if=/dev/zero of=zero-client.img bs=1G count=10
 
 # POSE THE IMAGE AS BLOCK DEVICE ON /dev/loopXX
 LOOP_DEVICE="$(losetup -fP --show zero-client.img)"
