@@ -11,7 +11,7 @@ feh --bg-center /home/zero/.config/openbox/wallpaper.jpg &
 conky -c /home/zero/.config/conky/conkyrc &
 
 # Autostart Composite Manager
-picom -b &
+compton -b -c &
 
 # Autostart PulseAudio
 start-pulseaudio-x11 &

@@ -151,12 +151,18 @@
           - openbox
           - python3-xdg
           - stterm
-          - picom
+          - compton
           - conky
           - feh
           - firefox
           - xdg-utils
         state: latest
+
+    - name: Install Firefox snap
+      ansible.builtin.snap:
+        name:
+          - firefox
+        state: present
 
     - name: Set Firefox as the default web browser
       command: xdg-settings set default-web-browser firefox.desktop
