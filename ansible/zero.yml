@@ -242,7 +242,6 @@
       ansible.builtin.apt:
         name:
           - libwebkit2gtk-4.0-dev
-          - firefox
         state: latest
 
     - name: Download the AWS Workspaces package if it has been updated
@@ -264,6 +263,7 @@
         name:
           - libqt5x11extras5
           - firefox
+          - xdg-utils
         state: latest
 
     - name: Download the Parsec package if it has been updated
