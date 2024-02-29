@@ -231,22 +231,48 @@
     # ------------------------------------------------------------------------------------------------------------------
     # PARSEC CLIENT INSTALL
     # ------------------------------------------------------------------------------------------------------------------
+    - name: Add Debian signing keys
+      ansible.builtin.apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: "{{ item }}"
+      loop: ['DCC9EFBF77E11517', '648ACFD622F3D138', '112695A0E562B32A']
+
+    - name: Add the Debian "buster" repository
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/debian.list
+        content: |
+          deb [arch=amd64 signed-by=/usr/share/keyrings/debian-buster.gpg] http://deb.debian.org/debian buster main
+          deb [arch=amd64 signed-by=/usr/share/keyrings/debian-buster-updates.gpg] http://deb.debian.org/debian buster-updates main
+          deb [arch=amd64 signed-by=/usr/share/keyrings/debian-security-buster.gpg] http://deb.debian.org/debian-security buster/updates main
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Configure apt pinning for Chromium
+      ansible.builtin.copy:
+        dest: /etc/apt/preferences.d/chromium.pref
+        content: |
+          # Note: 2 blank lines are required between entries
+          Package: *
+          Pin: release a=eoan
+          Pin-Priority: 500
+          
+          Package: *
+          Pin: origin "deb.debian.org"
+          Pin-Priority: 300
+          
+          Package: chromium*
+          Pin: origin "deb.debian.org"
+          Pin-Priority: 700
+        owner: root
+        group: root
+        mode: '0644'
+
     - name: Install requirements for Parsec
       ansible.builtin.apt:
         name:
           - libqt5x11extras5
         state: latest
-
-    - name: Download Google Chrome Debian package
-      ansible.builtin.get_url:
-        url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        dest: "/home/zero/Downloads/google-chrome.deb"
-        force: no
-        mode: '0755'
-
-    - name: Install Google Chrome
-      ansible.builtin.apt:
-        deb: "/home/zero/google-chrome.deb"
 
     - name: Download the Parsec package if it has been updated
       ansible.builtin.get_url:

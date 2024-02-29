@@ -10,7 +10,11 @@ ROOT_MOUNT_PATH="/mnt/zero-img"
 # CREATE EMPTY IMAGE
 dd if=/dev/zero of=zero-client.img bs=1G count=6
 
-# POSE THE IMAGE AS BLOCK DEVICE ON /dev/loop0
+# POSE THE IMAGE AS BLOCK DEVICE ON /dev/loopXX
+LOOP_DEVICE="$(losetup -fP --show zero-client.img)"
+LOOP_PARTITION_1="${LOOP_DEVICE}p1"
+LOOP_PARTITION_2="${LOOP_DEVICE}p2"
+
 losetup -fP zero-client.img
 
 # PARTITION THE BLOCK DEVICE
@@ -18,20 +22,20 @@ losetup -fP zero-client.img
   echo 'label: gpt'
   echo 'size=500M, type=U'
   echo ',,L'
-} | sfdisk /dev/loop0
+} | sfdisk "$LOOP_DEVICE"
 
 # FORMAT THE PARTITIONS
-mkfs.vfat -F32 /dev/loop0p1 # Format the EFI partition as FAT32
-mkfs.ext4 /dev/loop0p2      # Format the Linux partition as ext4
+mkfs.vfat -F32 "$LOOP_PARTITION_1" # Format the EFI partition as FAT32
+mkfs.ext4 "$LOOP_PARTITION_2"      # Format the Linux partition as ext4
 
 # MOUNT THE BLOCK DEVICE AND BOOTSTRAP
 mkdir -p $ROOT_MOUNT_PATH
-mount /dev/loop0p2 $ROOT_MOUNT_PATH
+mount "$LOOP_PARTITION_2" $ROOT_MOUNT_PATH
 
 debootstrap --arch=amd64 jammy $ROOT_MOUNT_PATH http://archive.ubuntu.com/ubuntu/
 
 mkdir -p $ROOT_MOUNT_PATH/efi
-mount /dev/loop0p1 $ROOT_MOUNT_PATH/efi
+mount "$LOOP_PARTITION_1" $ROOT_MOUNT_PATH/efi
 
 # PREPARE FOR CHROOT
 mount --bind /dev $ROOT_MOUNT_PATH/dev
@@ -52,8 +56,8 @@ cp "$SERVICES_DIR/ansible-boot.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ans
 cp "$ANSIBLE_DIR/zero.yml" "$ROOT_MOUNT_PATH/root/zero.yml"
 
 # CONFIGURE FSTAB
-EFI_UUID=$(blkid -s UUID -o value /dev/loop0p1)
-LINUX_UUID=$(blkid -s UUID -o value /dev/loop0p2)
+EFI_UUID=$(blkid -s UUID -o value "$LOOP_PARTITION_1")
+LINUX_UUID=$(blkid -s UUID -o value "$LOOP_PARTITION_2")
 
 cat <<EOF >$ROOT_MOUNT_PATH/etc/fstab
 # /etc/fstab: static file system information.
@@ -79,10 +83,9 @@ sync
 umount $ROOT_MOUNT_PATH/dev/pts
 umount $ROOT_MOUNT_PATH/dev
 umount $ROOT_MOUNT_PATH/proc
-umount $ROOT_MOUNT_PATH/run/snapd/ns
 umount $ROOT_MOUNT_PATH/run
 umount $ROOT_MOUNT_PATH/efi
 umount $ROOT_MOUNT_PATH/sys/firmware/efi/efivars
 umount $ROOT_MOUNT_PATH/sys
 umount $ROOT_MOUNT_PATH
-losetup -d /dev/loop0
+losetup -d "$LOOP_DEVICE"
