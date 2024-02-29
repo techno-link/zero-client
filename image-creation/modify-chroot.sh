@@ -19,7 +19,6 @@ apt clean
 
 # CUSTOM SCRIPT AND SERVICES
 systemctl enable ansible-boot.service
-#systemctl enable resizefs.service
 
 # ADD DEFAULT USER
 useradd -m -d /home/zero -s /bin/bash zero

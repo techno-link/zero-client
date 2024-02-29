@@ -24,3 +24,5 @@ losetup -d /dev/loop9
 losetup -l
 
 rm zero-client.img
+
+mount | grep "/mnt/zero-img"

@@ -15,3 +15,6 @@ conky -c /home/zero/.config/conky/conkyrc &
 
 # Autostart PulseAudio
 start-pulseaudio-x11 &
+
+# Keyboard
+setxkbmap us &

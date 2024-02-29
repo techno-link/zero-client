@@ -122,13 +122,15 @@
 
     # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI INSTALLATION
+    # grep -C2 lightdm /var/cache/debconf/config.dat
+    # debconf-show lightdm
     # ------------------------------------------------------------------------------------------------------------------
     - name: Pre-seed selection for LightDM as the default display manager
       ansible.builtin.debconf:
         name: lightdm
-        question: lightdm/default-display-manager
+        question: shared/default-x-display-manager
         vtype: select
-        value: /usr/sbin/lightdm
+        value: lightdm
 
     - name: Install X Window System, Openbox, and additional utilities
       ansible.builtin.apt:
