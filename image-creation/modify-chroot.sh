@@ -26,7 +26,7 @@ echo -e "\033[31m!!! MODIFIED FOR DEV !!!\033[0m"
 ### END DEV OPTIONS
 
 # RUN ANSIBLE INSIDE CHROOT
-ANSIBLE_LOG_PATH=/root/ansible.log ansible-playbook /root/zero.yml -v
+ZEROSTATE="chroot" ansible-playbook /root/zero.yml -v
 
 # CLEANUP APT
 apt autoclean

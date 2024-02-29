@@ -4,7 +4,7 @@
   connection: local
   gather_facts: yes
   vars:
-    branch_version: 2
+    branch_version: 3
 
   handlers:
     - name: Reload systemd and restart getty@tty1
@@ -20,17 +20,13 @@
     - name: Apply netplan configuration
       ansible.builtin.command:
         cmd: netplan apply
-      when: not in_chroot.stat.exists
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Reboot
       command: reboot
-      when: not in_chroot.stat.exists
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
   tasks:
-    - name: Check if we are in chroot
-      ansible.builtin.stat:
-        path: /root/in_chroot
-      register: in_chroot
 
     # ------------------------------------------------------------------------------------------------------------------
     # UPDATE AND CLEANUP APT
@@ -148,14 +144,7 @@
       ansible.builtin.apt:
         name:
           - lightdm
-          - openbox
-          - python3-xdg
-          - stterm
-          - compton
-          - conky
-          - feh
           - firefox
-          - xdg-utils
         state: latest
 
     - name: Install Firefox snap
@@ -164,9 +153,7 @@
           - firefox
         state: present
 
-    - name: Set Firefox as the default web browser
-      command: xdg-settings set default-web-browser firefox.desktop
-
+    # TODO: SELECT WAYLAND
     - name: Configure LightDM for auto-login
       ansible.builtin.copy:
         dest: '/etc/lightdm/lightdm.conf.d/01_autologin.conf'
@@ -196,41 +183,35 @@
         group: zero
       loop: [
         '/home/zero/.config',
-        '/home/zero/.config/openbox',
-        '/home/zero/.config/conky',
-        '/home/zero/Downloads',
+        '/home/zero/.config/linkin'
       ]
 
     - name: Get workspace configs
       ansible.builtin.get_url:
-        url: "https://raw.githubusercontent.com/techno-link/zero-client/v{{ branch_version }}/openbox/{{ item.file }}"
+        url: "https://raw.githubusercontent.com/techno-link/zero-client/v{{ branch_version }}/desktop/{{ item.file }}"
         dest: "{{ item.dest }}"
         force: no
         owner: zero
         group: zero
         mode: "{{ item.mode | default(omit) }}"
       loop:
-        - { file: 'rc.xml', dest: '/home/zero/.config/openbox/rc.xml' }
-        - { file: 'menu.xml', dest: '/home/zero/.config/openbox/menu.xml' }
-        - { file: 'autostart.sh', dest: '/home/zero/.config/openbox/autostart', mode: '0755' }
-        - { file: 'conkyrc.lua', dest: '/home/zero/.config/conky/conkyrc' }
-        - { file: 'wallpaper.jpg', dest: '/home/zero/.config/openbox/wallpaper.jpg' }
+        - { file: 'wallpaper.jpg', dest: '/home/zero/.config/linkin/wallpaper.jpg' }
       notify: Reboot
 
-    - name: Ensure /etc/sudoers.d exists
-      ansible.builtin.file:
-        path: /etc/sudoers.d
-        state: directory
-        mode: '0755'
-
-    - name: Set sudoers file for poweroff and reboot commands
-      ansible.builtin.copy:
-        dest: /etc/sudoers.d/poweroff_reboot
-        content: 'zero ALL=(ALL) NOPASSWD: /sbin/poweroff, /sbin/reboot'
-        owner: root
-        group: root
-        mode: '0440'
-        validate: '/usr/sbin/visudo -cf %s'
+#    - name: Ensure /etc/sudoers.d exists
+#      ansible.builtin.file:
+#        path: /etc/sudoers.d
+#        state: directory
+#        mode: '0755'
+#
+#    - name: Set sudoers file for poweroff and reboot commands
+#      ansible.builtin.copy:
+#        dest: /etc/sudoers.d/poweroff_reboot
+#        content: 'zero ALL=(ALL) NOPASSWD: /sbin/poweroff, /sbin/reboot'
+#        owner: root
+#        group: root
+#        mode: '0440'
+#        validate: '/usr/sbin/visudo -cf %s'
 
     - name: Allow unprivileged users to create user namespaces
       ansible.builtin.sysctl:
@@ -240,6 +221,43 @@
         reload: yes
         sysctl_set: yes
         sysctl_file: /etc/sysctl.d/99-unprivileged-userns-clone.conf
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # GNOME SETTINGS
+    # ------------------------------------------------------------------------------------------------------------------
+    - name: Set input sources to English and French
+      command: >
+        gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us'), ('xkb', 'bg'), ('xkb', 'bg+phonetic')]"
+      become: yes
+      become_user: zero
+      when: lookup('env', 'ZEROSTATE') == 'RESET' or lookup('env', 'ZEROSTATE') == 'CHROOT'
+
+    - name: Set shortcut for switching input sources
+      command: >
+        gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Super>space']"
+      become: yes
+      become_user: zero
+      when: lookup('env', 'ZEROSTATE') == 'RESET' or lookup('env', 'ZEROSTATE') == 'CHROOT'
+
+    - name: Set alternative shortcut for switching input sources
+      command: >
+        gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "['<Shift><Super>space']"
+      become: yes
+      become_user: zero
+      when: lookup('env', 'ZEROSTATE') == 'RESET' or lookup('env', 'ZEROSTATE') == 'CHROOT'
+
+    - name: Change desktop background
+      command: >
+        gsettings set org.gnome.desktop.background picture-uri '/home/zero/.config/linkin/wallpaper.jpg'
+      become: yes
+      become_user: zero
+
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # CONFIGURE DESKTOP
+    # TODO: LIMIT AVAILABLE APPLICATIONS
+    # ------------------------------------------------------------------------------------------------------------------
+
 
     # ------------------------------------------------------------------------------------------------------------------
     # AWS WORKSPACES CLIENT INSTALL
@@ -253,13 +271,13 @@
     - name: Download the AWS Workspaces package if it has been updated
       ansible.builtin.get_url:
         url: 'https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb'
-        dest: '/home/zero/Downloads/workspace_client.deb'
+        dest: '/home/zero/.config/linkin/workspace_client.deb'
         force: no
         mode: '0755'
 
     - name: Install the downloaded AWS Workspaces package
       ansible.builtin.apt:
-        deb: '/home/zero/Downloads/workspace_client.deb'
+        deb: '/home/zero/.config/linkin/workspace_client.deb'
 
     # ------------------------------------------------------------------------------------------------------------------
     # PARSEC CLIENT INSTALL
@@ -268,17 +286,16 @@
       ansible.builtin.apt:
         name:
           - libqt5x11extras5
-          - firefox
           - xdg-utils
         state: latest
 
     - name: Download the Parsec package if it has been updated
       ansible.builtin.get_url:
         url: 'https://builds.parsec.app/package/parsec-linux.deb'
-        dest: '/home/zero/Downloads/parsec-linux.deb'
+        dest: '/home/zero/.config/linkin/parsec-linux.deb'
         force: no
         mode: '0755'
 
     - name: Install the downloaded Parsec package
       ansible.builtin.apt:
-        deb: '/home/zero/Downloads/parsec-linux.deb'
+        deb: '/home/zero/.config/linkin/parsec-linux.deb'
