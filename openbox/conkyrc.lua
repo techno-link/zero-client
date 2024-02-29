@@ -44,6 +44,7 @@ UPTIME: ${alignr} $uptime
 
 NETWORK
 $hr
+HOST: ${alignr} ${nodename_short}
 INT: ${alignr} ${execi 60 (ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')}
 MAC: ${alignr} ${execi 60 cat /sys/class/net/$(ip addr | awk '/state UP/ {print $2}' | sed 's/.$//')/address }
 IP: ${alignr} ${execi 60 hostname -I | tr -d '[:space:]'}
@@ -51,14 +52,7 @@ IP: ${alignr} ${execi 60 hostname -I | tr -d '[:space:]'}
 
 SYSTEM
 $hr
-CPU: ${alignr} $cpu% ${alignr 170} ${cpubar 15}
-RAM: ${alignr} $memperc% ${alignr 170} ${membar 15}
-SWAP: ${alignr} $swapperc% ${alignr 170} ${swapbar 15}
-
-
-DISK I/O READ:
-${diskiograph_read 60}
-
-DISK I/O WRITE:
-${diskiograph_write 60}
+CPU: ${alignr} $cpu% ${alignr 170} ${cpubar 20}
+RAM: ${alignr} $memperc% ${alignr 170} ${membar 20}
+SWAP: ${alignr} $swapperc% ${alignr 170} ${swapbar 20}
 ]]

@@ -46,18 +46,11 @@
         name: snapd
         state: latest
 
-    - name: Check snapd through snap
+    - name: Refresh snapd through snap
       ansible.builtin.snap:
         name:
         - snapd
         - core
-        state: present
-
-    - name: Ensure refresh
-      ansible.builtin.snap:
-        name:
-          - snapd
-          - core
         state: present
 
     - name: Update apt cache
@@ -249,6 +242,7 @@
       ansible.builtin.apt:
         name:
           - libwebkit2gtk-4.0-dev
+          - firefox
         state: latest
 
     - name: Download the AWS Workspaces package if it has been updated
@@ -269,6 +263,7 @@
       ansible.builtin.apt:
         name:
           - libqt5x11extras5
+          - firefox
         state: latest
 
     - name: Download the Parsec package if it has been updated
