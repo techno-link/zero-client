@@ -41,16 +41,17 @@
         state: present
         update_cache: yes
 
-    - name: Download Google Chrome signing key
-      ansible.builtin.apt_key:
-        url: https://dl.google.com/linux/linux_signing_key.pub
-        state: present
+    - name: Ensure snapd is installed
+      ansible.builtin.apt:
+        name: snapd
+        state: latest
 
-    - name: Add Google Chrome repository
-      ansible.builtin.apt_repository:
-        repo: 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main'
-        state: present
-        filename: 'google-chrome'
+    - name: Install and update core snap
+      ansible.builtin.snap:
+        name:
+        - snapd
+        - core
+        state: latest
 
     - name: Update apt cache
       ansible.builtin.apt:
@@ -131,8 +132,7 @@
 
     - name: Update hostname
       ansible.builtin.hostname:
-        # TODO: UPDATE BRANCH VERSION
-        name: "LINKIN-ZERO-2"
+        name: "LINKIN-ZERO-{{ branch_version }}"
 
     # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI INSTALLATION
@@ -192,8 +192,7 @@
 
     - name: Get workspace configs
       ansible.builtin.get_url:
-        # TODO: UPDATE BRANCH VERSION
-        url: "https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/{{ item.file }}"
+        url: "https://raw.githubusercontent.com/techno-link/zero-client/v{{ branch_version }}/openbox/{{ item.file }}"
         dest: "{{ item.dest }}"
         force: no
         owner: zero
@@ -222,6 +221,20 @@
         mode: '0440'
         validate: '/usr/sbin/visudo -cf %s'
 
+    - name: Allow unprivileged users to create user namespaces
+      ansible.builtin.sysctl:
+        name: kernel.unprivileged_userns_clone
+        value: '1'
+        state: present
+        reload: yes
+        sysctl_set: yes
+        sysctl_file: /etc/sysctl.d/99-unprivileged-userns-clone.conf
+
+    - name: Install chromium with option --classic
+      community.general.snap:
+        name: chromium
+        classic: true
+
     # ------------------------------------------------------------------------------------------------------------------
     # AWS WORKSPACES CLIENT INSTALL
     # ------------------------------------------------------------------------------------------------------------------
@@ -229,7 +242,6 @@
       ansible.builtin.apt:
         name:
           - libwebkit2gtk-4.0-dev
-          - google-chrome-stable
         state: latest
 
     - name: Download the AWS Workspaces package if it has been updated
@@ -250,7 +262,6 @@
       ansible.builtin.apt:
         name:
           - libqt5x11extras5
-          - google-chrome-stable
         state: latest
 
     - name: Download the Parsec package if it has been updated
