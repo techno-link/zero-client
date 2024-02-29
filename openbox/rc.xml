@@ -165,7 +165,7 @@
     </keybind>
     <keybind key="A-S">
       <action name="Execute">
-        <command>setxkbmap -layout us,bg,bg -variant ,,,phonetic -option 'grp:alt_shift_toggle'</command>
+        <command>setxkbmap -layout us,bg,bg -variant ,,phonetic -option 'grp:alt_shift_toggle'</command>
       </action>
     </keybind>
   </keyboard>
