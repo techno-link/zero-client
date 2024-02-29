@@ -38,7 +38,7 @@ conky.config = {
 conky.text = [[
 KERNEL
 $hr
-$kernel
+KERNEL: ${alignr} $kernel
 UPTIME: ${alignr} $uptime
 
 
@@ -54,6 +54,11 @@ $hr
 CPU: ${alignr} $cpu% ${alignr 170} ${cpubar 15}
 RAM: ${alignr} $memperc% ${alignr 170} ${membar 15}
 SWAP: ${alignr} $swapperc% ${alignr 170} ${swapbar 15}
-DISK I/O READ: ${diskiograph_read 60,170}
-DISK I/O WRITE: ${diskiograph_write 60,170}
+
+
+DISK I/O READ:
+${diskiograph_read 60}
+
+DISK I/O WRITE:
+${diskiograph_write 60}
 ]]

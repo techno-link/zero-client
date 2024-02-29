@@ -46,12 +46,19 @@
         name: snapd
         state: latest
 
-    - name: Install and update core snap
+    - name: Check snapd through snap
       ansible.builtin.snap:
         name:
         - snapd
         - core
-        state: latest
+        state: present
+
+    - name: Ensure refresh
+      ansible.builtin.snap:
+        name:
+          - snapd
+          - core
+        state: present
 
     - name: Update apt cache
       ansible.builtin.apt:
