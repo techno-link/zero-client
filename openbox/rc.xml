@@ -158,7 +158,7 @@
   </margins>
   <dock></dock>
   <keyboard>
-    <keybind key="S-C-A-W-t">
+    <keybind key="C-W-t">
       <action name="Execute">
         <command>stterm</command>
       </action>

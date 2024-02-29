@@ -52,7 +52,7 @@ IP: ${alignr} ${execi 60 hostname -I | tr -d '[:space:]'}
 
 SYSTEM
 $hr
-CPU: ${alignr} $cpu% ${alignr 170} ${cpubar 20}
-RAM: ${alignr} $memperc% ${alignr 170} ${membar 20}
-SWAP: ${alignr} $swapperc% ${alignr 170} ${swapbar 20}
+CPU: ${alignr} $cpu% ${alignr 170} ${cpubar 11}
+RAM: ${alignr} $memperc% ${alignr 170} ${membar 11}
+SWAP: ${alignr} $swapperc% ${alignr 170} ${swapbar 11}
 ]]

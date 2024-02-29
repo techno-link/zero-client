@@ -49,8 +49,8 @@
     - name: Refresh snapd through snap
       ansible.builtin.snap:
         name:
-        - snapd
-        - core
+          - snapd
+          - core
         state: present
 
     - name: Update apt cache
@@ -154,7 +154,12 @@
           - picom
           - conky
           - feh
+          - firefox
+          - xdg-utils
         state: latest
+
+    - name: Set Firefox as the default web browser
+      command: xdg-settings set default-web-browser firefox.desktop
 
     - name: Configure LightDM for auto-login
       ansible.builtin.copy:
@@ -229,11 +234,6 @@
         reload: yes
         sysctl_set: yes
         sysctl_file: /etc/sysctl.d/99-unprivileged-userns-clone.conf
-
-    - name: Install chromium with option --classic
-      community.general.snap:
-        name: chromium
-        classic: true
 
     # ------------------------------------------------------------------------------------------------------------------
     # AWS WORKSPACES CLIENT INSTALL
