@@ -3,6 +3,8 @@
   hosts: localhost
   connection: local
   gather_facts: yes
+  vars:
+    branch_version: 2
 
   handlers:
     - name: Reload systemd and restart getty@tty1
@@ -129,12 +131,11 @@
 
     - name: Update hostname
       ansible.builtin.hostname:
-        name: "LINKIN-ZERO-CLIENT"
+        # TODO: UPDATE BRANCH VERSION
+        name: "LINKIN-ZERO-2"
 
     # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI INSTALLATION
-    # grep -C2 lightdm /var/cache/debconf/config.dat
-    # debconf-show lightdm
     # ------------------------------------------------------------------------------------------------------------------
     - name: Pre-seed selection for LightDM as the default display manager
       ansible.builtin.debconf:
@@ -191,6 +192,7 @@
 
     - name: Get workspace configs
       ansible.builtin.get_url:
+        # TODO: UPDATE BRANCH VERSION
         url: "https://raw.githubusercontent.com/techno-link/zero-client/dev/openbox/{{ item.file }}"
         dest: "{{ item.dest }}"
         force: no
