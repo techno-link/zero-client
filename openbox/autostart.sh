@@ -17,4 +17,4 @@ picom -b &
 start-pulseaudio-x11 &
 
 # Keyboard
-setxkbmap -layout us,bg,bg -variant ,phonetic -option 'grp:alt_shift_toggle' &
+setxkbmap -layout us,bg,bg -variant ,,phonetic -option 'grp:alt_shift_toggle' &
