@@ -140,20 +140,21 @@
         vtype: select
         value: lightdm
 
-    - name: Install X Window System, Openbox, and additional utilities
+    - name: Install LightDM
       ansible.builtin.apt:
         name:
           - lightdm
-          - firefox
         state: latest
 
-    - name: Install Firefox snap
-      ansible.builtin.snap:
+    - name: Install GUI Applications
+      ansible.builtin.apt:
         name:
-          - firefox
-        state: present
+          - firefox # Cannot install snaps in chroot
+          - gnome-terminal # Cannot install snaps in chroot
+          - gnome-system-monitor # Cannot install snaps in chroot
+        state: latest
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
-    # TODO: SELECT WAYLAND
     - name: Configure LightDM for auto-login
       ansible.builtin.copy:
         dest: '/etc/lightdm/lightdm.conf.d/01_autologin.conf'
@@ -161,7 +162,7 @@
           [Seat:*]
           autologin-user=zero
           autologin-user-timeout=0
-          user-session=openbox
+          user-session=ubuntu-wayland.desktop
         owner: root
         group: root
         mode: '0644'
@@ -256,6 +257,9 @@
     # ------------------------------------------------------------------------------------------------------------------
     # CONFIGURE DESKTOP
     # TODO: LIMIT AVAILABLE APPLICATIONS
+    # - add icon to apply corporate policies with ZEROSTATE=RESET
+    # - add task monitor to replace conky
+    # TODO: CONFIGURE DOCK WITH PINNED WORKSPACES AND PARSEC
     # ------------------------------------------------------------------------------------------------------------------
 
 
