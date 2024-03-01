@@ -142,7 +142,7 @@
       ansible.builtin.apt:
         name:
           - gdm3
-          - gnome-session
+#          - gnome-session
         state: latest
 
     - name: Install GUI Applications
@@ -205,7 +205,7 @@
 
     - name: Ensure specified applications are visible
       lineinfile:
-        path: "{{ applications_directory }}/{{ item }}"
+        path: "/usr/share/applications/{{ item }}"
         regexp: '^NoDisplay=true'
         state: absent
       with_items: "{{ keep_visible }}"
