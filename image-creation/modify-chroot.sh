@@ -13,7 +13,7 @@ add-apt-repository --yes --update ppa:ansible/ansible
 apt install -y ansible
 
 # CUSTOM SCRIPT AND SERVICES
-systemctl enable ansible-boot.service
+systemctl enable ansible-first-boot.service
 
 # ADD DEFAULT USER
 useradd -m -d /home/zero -s /bin/bash zero
@@ -26,7 +26,7 @@ echo -e "\033[31m!!! MODIFIED FOR DEV !!!\033[0m"
 ### END DEV OPTIONS
 
 # RUN ANSIBLE INSIDE CHROOT
-ZEROSTATE="CHROOT" ansible-playbook /root/zero.yml -v
+ZEROSTATE=CHROOT ansible-playbook /root/zero.yml -v
 
 # CLEANUP APT
 apt autoclean

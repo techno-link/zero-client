@@ -48,9 +48,10 @@ mount --bind /run $ROOT_MOUNT_PATH/run
 touch "$ROOT_MOUNT_PATH/root/in_chroot"
 
 # CUSTOM SERVICES
-cp "$SERVICES_DIR/ansible-boot.sh" "$ROOT_MOUNT_PATH/usr/local/sbin/ansible-boot.sh"
-chmod +x "$ROOT_MOUNT_PATH/usr/local/sbin/ansible-boot.sh"
+cp "$SERVICES_DIR/ansible-first-boot.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-first-boot.service"
 cp "$SERVICES_DIR/ansible-boot.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-boot.service"
+cp "$SERVICES_DIR/ansible-cron.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-cron.service"
+cp "$SERVICES_DIR/ansible-cron.timer" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-cron.timer"
 
 # ANSIBLE PLAYBOOKS
 cp "$ANSIBLE_DIR/zero.yml" "$ROOT_MOUNT_PATH/root/zero.yml"

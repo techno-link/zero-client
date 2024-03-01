@@ -1,12 +1,10 @@
 [Unit]
-Description=Ansible Update at Boot
-After=network-online.target
+Description=Ansible Update at Timer
+After=network.target
 
 [Service]
 Type=oneshot
-Environment="ANSIBLE_LOG_PATH=/root/ansible-boot.log"
+Environment="ANSIBLE_LOG_PATH=/root/ansible-cron.log"
 ExecStart=/usr/bin/wget -q https://raw.githubusercontent.com/techno-link/zero-client/v3/ansible/zero.yml -O /root/zero.yml
 ExecStartPost=/usr/bin/ansible-playbook /root/zero.yml -v
 
-[Install]
-WantedBy=multi-user.target

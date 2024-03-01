@@ -27,6 +27,15 @@
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
   tasks:
+    - name: Print ZEROSTATE value
+      debug:
+        msg: "ZEROSTATE value is {{ lookup('env', 'ZEROSTATE') }}"
+
+    - name: Check if ZEROSTATE environment variable equals RESET
+      debug:
+        msg: "ZEROSTATE is RESET, triggering reboot."
+      when: lookup('env', 'ZEROSTATE') == 'RESET'
+      notify: reboot_system
 
     # ------------------------------------------------------------------------------------------------------------------
     # UPDATE AND CLEANUP APT
@@ -199,20 +208,20 @@
         - { file: 'wallpaper.jpg', dest: '/home/zero/.config/linkin/wallpaper.jpg' }
       notify: Reboot
 
-#    - name: Ensure /etc/sudoers.d exists
-#      ansible.builtin.file:
-#        path: /etc/sudoers.d
-#        state: directory
-#        mode: '0755'
-#
-#    - name: Set sudoers file for poweroff and reboot commands
-#      ansible.builtin.copy:
-#        dest: /etc/sudoers.d/poweroff_reboot
-#        content: 'zero ALL=(ALL) NOPASSWD: /sbin/poweroff, /sbin/reboot'
-#        owner: root
-#        group: root
-#        mode: '0440'
-#        validate: '/usr/sbin/visudo -cf %s'
+    #    - name: Ensure /etc/sudoers.d exists
+    #      ansible.builtin.file:
+    #        path: /etc/sudoers.d
+    #        state: directory
+    #        mode: '0755'
+    #
+    #    - name: Set sudoers file for poweroff and reboot commands
+    #      ansible.builtin.copy:
+    #        dest: /etc/sudoers.d/poweroff_reboot
+    #        content: 'zero ALL=(ALL) NOPASSWD: /sbin/poweroff, /sbin/reboot'
+    #        owner: root
+    #        group: root
+    #        mode: '0440'
+    #        validate: '/usr/sbin/visudo -cf %s'
 
     - name: Allow unprivileged users to create user namespaces
       ansible.builtin.sysctl:
@@ -226,33 +235,33 @@
     # ------------------------------------------------------------------------------------------------------------------
     # GNOME SETTINGS
     # ------------------------------------------------------------------------------------------------------------------
-    - name: Set input sources to English and French
+    - name: Set input sources to English and Bulgarian
       command: >
         gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us'), ('xkb', 'bg'), ('xkb', 'bg+phonetic')]"
       become: yes
       become_user: zero
-      when: lookup('env', 'ZEROSTATE') == 'RESET' or lookup('env', 'ZEROSTATE') == 'CHROOT'
+      when: lookup('env', 'ZEROSTATE') == 'RESET' and lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Set shortcut for switching input sources
       command: >
         gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Super>space']"
       become: yes
       become_user: zero
-      when: lookup('env', 'ZEROSTATE') == 'RESET' or lookup('env', 'ZEROSTATE') == 'CHROOT'
+      when: lookup('env', 'ZEROSTATE') == 'RESET' and lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Set alternative shortcut for switching input sources
       command: >
         gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "['<Shift><Super>space']"
       become: yes
       become_user: zero
-      when: lookup('env', 'ZEROSTATE') == 'RESET' or lookup('env', 'ZEROSTATE') == 'CHROOT'
+      when: lookup('env', 'ZEROSTATE') == 'RESET' and lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Change desktop background
       command: >
         gsettings set org.gnome.desktop.background picture-uri '/home/zero/.config/linkin/wallpaper.jpg'
       become: yes
       become_user: zero
-
+      when: lookup('env', 'ZEROSTATE') == 'RESET' and lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     # ------------------------------------------------------------------------------------------------------------------
     # CONFIGURE DESKTOP

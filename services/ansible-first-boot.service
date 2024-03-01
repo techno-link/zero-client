@@ -1,0 +1,16 @@
+[Unit]
+Description=Ansible Update at First Boot
+After=network.target
+
+[Service]
+Type=oneshot
+Environment="ANSIBLE_LOG_PATH=/root/ansible-first-boot.log"
+Environment="ZEROSTATE=RESET"
+ExecStart=/usr/bin/ansible-playbook /root/zero.yml -v
+ExecStartPost=/bin/systemctl disable ansible-first-boot.service
+ExecStartPost=/bin/systemctl enable ansible-boot.service
+ExecStartPost=/bin/systemctl enable ansible-cron.service
+ExecStartPost=/bin/systemctl enable ansible-cron.timer
+
+[Install]
+WantedBy=multi-user.target
