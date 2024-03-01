@@ -16,7 +16,7 @@ apt install -y ansible
 systemctl enable ansible-first-boot.service
 
 # ADD DEFAULT USER
-useradd -m c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
+useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
 
 ### DEV OPTIONS TODO: REMOVE
 usermod -aG sudo zero
