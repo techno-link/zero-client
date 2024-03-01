@@ -138,11 +138,10 @@
     # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI INSTALLATION
     # ------------------------------------------------------------------------------------------------------------------
-    - name: Install Gnome Minimal
+    - name: Install Gnome
       ansible.builtin.apt:
         name:
           - gdm3
-#          - gnome-session
         state: latest
 
     - name: Install GUI Applications
