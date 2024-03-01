@@ -210,21 +210,6 @@
         - { file: 'wallpaper.jpg', dest: '/home/zero/.config/linkin/wallpaper.jpg' }
       notify: Reboot
 
-    #    - name: Ensure /etc/sudoers.d exists
-    #      ansible.builtin.file:
-    #        path: /etc/sudoers.d
-    #        state: directory
-    #        mode: '0755'
-    #
-    #    - name: Set sudoers file for poweroff and reboot commands
-    #      ansible.builtin.copy:
-    #        dest: /etc/sudoers.d/poweroff_reboot
-    #        content: 'zero ALL=(ALL) NOPASSWD: /sbin/poweroff, /sbin/reboot'
-    #        owner: root
-    #        group: root
-    #        mode: '0440'
-    #        validate: '/usr/sbin/visudo -cf %s'
-
     - name: Allow unprivileged users to create user namespaces
       ansible.builtin.sysctl:
         name: kernel.unprivileged_userns_clone
@@ -237,6 +222,8 @@
     # ------------------------------------------------------------------------------------------------------------------
     # GNOME SETTINGS
     # ------------------------------------------------------------------------------------------------------------------
+
+    # OPTIONAL RESET
     - name: Set input sources to English and Bulgarian
       command: >
         gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us'), ('xkb', 'bg'), ('xkb', 'bg+phonetic')]"
@@ -258,12 +245,18 @@
       become_user: zero
       when: lookup('env', 'ZEROSTATE') == 'RESET' and lookup('env', 'ZEROSTATE') != 'CHROOT'
 
+    # MANDATORY
     - name: Change desktop background
       command: >
         gsettings set org.gnome.desktop.background picture-uri '/home/zero/.config/linkin/wallpaper.jpg'
       become: yes
       become_user: zero
-      when: lookup('env', 'ZEROSTATE') == 'RESET' and lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+    - name: Change to a single virtual workspace
+      command: >
+        gsettings set org.gnome.desktop.wm.preferences num-workspaces 1
+      become: yes
+      become_user: zero
 
     # ------------------------------------------------------------------------------------------------------------------
     # CONFIGURE DESKTOP
