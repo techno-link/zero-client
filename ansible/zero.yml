@@ -124,7 +124,7 @@
         table: mangle
         set_dscp_mark_class: CS5
         protocol: tcp
-      when: not in_chroot.stat.exists
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Update hostname
       ansible.builtin.hostname:
