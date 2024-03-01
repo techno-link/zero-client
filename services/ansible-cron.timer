@@ -2,9 +2,9 @@
 Description=Ansible Update Timer
 
 [Timer]
-OnCalendar=hourly
+OnCalendar=*-*-* 12:00:00
 Persistent=true
-RandomizedDelaySec=600
+RandomizedDelaySec=10800
 
 [Install]
 WantedBy=timers.target
