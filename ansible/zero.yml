@@ -50,6 +50,7 @@
       ansible.builtin.apt:
         name: snapd
         state: latest
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Refresh snapd through snap
       ansible.builtin.snap:
@@ -57,6 +58,7 @@
           - snapd
           - core
         state: present
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Update apt cache
       ansible.builtin.apt:
