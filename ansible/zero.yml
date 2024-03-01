@@ -5,6 +5,10 @@
   gather_facts: yes
   vars:
     branch_version: 3
+    keep_visible:
+      - com.amazon.workspacesclient.desktop
+      - parsecd.desktop
+      - gnome-system-monitor.desktop
 
   handlers:
     - name: Reload systemd and restart getty@tty1
@@ -134,13 +138,6 @@
     # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI INSTALLATION
     # ------------------------------------------------------------------------------------------------------------------
-#    - name: Pre-seed selection for LightDM as the default display manager
-#      ansible.builtin.debconf:
-#        name: lightdm
-#        question: shared/default-x-display-manager
-#        vtype: select
-#        value: lightdm
-
     - name: Install Gnome Minimal
       ansible.builtin.apt:
         name:
@@ -178,12 +175,40 @@
         group: zero
         mode: '0644'
 
-
-    - name: Ensure LightDM is enabled and running
+    - name: Ensure GDM is enabled and running
       ansible.builtin.systemd:
         name: gdm
         enabled: yes
         state: started
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # HIDE APPS
+    # ------------------------------------------------------------------------------------------------------------------
+    - name: Find all .desktop files in the applications directory
+      find:
+        paths: '/usr/share/applications'
+        patterns: "*.desktop"
+      register: desktop_files
+
+    - name: Ensure only specified applications are visible
+      blockinfile:
+        path: "{{ item.path }}"
+        block: "NoDisplay=true"
+        marker: "# {mark} ANSIBLE MANAGED BLOCK"
+        insertafter: EOF
+        create: no
+        state: present
+      when: item.path | basename not in keep_visible
+      with_items: "{{ desktop_files.files }}"
+      loop_control:
+        label: "{{ item.path }}"
+
+    - name: Ensure specified applications are visible
+      lineinfile:
+        path: "{{ applications_directory }}/{{ item }}"
+        regexp: '^NoDisplay=true'
+        state: absent
+      with_items: "{{ keep_visible }}"
 
     # ------------------------------------------------------------------------------------------------------------------
     # WORKSPACE CONFIG
