@@ -23,12 +23,8 @@ gsettings set org.gnome.desktop.wm.preferences num-workspaces 1
 gsettings set org.gnome.desktop gtk-theme 'Yaru-dark'
 
 # FAV APPS
-gsettings set org.gnome.shell favorite-apps ['com.amazon.workspacesclient.desktop', 'parsecd.desktop', 'gnome-system-monitor.desktop']
+gsettings set org.gnome.shell favorite-apps "['com.amazon.workspacesclient.desktop', 'parsecd.desktop']"
 
 # POWER SETTINGS
 gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'interactive'
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 900
-
-## LOCK SCREEN
-#gsettings set org.gnome.desktop.screensaver lock-enabled true
-gsettings set org.gnome.desktop.lockdown disable-lock-screen false
