@@ -204,7 +204,7 @@
       ansible.builtin.get_url:
         url: "https://raw.githubusercontent.com/techno-link/zero-client/v{{ branch_version }}/desktop/{{ item.file }}"
         dest: "{{ item.dest }}"
-        force: no
+        force: yes
         owner: zero
         group: zero
         mode: "{{ item.mode | default(omit) }}"
