@@ -35,7 +35,7 @@
       debug:
         msg: "ZEROSTATE is RESET, triggering reboot."
       when: lookup('env', 'ZEROSTATE') == 'RESET'
-      notify: reboot_system
+      notify: Reboot
 
     # ------------------------------------------------------------------------------------------------------------------
     # UPDATE AND CLEANUP APT
