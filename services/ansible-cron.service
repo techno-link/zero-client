@@ -1,6 +1,7 @@
 [Unit]
 Description=Ansible Update at Timer
 After=network.target
+After=ansible-boot.service
 
 [Service]
 Type=oneshot

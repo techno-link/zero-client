@@ -27,16 +27,6 @@
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
   tasks:
-    - name: Print ZEROSTATE value
-      debug:
-        msg: "ZEROSTATE value is {{ lookup('env', 'ZEROSTATE') }}"
-
-    - name: Check if ZEROSTATE environment variable equals RESET
-      debug:
-        msg: "ZEROSTATE is RESET, triggering reboot."
-      when: lookup('env', 'ZEROSTATE') == 'RESET'
-      notify: Reboot
-
     # ------------------------------------------------------------------------------------------------------------------
     # UPDATE AND CLEANUP APT
     # ------------------------------------------------------------------------------------------------------------------
@@ -205,6 +195,7 @@
       loop: [
         '/home/zero/.config',
         '/home/zero/.config/linkin'
+        '/home/zero/.config/autostart'
       ]
 
     - name: Get workspace configs
