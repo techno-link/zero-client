@@ -29,6 +29,6 @@ gsettings set org.gnome.shell favorite-apps ['com.amazon.workspacesclient.deskto
 gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'interactive'
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 900
 
-# LOCK SCREEN
-gsettings set org.gnome.desktop.screensaver lock-enabled true
+## LOCK SCREEN
+#gsettings set org.gnome.desktop.screensaver lock-enabled true
 gsettings set org.gnome.desktop.lockdown disable-lock-screen false
