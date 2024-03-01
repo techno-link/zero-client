@@ -177,35 +177,6 @@
         state: started
 
     # ------------------------------------------------------------------------------------------------------------------
-    # HIDE APPS
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Find all .desktop files in the applications directory
-      find:
-        paths: '/usr/share/applications'
-        patterns: "*.desktop"
-      register: desktop_files
-
-    - name: Ensure only specified applications are visible
-      blockinfile:
-        path: "{{ item.path }}"
-        block: "Hidden=true"
-        marker: "# {mark} ANSIBLE MANAGED BLOCK"
-        insertafter: EOF
-        create: no
-        state: present
-      when: item.path | basename not in keep_visible
-      with_items: "{{ desktop_files.files }}"
-      loop_control:
-        label: "{{ item.path }}"
-
-    - name: Ensure specified applications are visible
-      lineinfile:
-        path: "/usr/share/applications/{{ item }}"
-        regexp: '^Hidden=true'
-        state: absent
-      with_items: "{{ keep_visible }}"
-
-    # ------------------------------------------------------------------------------------------------------------------
     # WORKSPACE CONFIG
     # ------------------------------------------------------------------------------------------------------------------
     - name: Allow unprivileged users to create user namespaces
@@ -258,8 +229,7 @@
     # ------------------------------------------------------------------------------------------------------------------
     # CONFIGURE DESKTOP
     # TODO: LIMIT AVAILABLE APPLICATIONS
-    # TODO: CONFIGURE DOCK WITH PINNED WORKSPACES AND PARSEC
-    # TODO: SLEEP / LOCL NOT WORKING
+    # TODO: SLEEP / LOCK NOT WORKING
     # ------------------------------------------------------------------------------------------------------------------
 
 
