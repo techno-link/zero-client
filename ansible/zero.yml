@@ -134,17 +134,18 @@
     # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI INSTALLATION
     # ------------------------------------------------------------------------------------------------------------------
-    - name: Pre-seed selection for LightDM as the default display manager
-      ansible.builtin.debconf:
-        name: lightdm
-        question: shared/default-x-display-manager
-        vtype: select
-        value: lightdm
+#    - name: Pre-seed selection for LightDM as the default display manager
+#      ansible.builtin.debconf:
+#        name: lightdm
+#        question: shared/default-x-display-manager
+#        vtype: select
+#        value: lightdm
 
-    - name: Install LightDM
+    - name: Install Gnome Minimal
       ansible.builtin.apt:
         name:
-          - lightdm
+          - gdm3
+          - gnome-session
         state: latest
 
     - name: Install GUI Applications
@@ -156,21 +157,31 @@
         state: latest
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
-    - name: Configure LightDM for auto-login
+    - name: Configure GDM for auto-login
       ansible.builtin.copy:
-        dest: '/etc/lightdm/lightdm.conf.d/01_autologin.conf'
+        dest: '/etc/gdm3/custom.conf'
         content: |
-          [Seat:*]
-          autologin-user=zero
-          autologin-user-timeout=0
-          user-session=ubuntu-wayland
+          [daemon]
+          AutomaticLoginEnable=True
+          AutomaticLogin=zero
         owner: root
         group: root
         mode: '0644'
 
+    - name: Set preferred session for auto-login user
+      ansible.builtin.copy:
+        dest: '/home/zero/.dmrc'
+        content: |
+          [Desktop]
+          Session=ubuntu-wayland
+        owner: zero
+        group: zero
+        mode: '0644'
+
+
     - name: Ensure LightDM is enabled and running
       ansible.builtin.systemd:
-        name: lightdm
+        name: gdm
         enabled: yes
         state: started
 
@@ -228,7 +239,9 @@
     # CONFIGURE DESKTOP
     # TODO: LIMIT AVAILABLE APPLICATIONS
     # TODO: CONFIGURE DOCK WITH PINNED WORKSPACES AND PARSEC
-    # ------------------------------------------------------------------------------------------------------------------
+    # TODO: LOCKING THE COMPUTER + AUTO LOCK MAYBE SWITCH TO GME ? YES !!
+    # TODO: SLEEP ?
+    # -------------------------------------------------------
 
 
     # ------------------------------------------------------------------------------------------------------------------
