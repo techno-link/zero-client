@@ -173,7 +173,7 @@
           [Seat:*]
           autologin-user=zero
           autologin-user-timeout=0
-          user-session=ubuntu-wayland.desktop
+          user-session=ubuntu-wayland
         owner: root
         group: root
         mode: '0644'
