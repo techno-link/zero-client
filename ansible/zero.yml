@@ -194,7 +194,7 @@
         group: zero
       loop: [
         '/home/zero/.config',
-        '/home/zero/.config/linkin'
+        '/home/zero/.config/linkin',
         '/home/zero/.config/autostart'
       ]
 
