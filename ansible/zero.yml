@@ -187,6 +187,15 @@
     # ------------------------------------------------------------------------------------------------------------------
     # WORKSPACE CONFIG
     # ------------------------------------------------------------------------------------------------------------------
+    - name: Allow unprivileged users to create user namespaces
+      ansible.builtin.sysctl:
+        name: kernel.unprivileged_userns_clone
+        value: '1'
+        state: present
+        reload: yes
+        sysctl_set: yes
+        sysctl_file: /etc/sysctl.d/99-unprivileged-userns-clone.conf
+
     - name: Create required directories for zero user
       ansible.builtin.file:
         path: "{{ item }}"
@@ -208,61 +217,25 @@
         mode: "{{ item.mode | default(omit) }}"
       loop:
         - { file: 'wallpaper.jpg', dest: '/home/zero/.config/linkin/wallpaper.jpg' }
+        - { file: 'gsettings.sh', dest: '/home/zero/.config/linkin/gsettings.sh', mode: '0755' }
       notify: Reboot
 
-    - name: Allow unprivileged users to create user namespaces
-      ansible.builtin.sysctl:
-        name: kernel.unprivileged_userns_clone
-        value: '1'
-        state: present
-        reload: yes
-        sysctl_set: yes
-        sysctl_file: /etc/sysctl.d/99-unprivileged-userns-clone.conf
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # GNOME SETTINGS
-    # ------------------------------------------------------------------------------------------------------------------
-
-    # OPTIONAL RESET
-    - name: Set input sources to English and Bulgarian
-      command: >
-        gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us'), ('xkb', 'bg'), ('xkb', 'bg+phonetic')]"
-      become: yes
-      become_user: zero
-      when: lookup('env', 'ZEROSTATE') == 'RESET' and lookup('env', 'ZEROSTATE') != 'CHROOT'
-
-    - name: Set shortcut for switching input sources
-      command: >
-        gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Super>space']"
-      become: yes
-      become_user: zero
-      when: lookup('env', 'ZEROSTATE') == 'RESET' and lookup('env', 'ZEROSTATE') != 'CHROOT'
-
-    - name: Set alternative shortcut for switching input sources
-      command: >
-        gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "['<Shift><Super>space']"
-      become: yes
-      become_user: zero
-      when: lookup('env', 'ZEROSTATE') == 'RESET' and lookup('env', 'ZEROSTATE') != 'CHROOT'
-
-    # MANDATORY
-    - name: Change desktop background
-      command: >
-        gsettings set org.gnome.desktop.background picture-uri '/home/zero/.config/linkin/wallpaper.jpg'
-      become: yes
-      become_user: zero
-
-    - name: Change to a single virtual workspace
-      command: >
-        gsettings set org.gnome.desktop.wm.preferences num-workspaces 1
-      become: yes
-      become_user: zero
+    - name: Ensure the script runs at session start
+      copy:
+        content: |
+          [Desktop Entry]
+          Type=Application
+          Name=UserSettings
+          Exec=/home/zero/.config/linkin/gsettings.sh
+          X-GNOME-Autostart-enabled=true
+        dest: '/home/zero/.config/autostart/user-settings.desktop'
+        owner: zero
+        group: zero
+        mode: '0644'
 
     # ------------------------------------------------------------------------------------------------------------------
     # CONFIGURE DESKTOP
     # TODO: LIMIT AVAILABLE APPLICATIONS
-    # - add icon to apply corporate policies with ZEROSTATE=RESET
-    # - add task monitor to replace conky
     # TODO: CONFIGURE DOCK WITH PINNED WORKSPACES AND PARSEC
     # ------------------------------------------------------------------------------------------------------------------
 
