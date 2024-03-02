@@ -243,6 +243,7 @@
         group: zero
         mode: '0644'
       loop: "{{ hide_apps }}"
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Ensure NoDisplay=true is set in .desktop files
       ansible.builtin.lineinfile:
@@ -251,7 +252,8 @@
         line: 'NoDisplay=true'
         create: no
       loop: "{{ hide_apps }}"
-
+      notify: Reboot
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     # ------------------------------------------------------------------------------------------------------------------
     # AWS WORKSPACES CLIENT INSTALL
@@ -278,13 +280,11 @@
         dest: '/home/zero/.config/linkin/workspace_client.deb'
         force: yes
         mode: '0755'
-      register: download_workspaces_file
       when: not workspaces_file.stat.exists or (file_age_days | default(0) | int) >= 7
 
     - name: Install the downloaded AWS Workspaces package
       ansible.builtin.apt:
         deb: '/home/zero/.config/linkin/workspace_client.deb'
-      when: download_workspaces_file is defined and download_workspaces_file.changed
 
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -313,10 +313,8 @@
         dest: '/home/zero/.config/linkin/parsec-linux.deb'
         force: yes
         mode: '0755'
-      register: download_parsec_file
       when: not parsec_file.stat.exists or (file_age_days | default(0) | int) >= 7
 
     - name: Install the downloaded Parsec package
       ansible.builtin.apt:
         deb: '/home/zero/.config/linkin/parsec-linux.deb'
-      when: download_parsec_file is defined and download_parsec_file.changed
