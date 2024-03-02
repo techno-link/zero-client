@@ -17,7 +17,7 @@ gsettings set org.gnome.desktop.screensaver secondary-color '#000000000000'
 
 # VIRTUAL WORKSPACES (MULTITASKING)
 gsettings set org.gnome.mutter dynamic-workspaces false
-gsettings set org.gnome.mutter enable-hot-corners false
+gsettings set org.gnome.desktop.interface enable-hot-corners false
 gsettings set org.gnome.desktop.wm.preferences num-workspaces 1
 
 # THEME DARK
@@ -32,8 +32,6 @@ gsettings set org.gnome.shell favorite-apps "['com.amazon.workspacesclient.deskt
 gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'interactive'
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 900
 
-# SEARCH
-gsettings set org.gnome.desktop.search-providers disabled 'org.gnome.Terminal.desktop'
 
 # CUSTOM SHORTCUTS
 gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
@@ -42,7 +40,7 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "[
 gsettings set org.gnome.settings-daemon.plugins.media-keys terminal "['<Control><Shift><Super><Alt>t']"
 
 # > LOCK SCREEN
-gsettings set org.gnome.settings-daemon.plugins.media-keys screensaver @as []
+gsettings set org.gnome.settings-daemon.plugins.media-keys screensaver "[]"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ name 'Lock Screen'
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ command 'loginctl lock-session'
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/ binding '<Super>l'
