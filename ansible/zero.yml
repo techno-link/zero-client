@@ -11,7 +11,9 @@
       - /usr/share/applications/yelp.desktop
       - /usr/share/applications/org.gnome.Terminal.desktop
       - /usr/share/applications/gnome-language-selector.desktop
+      - /usr/share/applications/gnome-session-properties.desktop
       - /usr/share/applications/com.gexperts.Tilix.desktop
+      - /usr/share/applications/nm-connection-editor.desktop
       - /var/lib/snapd/desktop/applications/firefox_firefox.desktop
 
   handlers:
