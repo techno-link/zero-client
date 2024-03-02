@@ -252,7 +252,6 @@
         line: 'NoDisplay=true'
         create: no
       loop: "{{ hide_apps }}"
-      notify: Reboot
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     # ------------------------------------------------------------------------------------------------------------------
