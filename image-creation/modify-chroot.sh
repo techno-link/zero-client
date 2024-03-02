@@ -16,7 +16,7 @@ apt install -y ansible
 systemctl enable ansible-first-boot.service
 
 # ADD DEFAULT USER
-useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
+useradd --disabled-password -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
 
 # RUN ANSIBLE INSIDE CHROOT
 ZEROSTATE=CHROOT ansible-playbook /root/zero.yml -v

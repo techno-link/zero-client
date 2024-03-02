@@ -271,7 +271,7 @@
 
     - name: Add user to nopasswdlogin group
       ansible.builtin.user:
-        name: "{{ username }}"
+        name: "zero"
         groups: nopasswdlogin
         append: yes
 
