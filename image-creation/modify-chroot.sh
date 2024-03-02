@@ -18,13 +18,6 @@ systemctl enable ansible-first-boot.service
 # ADD DEFAULT USER
 useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
 
-### DEV OPTIONS TODO: REMOVE
-usermod -aG sudo zero
-echo "zero:123456789" | chpasswd
-echo "root:123456789" | chpasswd
-echo -e "\033[31m!!! MODIFIED FOR DEV !!!\033[0m"
-### END DEV OPTIONS
-
 # RUN ANSIBLE INSIDE CHROOT
 ZEROSTATE=CHROOT ansible-playbook /root/zero.yml -v
 
