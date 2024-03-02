@@ -236,6 +236,7 @@
         group: zero
         mode: '0644'
 
+    # HIDE APPS
     - name: Copy .desktop files to ~/.local/share/applications
       ansible.builtin.copy:
         src: "{{ item }}"
@@ -255,6 +256,24 @@
         create: no
       loop: "{{ hide_apps }}"
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+    # ALLOW UNLOCK SCREEN
+    - name: Add nopasswdlogin rule to gdm-password
+      ansible.builtin.lineinfile:
+        path: /etc/pam.d/gdm-password
+        line: 'auth sufficient pam_succeed_if.so user ingroup nopasswdlogin'
+        insertbefore: BOF
+
+    - name: Create nopasswdlogin group
+      ansible.builtin.group:
+        name: nopasswdlogin
+        state: present
+
+    - name: Add user to nopasswdlogin group
+      ansible.builtin.user:
+        name: "{{ username }}"
+        groups: nopasswdlogin
+        append: yes
 
     # ------------------------------------------------------------------------------------------------------------------
     # AWS WORKSPACES CLIENT INSTALL

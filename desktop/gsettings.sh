@@ -17,10 +17,10 @@ gsettings set org.gnome.desktop.screensaver secondary-color '#000000000000'
 
 # VIRTUAL WORKSPACES (MULTITASKING)
 gsettings set org.gnome.mutter dynamic-workspaces false
+gsettings set org.gnome.mutter enable-hot-corners false
 gsettings set org.gnome.desktop.wm.preferences num-workspaces 1
 
 # THEME DARK
-
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-dark'
@@ -39,7 +39,7 @@ gsettings set org.gnome.desktop.search-providers disabled 'org.gnome.Terminal.de
 gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']"
 
 # > TERMINAL
-gsettings set org.gnome.settings-daemon.plugins.media-keys terminal '<Control><Shift><Super><Alt>t'
+gsettings set org.gnome.settings-daemon.plugins.media-keys terminal "['<Control><Shift><Super><Alt>t']"
 
 # > LOCK SCREEN
 gsettings set org.gnome.settings-daemon.plugins.media-keys screensaver @as []
