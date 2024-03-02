@@ -5,6 +5,14 @@
   gather_facts: yes
   vars:
     branch_version: 3
+    hide_apps:
+      - /usr/share/applications/org.gnome.gedit.desktop
+      - /usr/share/applications/gnome-control-center.desktop
+      - /usr/share/applications/yelp.desktop
+      - /usr/share/applications/org.gnome.Terminal.desktop
+      - /usr/share/applications/gnome-language-selector.desktop
+      - /usr/share/applications/com.gexperts.Tilix.desktop
+      - /var/lib/snapd/desktop/applications/firefox_firefox.desktop
 
   handlers:
     - name: Reload systemd and restart getty@tty1
@@ -195,9 +203,9 @@
         owner: zero
         group: zero
       loop: [
-        '/home/zero/.config',
         '/home/zero/.config/linkin',
-        '/home/zero/.config/autostart'
+        '/home/zero/.config/autostart',
+        '/home/zero/.local/share/applications'
       ]
 
     - name: Get workspace configs
@@ -226,11 +234,23 @@
         group: zero
         mode: '0644'
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # CONFIGURE DESKTOP
-    # TODO: LIMIT AVAILABLE APPLICATIONS
-    # TODO: SLEEP / LOCK NOT WORKING
-    # ------------------------------------------------------------------------------------------------------------------
+    - name: Copy .desktop files to ~/.local/share/applications
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "~/.local/share/applications/"
+        force: yes
+        owner: zero
+        group: zero
+        mode: '0644'
+      loop: "{{ hide_apps }}"
+
+    - name: Ensure NoDisplay=true is set in .desktop files
+      ansible.builtin.lineinfile:
+        path: "~/.local/share/applications/{{ item | basename }}"
+        insertafter: '^\[Desktop Entry\]'
+        line: 'NoDisplay=true'
+        create: no
+      loop: "{{ hide_apps }}"
 
 
     # ------------------------------------------------------------------------------------------------------------------
