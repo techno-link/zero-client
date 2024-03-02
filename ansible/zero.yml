@@ -262,16 +262,30 @@
           - libwebkit2gtk-4.0-dev
         state: latest
 
+    - name: Check if the AWS Workspaces package exists and get its details
+      ansible.builtin.stat:
+        path: '/home/zero/.config/linkin/workspace_client.deb'
+      register: workspaces_file
+
+    - name: Calculate AWS Workspaces package age in days
+      set_fact:
+        file_age_days: "{{ ((ansible_date_time.epoch | int) - (workspaces_file.stat.mtime | default(ansible_date_time.epoch | int)) ) / 86400 }}"
+      when: workspaces_file.stat.exists
+
     - name: Download the AWS Workspaces package if it has been updated
       ansible.builtin.get_url:
         url: 'https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb'
         dest: '/home/zero/.config/linkin/workspace_client.deb'
         force: yes
         mode: '0755'
+      register: download_workspaces_file
+      when: not workspaces_file.stat.exists or (file_age_days | default(0) | int) >= 7
 
     - name: Install the downloaded AWS Workspaces package
       ansible.builtin.apt:
         deb: '/home/zero/.config/linkin/workspace_client.deb'
+      when: download_workspaces_file is defined and download_workspaces_file.changed
+
 
     # ------------------------------------------------------------------------------------------------------------------
     # PARSEC CLIENT INSTALL
@@ -283,14 +297,26 @@
           - xdg-utils
         state: latest
 
+    - name: Check if the Parsec package exists and get its details
+      ansible.builtin.stat:
+        path: '/home/zero/.config/linkin/parsec-linux.deb'
+      register: parsec_file
+
+    - name: Calculate Parsec package age in days
+      set_fact:
+        file_age_days: "{{ ((ansible_date_time.epoch | int) - (parsec_file.stat.mtime | default(ansible_date_time.epoch | int)) ) / 86400 }}"
+      when: parsec_file.stat.exists
+
     - name: Download the Parsec package if it has been updated
       ansible.builtin.get_url:
         url: 'https://builds.parsec.app/package/parsec-linux.deb'
         dest: '/home/zero/.config/linkin/parsec-linux.deb'
         force: yes
         mode: '0755'
-        checksum: sha256:feaba023b934358a6aee9f65f5ab83d8fa7e485a0567d8c066cc29ade55f80ee
+      register: download_parsec_file
+      when: not parsec_file.stat.exists or (file_age_days | default(0) | int) >= 7
 
     - name: Install the downloaded Parsec package
       ansible.builtin.apt:
         deb: '/home/zero/.config/linkin/parsec-linux.deb'
+      when: download_parsec_file is defined and download_parsec_file.changed
