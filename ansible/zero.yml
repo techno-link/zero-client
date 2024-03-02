@@ -237,7 +237,7 @@
     - name: Copy .desktop files to ~/.local/share/applications
       ansible.builtin.copy:
         src: "{{ item }}"
-        dest: "/zero/home/.local/share/applications/"
+        dest: "/home/zero/.local/share/applications/"
         force: yes
         owner: zero
         group: zero
@@ -247,7 +247,7 @@
 
     - name: Ensure NoDisplay=true is set in .desktop files
       ansible.builtin.lineinfile:
-        path: "/zero/home/.local/share/applications/{{ item | basename }}"
+        path: "/home/zero/.local/share/applications/{{ item | basename }}"
         insertafter: '^\[Desktop Entry\]'
         line: 'NoDisplay=true'
         create: no
