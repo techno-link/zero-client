@@ -338,3 +338,11 @@
     - name: Install the downloaded Parsec package
       ansible.builtin.apt:
         deb: '/home/zero/.config/linkin/parsec-linux.deb'
+
+
+    #------------------------------------------------------------------------------------------------------------------
+    # SET TIME ZONE TO SOFIA
+    # ------------------------------------------------------------------------------------------------------------------
+    - name: Set timezone to Europe/Sofia
+      community.general.timezone:
+        name: Europe/Sofia
