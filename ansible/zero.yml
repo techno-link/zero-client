@@ -342,6 +342,7 @@
     # ------------------------------------------------------------------------------------------------------------------
     # SET GEO LOCATION AND TIMEZOME
     # ------------------------------------------------------------------------------------------------------------------
+  - name: Set timezone via ip geolocation 
   block:
     - name: Get IP geolocation data
       community.general.ipinfoio_facts:
