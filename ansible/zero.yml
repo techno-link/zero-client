@@ -1,6 +1,7 @@
 ---
 - name: "configure zero client"
   hosts: localhost
+  become: true #root privileges
   connection: local
   gather_facts: yes
   vars:
@@ -338,3 +339,15 @@
     - name: Install the downloaded Parsec package
       ansible.builtin.apt:
         deb: '/home/zero/.config/linkin/parsec-linux.deb'
+        
+    # ------------------------------------------------------------------------------------------------------------------
+    # SET GEO LOCATION AND TIMEZOME
+    # ------------------------------------------------------------------------------------------------------------------
+
+    - name: Get IP geolocation data
+      ipinfoio_facts:
+
+    - name: "Set timezone to {{ ansible_facts.timezone }}"
+      timezone:
+        name: "{{ ansible_facts.timezone }}"
+      when: ansible_facts.timezone is defined
