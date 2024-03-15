@@ -338,3 +338,16 @@
     - name: Install the downloaded Parsec package
       ansible.builtin.apt:
         deb: '/home/zero/.config/linkin/parsec-linux.deb'
+        
+    # ------------------------------------------------------------------------------------------------------------------
+    # SET GEO LOCATION AND TIMEZOME
+    # ------------------------------------------------------------------------------------------------------------------
+  - name: Set timezone via ip geolocation 
+  block:
+    - name: Get IP geolocation data
+      community.general.ipinfoio_facts:
+      
+    - name: "Set timezone to {{ ansible_facts.timezone }}"
+      timezone:
+        name: "{{ ansible_facts.timezone }}"
+      when: ansible_facts.timezone is defined
