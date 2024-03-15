@@ -1,7 +1,6 @@
 ---
 - name: "configure zero client"
   hosts: localhost
-  become: true #root privileges
   connection: local
   gather_facts: yes
   vars:
@@ -343,10 +342,10 @@
     # ------------------------------------------------------------------------------------------------------------------
     # SET GEO LOCATION AND TIMEZOME
     # ------------------------------------------------------------------------------------------------------------------
-
+  block:
     - name: Get IP geolocation data
-      ipinfoio_facts:
-
+      community.general.ipinfoio_facts:
+      
     - name: "Set timezone to {{ ansible_facts.timezone }}"
       timezone:
         name: "{{ ansible_facts.timezone }}"
