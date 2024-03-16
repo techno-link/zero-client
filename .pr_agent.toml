@@ -1,0 +1,89 @@
+# SETTINGS
+# https://github.com/Codium-ai/pr-agent/blob/main/pr_agent/settings/configuration.toml
+# https://pr-agent-docs.codium.ai/tools/
+
+[github_app]
+pr_commands = [
+  "/describe",
+  "/review",
+  "/improve --extended"
+]
+
+[pr_reviewer] # /review #
+# enable/disable features
+require_focused_review = false
+require_score_review = true
+require_tests_review = true
+require_estimate_effort_to_review = true
+# soc2
+require_soc2_ticket = false
+soc2_ticket_prompt = "Does the PR description include a link to ticket in a project management system (e.g., Jira, Asana, Trello, etc.) ?"
+# general options
+num_code_suggestions = 5
+inline_code_comments = true
+ask_and_reflect = false
+#automatic_review=true
+persistent_comment = false
+extra_instructions = """\
+"""
+final_update_message = true
+# review labels
+enable_review_labels_security = true
+enable_review_labels_effort = true
+# specific configurations for incremental review (/review -i)
+require_all_thresholds_for_incremental_review = false
+minimal_commits_for_incremental_review = 0
+minimal_minutes_for_incremental_review = 0
+enable_help_text = true # Determines whether to include help text in the PR review. Enabled by default.
+# auto approval
+enable_auto_approval = true
+maximal_review_effort = 3
+
+[pr_description] # /describe #
+publish_labels = true
+publish_description_as_comment = false
+add_original_user_description = true
+keep_original_user_title = false
+use_bullet_points = true
+extra_instructions = """\
+Format the title as conventional commit message.
+"""
+enable_pr_type = true
+final_update_message = true
+enable_help_text = false
+enable_help_comment = false
+## changes walkthrough section
+enable_semantic_files_types = true
+collapsible_file_list = 'adaptive' # true, false, 'adaptive'
+inline_file_summary = false # false, true, 'table'
+# markers
+use_description_markers = false
+include_generated_by_header = true
+
+[pr_code_suggestions] # /improve #
+max_context_tokens = 8000
+num_code_suggestions = 4
+summarize = false
+extra_instructions = """\
+"""
+rank_suggestions = true
+enable_help_text = true
+# params for '/improve --extended' mode
+auto_extended_mode = true
+num_code_suggestions_per_chunk = 5
+max_number_of_calls = 3
+parallel_calls = true
+rank_extended_suggestions = true
+final_clip_factor = 0.9
+
+[pr_custom_suggestions]
+prompt = """\
+"""
+num_code_suggestions = 4
+enable_help_text = true
+
+[checks] # /checks (pro feature) #
+enable_auto_checks_feedback = true
+excluded_checks_list = [] # list of checks to exclude, for example: ["check1", "check2"]
+persistent_comment = false
+enable_help_text = true
