@@ -349,3 +349,13 @@
       timezone:
         name: "{{ ansible_facts.timezone }}"
       when: ansible_facts.timezone is defined
+
+    #------------------------------------------------------------------------------------------------------------------------
+    # REMOVE SCREEN SAVER LOCK
+    #------------------------------------------------------------------------------------------------------------------------
+    - name: Remove screen saver locking
+      community.general.dconf:
+        key: "/org/gnome/desktop/screensaver/ununtu-lock-on-suspend"
+        value: "false"
+        state: present
+ 
