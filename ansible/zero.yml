@@ -355,5 +355,8 @@
     #------------------------------------------------------------------------------------------------------------------------
   
     - name: Disable lock screen on suspend with gsettings
-      command: gsettings set org.gnome.desktop.screensaver ubuntu-lock-on-suspend false
+      - name: Disable lock screen on suspend with gsettings
+        command: gsettings set org.gnome.desktop.screensaver ubuntu-lock-on-suspend false
+        register: gsettings_output
+        changed_when: "'No such schema' not in gsettings_output.stderr"
  
