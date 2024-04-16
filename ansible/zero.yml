@@ -357,4 +357,4 @@
     - name: Disable lock screen on suspend with gsettings
       command: gsettings set org.gnome.desktop.screensaver ubuntu-lock-on-suspend false
     - name: Disable screensaver
-    command: gsettings set org.gnome.desktop.screensaver lock-enabled false
+      command: gsettings set org.gnome.desktop.screensaver lock-enabled false
