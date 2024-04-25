@@ -350,15 +350,4 @@
         name: "{{ ansible_facts.timezone }}"
       when: ansible_facts.timezone is defined
 
-    #------------------------------------------------------------------------------------------------------------------------
-    # REMOVE SCREEN SAVER LOCK
-    #------------------------------------------------------------------------------------------------------------------------
   
-    - name: Disable lock screen on suspend with gsettings
-      command: gsettings set org.gnome.desktop.screensaver ubuntu-lock-on-suspend false
-    
-    - name: Disable screensaver
-      ansible.builtin.gnome_settings:
-        schema: "org.gnome.desktop.screensaver"
-        key: "lock-enabled"
-        value: "false"
