@@ -349,5 +349,10 @@
       timezone:
         name: "{{ ansible_facts.timezone }}"
       when: ansible_facts.timezone is defined
-
-  
+    # ------------------------------------------------------------------------------------------------------------------
+    # TURN OFF LOCK SCREEN
+    # ------------------------------------------------------------------------------------------------------------------
+    - name: Disable lock screen
+      community.general.dconf:
+        key: '/org/gnome/desktop/lockdown/disable-lock-screen'
+        value: 'true'        
