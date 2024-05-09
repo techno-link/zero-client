@@ -338,7 +338,12 @@
     - name: Install the downloaded Parsec package
       ansible.builtin.apt:
         deb: '/home/zero/.config/linkin/parsec-linux.deb'
-        
+    # ------------------------------------------------------------------------------------------------------------------
+    # INSTALL PYTHON PSUTIL LIBRARY REQUIRED FOR COMMUNITY.GENERAL.DCONF 
+    # ------------------------------------------------------------------------------------------------------------------ 
+    - name: Install psutil python package
+      ansible.builtin.pip:
+        name: psutil
     # ------------------------------------------------------------------------------------------------------------------
     # SET GEO LOCATION AND TIMEZOME
     # ------------------------------------------------------------------------------------------------------------------
