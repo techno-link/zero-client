@@ -322,7 +322,7 @@
           - xdg-utils
         state: latest
     
-    -name: Install openssl 3
+    - name: Install openssl 3
       ansible.builtin.apt:
         name:
           - openssl-tool
