@@ -325,8 +325,9 @@
     - name: Install Openssl 3 required for parsec
       ansible.builtin.apt:
         name:
-          - openssl-tool
+          - openssl
         state: latest
+        
     - name: Check if the Parsec package exists and get its details
       ansible.builtin.stat:
         path: '/home/zero/.config/linkin/parsec-linux.deb'
