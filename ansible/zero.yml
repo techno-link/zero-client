@@ -321,7 +321,13 @@
           - libqt5x11extras5
           - xdg-utils
         state: latest
-
+        
+    - name: Install Openssl 3 required for parsec
+      ansible.builtin.apt:
+        name:
+          - openssl
+        state: latest
+        
     - name: Check if the Parsec package exists and get its details
       ansible.builtin.stat:
         path: '/home/zero/.config/linkin/parsec-linux.deb'
