@@ -327,6 +327,12 @@
         name:
           - openssl
         state: latest
+    
+    - name: Install curl required for parsec
+      ansible.builtin.apt:
+        name:
+          - curl
+        state: latest
         
     - name: Check if the Parsec package exists and get its details
       ansible.builtin.stat:
