@@ -1,5 +1,5 @@
 [begin] (TECHNOLINK)
-[exec] (Amazon Workspaces) {/opt/workspacesclient/workspacesclient} </opt/workspacesclient/Assets/AppIcon-512.png>
+[exec] (Amazon Workspaces) {workspacesclient} </opt/workspacesclient/Assets/AppIcon-512.png>
 [exec] (Parsec) {parsecd} </usr/share/icons/hicolor/256x256/apps/parsecd.png>
 [separator]
 [exec] (Restart) {sudo reboot}
