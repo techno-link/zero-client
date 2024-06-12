@@ -167,6 +167,12 @@
         group: zero
 
     # INSTALL AND CONFIGURE WORKSPACES
+    - name: Install requirements for AWS Workspaces
+      ansible.builtin.apt:
+        name:
+          - libwebkit2gtk-4.0-dev
+        state: latest
+
     - name: Add apt key for workspaces repo
       apt_key:
         url: https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc
