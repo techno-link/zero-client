@@ -379,3 +379,13 @@
         key: '/org/gnome/desktop/lockdown/disable-lock-screen'
         value: 'true'
         state: present
+    # ------------------------------------------------------------------------------------------------------------------
+    # TURN OFF HIBERNATION
+    # ------------------------------------------------------------------------------------------------------------------
+    - name: Disable hibernation
+      community.general.dconf:
+        key: '/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type'
+        value: 'nothing'
+        state: present
+  
+
