@@ -385,7 +385,7 @@
     - name: Disable hibernation
       community.general.dconf:
         key: '/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type'
-        value: 'nothing'
+        value: 'false'
         state: present
   
 
