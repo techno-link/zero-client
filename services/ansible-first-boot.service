@@ -5,7 +5,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
-Environment="ANSIBLE_LOG_PATH=/home/zero/.config/linkin/log/ansible-first-boot.log"
+Environment="ANSIBLE_LOG_PATH=/home/zero/.config/linkin/ansible-first-boot.log"
 ExecStart=/usr/bin/ansible-playbook /root/zero.yml -v
 ExecStartPost=/bin/systemctl disable ansible-first-boot.service
 ExecStartPost=/bin/systemctl enable ansible-boot.service
