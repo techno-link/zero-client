@@ -296,18 +296,16 @@
 
     - name: Calculate AWS Workspaces package age in days
       set_fact:
-        file_age_days: "{{ ((ansible_date_time.epoch | int) - (workspaces_file.stat.mtime | int)) / 86400 | round(2) }}"
-      when: workspaces_file.stat.exists and workspaces_file.stat.mtime is defined
+        file_age_days: "{{ ((ansible_date_time.epoch | int) - (workspaces_file.stat.mtime | default(ansible_date_time.epoch | int)) ) / 86400 }}"
+      when: workspaces_file.stat.exists
 
-    - name: Download the AWS Workspaces package if it is missing, mtime is undefined, or the file is 7 days or older
+    - name: Download the AWS Workspaces package if it has been updated
       ansible.builtin.get_url:
         url: 'https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb'
         dest: '/home/zero/.config/linkin/workspace_client.deb'
         force: yes
         mode: '0755'
-      when:
-        - not workspaces_file.stat.exists or workspaces_file.stat.mtime is not defined
-        - file_age_days is not defined or file_age_days >= 7
+      when: not workspaces_file.stat.exists or (file_age_days | default(0) | int) >= 7
 
     - name: Install the downloaded AWS Workspaces package
       ansible.builtin.apt:
