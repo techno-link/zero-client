@@ -17,11 +17,8 @@ systemctl enable ansible-first-boot.service
 
 # ADD DEFAULT USER
 useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
+echo "zero ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/zero"
+chmod 440 "/etc/sudoers.d/zero"
 
 # RUN ANSIBLE INSIDE CHROOT
 ZEROSTATE=CHROOT ansible-playbook /root/zero.yml -v
-
-# CLEANUP APT
-apt autoclean
-apt autoremove -y --purge
-apt clean

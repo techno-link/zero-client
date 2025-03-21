@@ -68,8 +68,10 @@ cat <<EOF >$ROOT_MOUNT_PATH/etc/fstab
 # that works even if disks are added and removed. See fstab(5).
 #
 # <file system> <mount point> <type> <options> <dump> <pass>
-/dev/disk/by-uuid/$LINUX_UUID / ext4 defaults,noatime,nodiratime 0 1
+/dev/disk/by-uuid/$LINUX_UUID / ext4 defaults,noatime,nodiratime,commit=600,errors=remount-ro 0 1
 /dev/disk/by-uuid/$EFI_UUID /efi vfat defaults 0 1
+tmpfs /tmp tmpfs defaults,noatime,mode=1777 0 0
+tmpfs /var/log tmpfs defaults,noatime,mode=0755 0 0
 EOF
 
 # CHROOT
