@@ -82,12 +82,12 @@
       ansible.builtin.apt:
         autoremove: yes
         purge: yes
-        
+
     - name: Install python pip
       ansible.builtin.apt:
         name: python3-pip
         state: latest
-        
+
     # ------------------------------------------------------------------------------------------------------------------
     # CONFIGURE TTY
     # ------------------------------------------------------------------------------------------------------------------
@@ -321,19 +321,19 @@
           - libqt5x11extras5
           - xdg-utils
         state: latest
-        
+
     - name: Install Openssl 3 required for parsec
       ansible.builtin.apt:
         name:
           - openssl
         state: latest
-    
+
     - name: Install curl required for parsec
       ansible.builtin.apt:
         name:
           - curl
         state: latest
-        
+
     - name: Check if the Parsec package exists and get its details
       ansible.builtin.stat:
         path: '/home/zero/.config/linkin/parsec-linux.deb'
@@ -355,22 +355,29 @@
     - name: Install the downloaded Parsec package
       ansible.builtin.apt:
         deb: '/home/zero/.config/linkin/parsec-linux.deb'
+
     # ------------------------------------------------------------------------------------------------------------------
     # INSTALL PYTHON PSUTIL LIBRARY REQUIRED FOR COMMUNITY.GENERAL.DCONF 
     # ------------------------------------------------------------------------------------------------------------------ 
     - name: Install psutil python package
       ansible.builtin.pip:
         name: psutil
+
     # ------------------------------------------------------------------------------------------------------------------
     # SET GEO LOCATION AND TIMEZOME
     # ------------------------------------------------------------------------------------------------------------------
     - name: Get IP geolocation data
       community.general.ipinfoio_facts:
-      
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+
     - name: "Set timezone to {{ ansible_facts.timezone }}"
       timezone:
         name: "{{ ansible_facts.timezone }}"
-      when: ansible_facts.timezone is defined
+      when:
+        - ansible_facts.timezone is defined
+        - lookup('env', 'ZEROSTATE') != 'CHROOT'
+
     # ------------------------------------------------------------------------------------------------------------------
     # TURN OFF LOCK SCREEN
     # ------------------------------------------------------------------------------------------------------------------
@@ -379,6 +386,7 @@
         key: '/org/gnome/desktop/lockdown/disable-lock-screen'
         value: 'true'
         state: present
+
     # ------------------------------------------------------------------------------------------------------------------
     # TURN OFF HIBERNATION
     # ------------------------------------------------------------------------------------------------------------------
@@ -387,5 +395,4 @@
         key: '/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type'
         value: 'false'
         state: present
-  
 
