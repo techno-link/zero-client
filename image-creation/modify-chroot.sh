@@ -3,7 +3,6 @@ set -euox pipefail
 
 # KERNEL AND GRUB
 apt install -y linux-image-generic grub-efi-amd64
-# mount -t efivarfs efivarfs /sys/firmware/efi/efivars
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=ZEROCLIENT --recheck --removable
 update-grub
 
