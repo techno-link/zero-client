@@ -3,7 +3,7 @@ set -euox pipefail
 
 # KERNEL AND GRUB
 apt install -y linux-image-generic grub-efi-amd64
-mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+# mount -t efivarfs efivarfs /sys/firmware/efi/efivars
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=ZEROCLIENT --recheck --removable
 update-grub
 
@@ -21,4 +21,4 @@ useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
 #chmod 440 "/etc/sudoers.d/zero"
 
 # RUN ANSIBLE INSIDE CHROOT
-ZEROSTATE=CHROOT ansible-playbook /root/zero.yml -v
+LC_ALL=C.UTF-8 LANG=C.UTF-8 ZEROSTATE=CHROOT ansible-playbook /root/zero.yml -v

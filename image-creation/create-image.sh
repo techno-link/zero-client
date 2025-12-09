@@ -88,7 +88,7 @@ umount $ROOT_MOUNT_PATH/dev
 umount $ROOT_MOUNT_PATH/proc
 umount $ROOT_MOUNT_PATH/run
 umount $ROOT_MOUNT_PATH/efi
-umount $ROOT_MOUNT_PATH/sys/firmware/efi/efivars
+umount $ROOT_MOUNT_PATH/sys/firmware/efi/efivars || true
 umount $ROOT_MOUNT_PATH/sys
 umount $ROOT_MOUNT_PATH
 losetup -d "$LOOP_DEVICE"
