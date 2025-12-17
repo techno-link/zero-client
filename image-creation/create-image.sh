@@ -3,7 +3,6 @@ set -euox pipefail
 
 # VARS
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
-SERVICES_DIR="$SCRIPT_DIR/../services"
 ANSIBLE_DIR="$SCRIPT_DIR/../ansible"
 ROOT_MOUNT_PATH="/mnt/zero-img"
 
@@ -32,10 +31,10 @@ mkfs.ext4 "$LOOP_PARTITION_2"      # Format the Linux partition as ext4
 mkdir -p $ROOT_MOUNT_PATH
 mount "$LOOP_PARTITION_2" $ROOT_MOUNT_PATH
 
-debootstrap --arch=amd64 jammy $ROOT_MOUNT_PATH http://archive.ubuntu.com/ubuntu/
+debootstrap --arch=amd64 noble $ROOT_MOUNT_PATH http://archive.ubuntu.com/ubuntu/
 
-mkdir -p $ROOT_MOUNT_PATH/efi
-mount "$LOOP_PARTITION_1" $ROOT_MOUNT_PATH/efi
+mkdir -p $ROOT_MOUNT_PATH/boot/efi
+mount "$LOOP_PARTITION_1" $ROOT_MOUNT_PATH/boot/efi
 
 # PREPARE FOR CHROOT
 mount --bind /dev $ROOT_MOUNT_PATH/dev
@@ -69,7 +68,7 @@ cat <<EOF >$ROOT_MOUNT_PATH/etc/fstab
 #
 # <file system> <mount point> <type> <options> <dump> <pass>
 /dev/disk/by-uuid/$LINUX_UUID / ext4 defaults,noatime,nodiratime,commit=600,errors=remount-ro 0 1
-/dev/disk/by-uuid/$EFI_UUID /efi vfat defaults 0 1
+/dev/disk/by-uuid/$EFI_UUID /boot/efi vfat defaults 0 1
 tmpfs /tmp tmpfs defaults,noatime,mode=1777 0 0
 tmpfs /var/log tmpfs defaults,noatime,mode=0755 0 0
 EOF
@@ -87,7 +86,7 @@ umount $ROOT_MOUNT_PATH/dev/pts
 umount $ROOT_MOUNT_PATH/dev
 umount $ROOT_MOUNT_PATH/proc
 umount $ROOT_MOUNT_PATH/run
-umount $ROOT_MOUNT_PATH/efi
+umount $ROOT_MOUNT_PATH/boot/efi
 umount $ROOT_MOUNT_PATH/sys/firmware/efi/efivars || true
 umount $ROOT_MOUNT_PATH/sys
 umount $ROOT_MOUNT_PATH

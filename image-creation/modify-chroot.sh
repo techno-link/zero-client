@@ -3,12 +3,13 @@ set -euox pipefail
 
 # KERNEL AND GRUB
 apt install -y linux-image-generic grub-efi-amd64
-grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=ZEROCLIENT --recheck --removable
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ZEROCLIENT --recheck --removable
 update-grub
 
 # INSTALL ANSIBLE
 apt install -y software-properties-common
-add-apt-repository --yes --update ppa:ansible/ansible
+add-apt-repository --yes universe
+apt update
 apt install -y ansible
 
 # CUSTOM SCRIPT AND SERVICES

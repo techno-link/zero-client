@@ -286,30 +286,45 @@
     - name: Install requirements for AWS Workspaces
       ansible.builtin.apt:
         name:
-          - libwebkit2gtk-4.0-dev
+          - libwebkit2gtk-4.1-0
         state: latest
 
-    - name: Check if the AWS Workspaces package exists and get its details
+    - name: Check if binary keyring exists
       ansible.builtin.stat:
-        path: '/home/zero/.config/linkin/workspace_client.deb'
-      register: workspaces_file
+        path: /usr/share/keyrings/amazon-workspaces-clients.gpg
+      register: keyring_stat_before
 
-    - name: Calculate AWS Workspaces package age in days
-      set_fact:
-        file_age_days: "{{ ((ansible_date_time.epoch | int) - (workspaces_file.stat.mtime | default(ansible_date_time.epoch | int)) ) / 86400 }}"
-      when: workspaces_file.stat.exists
-
-    - name: Download the AWS Workspaces package if it has been updated
+    - name: Download AWS Workspaces GPG key (ASCII armored)
       ansible.builtin.get_url:
-        url: 'https://d3nt0h4h6pmmc4.cloudfront.net/new_workspacesclient_jammy_amd64.deb'
-        dest: '/home/zero/.config/linkin/workspace_client.deb'
+        url: https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc
+        dest: /tmp/amazon-workspaces-clients.asc
+        mode: '0644'
         force: yes
-        mode: '0755'
-      when: not workspaces_file.stat.exists or (file_age_days | default(0) | int) >= 7
+      register: aws_key_download
 
-    - name: Install the downloaded AWS Workspaces package
+    - name: Convert GPG key to binary format and install
+      ansible.builtin.command:
+        cmd: gpg --dearmor -o /usr/share/keyrings/amazon-workspaces-clients.gpg /tmp/amazon-workspaces-clients.asc
+      when: aws_key_download.changed or not keyring_stat_before.stat.exists
+
+    - name: Set correct permissions on GPG keyring
+      ansible.builtin.file:
+        path: /usr/share/keyrings/amazon-workspaces-clients.gpg
+        mode: '0644'
+        owner: root
+        group: root
+
+    - name: Add AWS Workspaces APT repository for Noble
+      ansible.builtin.apt_repository:
+        repo: 'deb [arch=amd64 signed-by=/usr/share/keyrings/amazon-workspaces-clients.gpg] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu noble main'
+        filename: amazon-workspaces-clients
+        state: present
+        update_cache: yes
+
+    - name: Install AWS Workspaces client from repository
       ansible.builtin.apt:
-        deb: '/home/zero/.config/linkin/workspace_client.deb'
+        name: workspacesclient
+        state: latest
 
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -357,11 +372,12 @@
         deb: '/home/zero/.config/linkin/parsec-linux.deb'
 
     # ------------------------------------------------------------------------------------------------------------------
-    # INSTALL PYTHON PSUTIL LIBRARY REQUIRED FOR COMMUNITY.GENERAL.DCONF 
-    # ------------------------------------------------------------------------------------------------------------------ 
+    # INSTALL PYTHON PSUTIL LIBRARY REQUIRED FOR COMMUNITY.GENERAL.DCONF
+    # ------------------------------------------------------------------------------------------------------------------
     - name: Install psutil python package
-      ansible.builtin.pip:
-        name: psutil
+      ansible.builtin.apt:
+        name: python3-psutil
+        state: latest
 
     # ------------------------------------------------------------------------------------------------------------------
     # SET GEO LOCATION AND TIMEZOME
@@ -395,4 +411,3 @@
         key: '/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type'
         value: 'false'
         state: present
-
