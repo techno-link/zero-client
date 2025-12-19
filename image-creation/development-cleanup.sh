@@ -2,7 +2,6 @@
 set -euox pipefail
 
 umount /mnt/zero-img/proc
-umount /mnt/zero-img/sys/firmware/efi/efivars
 umount /mnt/zero-img/sys
 umount /mnt/zero-img/dev/pts
 umount /mnt/zero-img/dev

@@ -1,93 +1,105 @@
 #!/usr/bin/env bash
-set -euox pipefail
+set -euo pipefail
+set -x
 
-# VARS
-SCRIPT_DIR=$(dirname "$(realpath "$0")")
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 ANSIBLE_DIR="$SCRIPT_DIR/../ansible"
+SERVICES_DIR="$SCRIPT_DIR/../services"
 ROOT_MOUNT_PATH="/mnt/zero-img"
+IMAGE="zero-client.img"
 
-# CREATE EMPTY IMAGE
-dd if=/dev/zero of=zero-client.img bs=1G count=10
+cleanup() {
+  set +e
+  sync
 
-# POSE THE IMAGE AS BLOCK DEVICE ON /dev/loopXX
-LOOP_DEVICE="$(losetup -fP --show zero-client.img)"
-LOOP_PARTITION_1="${LOOP_DEVICE}p1"
-LOOP_PARTITION_2="${LOOP_DEVICE}p2"
+  # Unmount in reverse order if mounted
+  umount -R "$ROOT_MOUNT_PATH" 2>/dev/null || true
 
-losetup -fP zero-client.img
+  if [ -n "${LOOP_DEVICE:-}" ]; then
+    losetup -d "$LOOP_DEVICE" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT INT TERM
 
-# PARTITION THE BLOCK DEVICE
+# Create image
+dd if=/dev/zero of="$IMAGE" bs=1G count=10
+
+# Attach loop device with partition scanning
+LOOP_DEVICE="$(losetup -fP --show "$IMAGE")"
+
+# Partition the loop device
 {
   echo 'label: gpt'
   echo 'size=500M, type=U'
   echo ',,L'
 } | sfdisk "$LOOP_DEVICE"
 
-# FORMAT THE PARTITIONS
-mkfs.vfat -F32 "$LOOP_PARTITION_1" # Format the EFI partition as FAT32
-mkfs.ext4 "$LOOP_PARTITION_2"      # Format the Linux partition as ext4
+# Tell kernel to re-scan partitions
+partx -u "$LOOP_DEVICE" 2>/dev/null || true
+sleep 1
 
-# MOUNT THE BLOCK DEVICE AND BOOTSTRAP
-mkdir -p $ROOT_MOUNT_PATH
-mount "$LOOP_PARTITION_2" $ROOT_MOUNT_PATH
+ESP_PART="${LOOP_DEVICE}p1"
+ROOT_PART="${LOOP_DEVICE}p2"
 
-debootstrap --arch=amd64 noble $ROOT_MOUNT_PATH http://archive.ubuntu.com/ubuntu/
+# Wait for partition devices to appear
+for i in {1..10}; do
+  [ -b "$ESP_PART" ] && [ -b "$ROOT_PART" ] && break
+  echo "Waiting for partitions to appear... ($i/10)"
+  sleep 1
+done
 
-mkdir -p $ROOT_MOUNT_PATH/boot/efi
-mount "$LOOP_PARTITION_1" $ROOT_MOUNT_PATH/boot/efi
+# Verify partitions exist
+if [ ! -b "$ESP_PART" ] || [ ! -b "$ROOT_PART" ]; then
+  echo "ERROR: Partitions not found after sfdisk!" >&2
+  lsblk "$LOOP_DEVICE" || true
+  exit 1
+fi
 
-# PREPARE FOR CHROOT
-mount --bind /dev $ROOT_MOUNT_PATH/dev
-mount --bind /dev/pts $ROOT_MOUNT_PATH/dev/pts
-mount --bind /proc $ROOT_MOUNT_PATH/proc
-mount --bind /sys $ROOT_MOUNT_PATH/sys
-mount --bind /run $ROOT_MOUNT_PATH/run
+echo "Partitions ready:"
+lsblk "$LOOP_DEVICE"
 
-# MARK CHROOT
-touch "$ROOT_MOUNT_PATH/root/in_chroot"
+# Format
+mkfs.vfat -F32 -n ZEROEFI "$ESP_PART"
+mkfs.ext4 -L ZEROROOT "$ROOT_PART"
 
-# CUSTOM SERVICES
-cp "$SERVICES_DIR/ansible-first-boot.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-first-boot.service"
-cp "$SERVICES_DIR/ansible-boot.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-boot.service"
-cp "$SERVICES_DIR/ansible-cron.service" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-cron.service"
-cp "$SERVICES_DIR/ansible-cron.timer" "$ROOT_MOUNT_PATH/etc/systemd/system/ansible-cron.timer"
+# Mount root + esp
+mkdir -p "$ROOT_MOUNT_PATH"
+mount "$ROOT_PART" "$ROOT_MOUNT_PATH"
+mkdir -p "$ROOT_MOUNT_PATH/boot/efi"
+mount "$ESP_PART" "$ROOT_MOUNT_PATH/boot/efi"
 
-# ANSIBLE PLAYBOOKS
+# Bootstrap
+debootstrap --arch=amd64 noble "$ROOT_MOUNT_PATH" http://archive.ubuntu.com/ubuntu/
+
+# Prepare chroot mounts
+mkdir -p "$ROOT_MOUNT_PATH"/{proc,sys,dev,run,dev/pts}
+mount -t proc /proc "$ROOT_MOUNT_PATH/proc"
+mount --rbind /sys "$ROOT_MOUNT_PATH/sys"
+mount --rbind /dev "$ROOT_MOUNT_PATH/dev"
+mount --bind /run "$ROOT_MOUNT_PATH/run"
+mount --bind /dev/pts "$ROOT_MOUNT_PATH/dev/pts"
+# cp -L /etc/resolv.conf "$ROOT_MOUNT_PATH/etc/resolv.conf"
+
+# Services and playbook
+cp "$SERVICES_DIR/"*.service "$ROOT_MOUNT_PATH/etc/systemd/system/" || true
+cp "$SERVICES_DIR/"*.timer "$ROOT_MOUNT_PATH/etc/systemd/system/" || true
 cp "$ANSIBLE_DIR/zero.yml" "$ROOT_MOUNT_PATH/root/zero.yml"
 
-# CONFIGURE FSTAB
-EFI_UUID=$(blkid -s UUID -o value "$LOOP_PARTITION_1")
-LINUX_UUID=$(blkid -s UUID -o value "$LOOP_PARTITION_2")
-
-cat <<EOF >$ROOT_MOUNT_PATH/etc/fstab
-# /etc/fstab: static file system information.
-#
-# Use 'blkid' to print the universally unique identifier for a
-# device; this may be used with UUID= as a more robust way to name devices
-# that works even if disks are added and removed. See fstab(5).
-#
-# <file system> <mount point> <type> <options> <dump> <pass>
-/dev/disk/by-uuid/$LINUX_UUID / ext4 defaults,noatime,nodiratime,commit=600,errors=remount-ro 0 1
-/dev/disk/by-uuid/$EFI_UUID /boot/efi vfat defaults 0 1
+# fstab
+cat >"$ROOT_MOUNT_PATH/etc/fstab" <<'EOF'
+LABEL=ZEROROOT / ext4 defaults,noatime,errors=remount-ro 0 1
+LABEL=ZEROEFI /boot/efi vfat defaults 0 0
 tmpfs /tmp tmpfs defaults,noatime,mode=1777 0 0
 tmpfs /var/log tmpfs defaults,noatime,mode=0755 0 0
 EOF
 
-# CHROOT
+# Chroot
 cp "$SCRIPT_DIR/modify-chroot.sh" "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
 chmod +x "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
-chroot $ROOT_MOUNT_PATH /root/modify-chroot.sh
-rm "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
 
-# CLEANUP
-rm "$ROOT_MOUNT_PATH/root/in_chroot"
-sync
-umount $ROOT_MOUNT_PATH/dev/pts
-umount $ROOT_MOUNT_PATH/dev
-umount $ROOT_MOUNT_PATH/proc
-umount $ROOT_MOUNT_PATH/run
-umount $ROOT_MOUNT_PATH/boot/efi
-umount $ROOT_MOUNT_PATH/sys/firmware/efi/efivars || true
-umount $ROOT_MOUNT_PATH/sys
-umount $ROOT_MOUNT_PATH
-losetup -d "$LOOP_DEVICE"
+chroot "$ROOT_MOUNT_PATH" /usr/bin/env -i \
+  HOME=/root TERM="$TERM" \
+  PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+  /root/modify-chroot.sh
+
+rm -f "$ROOT_MOUNT_PATH/root/modify-chroot.sh"
