@@ -145,6 +145,7 @@
     - name: Update hostname
       ansible.builtin.hostname:
         name: "LINKIN-ZERO-{{ branch_version }}"
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     # ------------------------------------------------------------------------------------------------------------------
     # OPENBOX AND GUI INSTALLATION

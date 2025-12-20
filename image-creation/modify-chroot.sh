@@ -1,112 +1,72 @@
 #!/usr/bin/env bash
-set -euo pipefail
-set -x
+set -euox pipefail
 
-export DEBIAN_FRONTEND=noninteractive
+# INSTALL PACKAGES
+apt install -y linux-image-generic software-properties-common
+add-apt-repository -y universe
+apt install -y systemd-boot ansible
 
-apt-get update
-
-# Bootable base - CRITICAL ORDER for Ubuntu 24.04:
-# 1. Kernel + initramfs-tools first (required by shim-signed post-install)
-# 2. shim-signed (will copy real bootloader only if kernel exists)
-# 3. grub-efi-amd64
-echo "==> Installing kernel and initramfs tools..."
-apt-get install -y --no-install-recommends \
-  linux-image-generic \
-  initramfs-tools \
-  systemd-sysv \
-  ca-certificates
-
-echo "==> Installing shim-signed (now that kernel is installed)..."
-apt-get install -y --no-install-recommends shim-signed
-
-echo "==> Installing GRUB EFI..."
-apt-get install -y --no-install-recommends grub-efi-amd64
-
-# Validate ESP
+# VALIDATE ESP
 if ! mountpoint -q /boot/efi; then
   echo "ERROR: ESP is not mounted at /boot/efi" >&2
   exit 1
 fi
 
-# Write /etc/default/grub deterministically (do NOT append)
-cat >/etc/default/grub <<'EOF'
-GRUB_DEFAULT=0
-GRUB_TIMEOUT=2
-GRUB_TIMEOUT_STYLE=menu
-GRUB_DISTRIBUTOR=`( . /etc/os-release; echo ${NAME:-Ubuntu} ) 2>/dev/null || echo Ubuntu`
-GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
-GRUB_CMDLINE_LINUX=""
-
-# Helpful on removable media: include search modules early
-GRUB_PRELOAD_MODULES="part_gpt part_msdos fat ext2 search search_fs_uuid search_fs_label"
-
-# For removable media, disable UUID to avoid chroot loop device UUIDs
-GRUB_DISABLE_LINUX_UUID=true
-GRUB_DISABLE_LINUX_PARTUUID=true
-EOF
-
-echo "==> Installing GRUB bootloader to ESP (removable fallback)..."
-grub-install \
-  --target=x86_64-efi \
-  --efi-directory=/boot/efi \
-  --boot-directory=/boot \
-  --bootloader-id=ZEROCLIENT \
-  --removable \
-  --no-nvram \
-  --recheck
-
-echo "==> Building initramfs for all installed kernels..."
-# Use -u (update) which will create if missing, safer than -c
+# REBUILD INITRAMFS (once)
+echo "==> Rebuilding initramfs..."
 update-initramfs -u -k all
 
-echo "==> Generating GRUB configuration..."
-update-grub
+# GET ROOT PARTITION PARTUUID
+ROOT_PARTUUID=$(blkid -s PARTUUID -o value "$(findmnt -n -o SOURCE /)")
+echo "==> Root partition PARTUUID: $ROOT_PARTUUID"
 
-# Ubuntu 24.04 fix: Replace any hardcoded device paths with label-based search
-echo "==> Fixing device references in grub.cfg for removable media..."
-sed -i 's|root=/dev/[^ ]*|root=LABEL=ZEROROOT|g' /boot/grub/grub.cfg
-sed -i '/set root=/s|(hd[0-9]*,gpt[0-9]*)|'\''hd0,gpt2'\''|g' /boot/grub/grub.cfg
+# INSTALL SYSTEMD-BOOT
+echo "==> Installing systemd-boot to ESP..."
+bootctl install --esp-path=/boot/efi --no-variables
 
-# Provide a fallback grub.cfg next to BOOTX64.EFI (good practice for removable)
-echo "==> Writing fallback config for EFI/BOOT..."
-mkdir -p /boot/efi/EFI/BOOT
-cat >/boot/efi/EFI/BOOT/grub.cfg <<'EOF'
-# Fallback GRUB config for removable media
-search --no-floppy --set=root --label ZEROROOT
-set prefix=($root)/boot/grub
-configfile $prefix/grub.cfg
+# CONFIGURE LOADER
+cat >/boot/efi/loader/loader.conf <<EOF
+default ubuntu.conf
+timeout 3
+console-mode max
+editor no
 EOF
 
-# Validate expected outputs
-echo "==> Validating boot artifacts..."
-test -f /boot/grub/grub.cfg
-ls -la /boot/efi/EFI/BOOT || true
-test -f /boot/efi/EFI/BOOT/BOOTX64.EFI || echo "WARNING: BOOTX64.EFI not found; firmware may not boot this image."
+# GET KERNEL VERSION
+KERNEL_VERSION=$(ls /boot/vmlinuz-* | sed 's/.*vmlinuz-//' | head -n1)
 
-# Universe + ansible (optional)
-apt-get install -y software-properties-common
-add-apt-repository --yes universe
-apt-get update
-apt-get install -y ansible
+# CREATE BOOT ENTRY WITH PARTUUID
+cat >"/boot/efi/loader/entries/ubuntu.conf" <<EOF
+title   Ubuntu Zero Client
+linux   /vmlinuz-${KERNEL_VERSION}
+initrd  /initrd.img-${KERNEL_VERSION}
+options root=PARTUUID=${ROOT_PARTUUID} ro quiet splash
+EOF
 
-# Enable your service if present
-if command -v systemctl >/dev/null 2>&1; then
-  systemctl enable ansible-first-boot.service || true
-fi
+# COPY KERNEL AND INITRD TO ESP
+echo "==> Copying kernel and initramfs to ESP..."
+cp "/boot/vmlinuz-${KERNEL_VERSION}" /boot/efi/
+cp "/boot/initrd.img-${KERNEL_VERSION}" /boot/efi/
+# Note: FAT32 doesn't support symlinks, so we skip creating vmlinuz/initrd.img symlinks
 
-# ----------------------------
-# Create default user
-# ----------------------------
-if ! id -u zero >/dev/null 2>&1; then
-  useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
-  echo "zero ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/zero"
-  chmod 440 "/etc/sudoers.d/zero"
-fi
+# VALIDATE
+echo "==> Validating systemd-boot installation..."
+test -f /boot/efi/EFI/BOOT/BOOTX64.EFI || echo "WARNING: BOOTX64.EFI not found"
+test -f /boot/efi/loader/loader.conf || echo "WARNING: loader.conf not found"
 
-# ----------------------------
-# Run Ansible inside chroot
-# ----------------------------
+echo "==> systemd-boot configuration:"
+cat /boot/efi/loader/loader.conf
+echo ""
+echo "==> Boot entry:"
+cat /boot/efi/loader/entries/ubuntu.conf
+
+# ENABLE SERVICES
+systemctl enable ansible-first-boot.service || true
+
+# CREATE DEFAULT USER
+useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
+
+# RUN ANSIBLE
 if [ -f /root/zero.yml ]; then
   LC_ALL=C.UTF-8 LANG=C.UTF-8 ZEROSTATE=CHROOT ansible-playbook /root/zero.yml -v
 else
