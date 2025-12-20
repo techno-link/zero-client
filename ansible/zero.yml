@@ -4,7 +4,7 @@
   connection: local
   gather_facts: yes
   vars:
-    branch_version: 3
+    branch_version: 4
     hide_apps:
       - /usr/share/applications/org.gnome.gedit.desktop
       - /usr/share/applications/gnome-control-center.desktop
