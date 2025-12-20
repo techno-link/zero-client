@@ -381,7 +381,7 @@
         state: latest
 
     # ------------------------------------------------------------------------------------------------------------------
-    # LOCALE AND KEYBOARD CONFIGURATION
+    # LOCALE CONFIGURATION
     # ------------------------------------------------------------------------------------------------------------------
     - name: Generate locales (bg_BG and en_US)
       ansible.builtin.locale_gen:
@@ -390,18 +390,6 @@
       loop:
         - en_US.UTF-8
         - bg_BG.UTF-8
-
-    - name: Configure keyboard layouts (English and Bulgarian)
-      community.general.dconf:
-        key: '/org/gnome/desktop/input-sources/sources'
-        value: "[('xkb', 'us'), ('xkb', 'bg')]"
-        state: present
-
-    - name: Set keyboard switch shortcut (Alt+Shift)
-      community.general.dconf:
-        key: '/org/gnome/desktop/wm/keybindings/switch-input-source'
-        value: "['<Alt>Shift_L']"
-        state: present
 
     # ------------------------------------------------------------------------------------------------------------------
     # SET GEO LOCATION AND TIMEZOME
@@ -417,21 +405,3 @@
       when:
         - ansible_facts.timezone is defined
         - lookup('env', 'ZEROSTATE') != 'CHROOT'
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # TURN OFF LOCK SCREEN
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Disable lock screen
-      community.general.dconf:
-        key: '/org/gnome/desktop/lockdown/disable-lock-screen'
-        value: 'true'
-        state: present
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # TURN OFF HIBERNATION
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Disable hibernation
-      community.general.dconf:
-        key: '/org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type'
-        value: 'false'
-        state: present
