@@ -381,6 +381,29 @@
         state: latest
 
     # ------------------------------------------------------------------------------------------------------------------
+    # LOCALE AND KEYBOARD CONFIGURATION
+    # ------------------------------------------------------------------------------------------------------------------
+    - name: Generate locales (bg_BG and en_US)
+      ansible.builtin.locale_gen:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - en_US.UTF-8
+        - bg_BG.UTF-8
+
+    - name: Configure keyboard layouts (English and Bulgarian)
+      community.general.dconf:
+        key: '/org/gnome/desktop/input-sources/sources'
+        value: "[('xkb', 'us'), ('xkb', 'bg')]"
+        state: present
+
+    - name: Set keyboard switch shortcut (Alt+Shift)
+      community.general.dconf:
+        key: '/org/gnome/desktop/wm/keybindings/switch-input-source'
+        value: "['<Alt>Shift_L']"
+        state: present
+
+    # ------------------------------------------------------------------------------------------------------------------
     # SET GEO LOCATION AND TIMEZOME
     # ------------------------------------------------------------------------------------------------------------------
     - name: Get IP geolocation data

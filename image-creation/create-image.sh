@@ -12,7 +12,6 @@ cleanup() {
   set +e
   sync
 
-  # Unmount in reverse order if mounted
   umount -R "$ROOT_MOUNT_PATH" 2>/dev/null || true
 
   if [ -n "${LOOP_DEVICE:-}" ]; then
@@ -27,7 +26,7 @@ dd if=/dev/zero of="$IMAGE" bs=1G count=10
 # Attach loop device with partition scanning
 LOOP_DEVICE="$(losetup -fP --show "$IMAGE")"
 
-# Partition the loop device
+# Partition the loop device (GPT: 500M ESP + rest Linux)
 {
   echo 'label: gpt'
   echo 'size=500M, type=U'
@@ -42,25 +41,28 @@ ESP_PART="${LOOP_DEVICE}p1"
 ROOT_PART="${LOOP_DEVICE}p2"
 
 # Wait for partition devices to appear
-for i in {1..10}; do
+for i in {1..20}; do
   [ -b "$ESP_PART" ] && [ -b "$ROOT_PART" ] && break
-  echo "Waiting for partitions to appear... ($i/10)"
-  sleep 1
+  echo "Waiting for partitions to appear... ($i/20)"
+  sleep 0.5
 done
 
-# Verify partitions exist
 if [ ! -b "$ESP_PART" ] || [ ! -b "$ROOT_PART" ]; then
   echo "ERROR: Partitions not found after sfdisk!" >&2
   lsblk "$LOOP_DEVICE" || true
   exit 1
 fi
 
-echo "Partitions ready:"
 lsblk "$LOOP_DEVICE"
 
-# Format
+# Format ESP
 mkfs.vfat -F32 -n ZEROEFI "$ESP_PART"
-mkfs.ext4 -L ZEROROOT "$ROOT_PART"
+
+# Format root (USB-friendly: fully initialize now; no reserved blocks)
+mkfs.ext4 -L ZEROROOT -m 0 -E lazy_itable_init=0,lazy_journal_init=0 "$ROOT_PART"
+
+# Set journal writeback mode (less writes, better for USB)
+tune2fs -o journal_data_writeback "$ROOT_PART"
 
 # Mount root + esp
 mkdir -p "$ROOT_MOUNT_PATH"
@@ -78,19 +80,20 @@ mount --rbind /sys "$ROOT_MOUNT_PATH/sys"
 mount --rbind /dev "$ROOT_MOUNT_PATH/dev"
 mount --bind /run "$ROOT_MOUNT_PATH/run"
 mount --bind /dev/pts "$ROOT_MOUNT_PATH/dev/pts"
-# cp -L /etc/resolv.conf "$ROOT_MOUNT_PATH/etc/resolv.conf"
 
 # Services and playbook
-cp "$SERVICES_DIR/"*.service "$ROOT_MOUNT_PATH/etc/systemd/system/" || true
-cp "$SERVICES_DIR/"*.timer "$ROOT_MOUNT_PATH/etc/systemd/system/" || true
+cp "$SERVICES_DIR/"*.service "$ROOT_MOUNT_PATH/etc/systemd/system/" 2>/dev/null || true
+cp "$SERVICES_DIR/"*.timer   "$ROOT_MOUNT_PATH/etc/systemd/system/" 2>/dev/null || true
 cp "$ANSIBLE_DIR/zero.yml" "$ROOT_MOUNT_PATH/root/zero.yml"
 
-# fstab
+# fstab (USB read-mostly)
 cat >"$ROOT_MOUNT_PATH/etc/fstab" <<'EOF'
-LABEL=ZEROROOT / ext4 defaults,noatime,errors=remount-ro 0 1
-LABEL=ZEROEFI /boot/efi vfat defaults 0 0
-tmpfs /tmp tmpfs defaults,noatime,mode=1777 0 0
-tmpfs /var/log tmpfs defaults,noatime,mode=0755 0 0
+LABEL=ZEROROOT / ext4 defaults,noatime,nodiratime,commit=60,errors=remount-ro 0 1
+LABEL=ZEROEFI /boot/efi vfat defaults,noatime 0 0
+tmpfs /tmp      tmpfs defaults,noatime,mode=1777 0 0
+tmpfs /var/tmp  tmpfs defaults,noatime,mode=1777 0 0
+tmpfs /var/log  tmpfs defaults,noatime,mode=0755 0 0
+tmpfs /var/cache tmpfs defaults,noatime,mode=0755 0 0
 EOF
 
 # Chroot
