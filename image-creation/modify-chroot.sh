@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euox pipefail
 
+# User configuration (passed from create-image.sh or use defaults)
+ZC_USER="${ZC_USER:-zero}"
+ZC_USER_HOME="${ZC_USER_HOME:-/home/${ZC_USER}}"
+ZC_USER_COMMENT="${ZC_USER_COMMENT:-Linkin Zero Client}"
+
 # INSTALL PACKAGES
 apt install -y linux-image-generic software-properties-common
 add-apt-repository -y universe
@@ -64,7 +69,7 @@ cat /boot/efi/loader/entries/ubuntu.conf
 systemctl enable ansible-first-boot.service || true
 
 # CREATE DEFAULT USER
-useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
+useradd -m -c "$ZC_USER_COMMENT" -d "$ZC_USER_HOME" -s /bin/bash "$ZC_USER"
 
 # RUN ANSIBLE
 if [ -f /root/zero.yml ]; then

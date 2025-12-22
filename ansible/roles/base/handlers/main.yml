@@ -1,0 +1,12 @@
+---
+# Base role handlers
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Reload systemd and restart getty@tty1
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    name: getty@tty1
+    state: restarted

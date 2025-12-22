@@ -1,0 +1,48 @@
+---
+# Workspaces role: AWS WorkSpaces client installation
+
+# Install Dependencies
+- name: Install requirements for AWS Workspaces
+  ansible.builtin.apt:
+    name: "{{ aws_workspaces_packages }}"
+    state: latest
+
+# GPG Key Management
+- name: Check if binary keyring exists
+  ansible.builtin.stat:
+    path: "{{ aws_workspaces_keyring }}"
+  register: keyring_stat_before
+
+- name: Download AWS Workspaces GPG key (ASCII armored)
+  ansible.builtin.get_url:
+    url: "{{ aws_workspaces_gpg_url }}"
+    dest: /tmp/amazon-workspaces-clients.asc
+    mode: '0644'
+    force: yes
+  register: aws_key_download
+
+- name: Convert GPG key to binary format and install
+  ansible.builtin.command:
+    cmd: "gpg --dearmor -o {{ aws_workspaces_keyring }} /tmp/amazon-workspaces-clients.asc"
+  when: aws_key_download.changed or not keyring_stat_before.stat.exists
+
+- name: Set correct permissions on GPG keyring
+  ansible.builtin.file:
+    path: "{{ aws_workspaces_keyring }}"
+    mode: '0644'
+    owner: root
+    group: root
+
+# APT Repository
+- name: Add AWS Workspaces APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by={{ aws_workspaces_keyring }}] {{ aws_workspaces_repo_url }} {{ ansible_distribution_release }} main"
+    filename: amazon-workspaces-clients
+    state: present
+    update_cache: yes
+
+# Install Client
+- name: Install AWS Workspaces client from repository
+  ansible.builtin.apt:
+    name: workspacesclient
+    state: latest

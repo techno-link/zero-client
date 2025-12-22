@@ -1,0 +1,88 @@
+---
+# Zero Client Configuration Variables
+# All externalized configuration values for the Ansible playbook
+
+# Version and repository
+branch_version: 4
+github_repo: "techno-link/zero-client"
+github_raw_url: "https://raw.githubusercontent.com/{{ github_repo }}/v{{ branch_version }}"
+
+# User configuration
+user_name: "zero"
+user_home: "/home/{{ user_name }}"
+user_config_dir: "{{ user_home }}/.config/linkin"
+
+# Network configuration
+netplan_config_path: "/etc/netplan/01-dhcp.yaml"
+dscp_class: "CS5"
+hostname_prefix: "LINKIN-ZERO"
+
+# TTYs to disable (keep only tty1)
+disabled_ttys:
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+
+# Locales to generate
+locales:
+  - en_US.UTF-8
+  - bg_BG.UTF-8
+
+# Base packages to install
+base_packages:
+  - wget
+  - python3-pip
+  - python3-psutil
+
+# Network debugging tools
+network_packages:
+  - iptables
+  - dnsutils
+  - iputils-ping
+  - traceroute
+  - net-tools
+  - tcpdump
+
+# GUI packages (installed outside chroot)
+gui_packages:
+  - firefox
+  - gnome-terminal
+  - gnome-system-monitor
+
+# Desktop applications to hide from user
+hide_apps:
+  - /usr/share/applications/org.gnome.gedit.desktop
+  - /usr/share/applications/gnome-control-center.desktop
+  - /usr/share/applications/yelp.desktop
+  - /usr/share/applications/org.gnome.Terminal.desktop
+  - /usr/share/applications/gnome-language-selector.desktop
+  - /usr/share/applications/gnome-session-properties.desktop
+  - /usr/share/applications/com.gexperts.Tilix.desktop
+  - /usr/share/applications/nm-connection-editor.desktop
+  - /var/lib/snapd/desktop/applications/firefox_firefox.desktop
+
+# AWS WorkSpaces configuration
+aws_workspaces_gpg_url: "https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc"
+aws_workspaces_repo_url: "https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu"
+aws_workspaces_keyring: "/usr/share/keyrings/amazon-workspaces-clients.gpg"
+aws_workspaces_packages:
+  - libwebkit2gtk-4.1-0
+
+# Parsec configuration
+parsec_download_url: "https://builds.parsec.app/package/parsec-linux.deb"
+parsec_deb_path: "{{ user_config_dir }}/parsec-linux.deb"
+parsec_packages:
+  - libqt5x11extras5
+  - xdg-utils
+  - openssl
+  - curl
+
+# Files to download from repository
+desktop_files:
+  - file: 'wallpaper.jpg'
+    dest: "{{ user_config_dir }}/wallpaper.jpg"
+  - file: 'gsettings.sh'
+    dest: "{{ user_config_dir }}/gsettings.sh"
+    mode: '0755'

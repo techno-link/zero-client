@@ -1,0 +1,7 @@
+---
+# Network role handlers
+
+- name: Apply netplan configuration
+  ansible.builtin.command:
+    cmd: netplan apply
+  when: lookup('env', 'ZEROSTATE') != 'CHROOT'

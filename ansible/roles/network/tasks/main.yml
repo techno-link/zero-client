@@ -1,0 +1,34 @@
+---
+# Network role: Netplan configuration, debugging tools, QoS, hostname
+
+# Netplan Configuration
+- name: Create Netplan configuration for DHCP
+  ansible.builtin.template:
+    src: netplan.yaml.j2
+    dest: "{{ netplan_config_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Apply netplan configuration
+
+# Network Debugging Tools
+- name: Install network debugging tools
+  ansible.builtin.apt:
+    name: "{{ network_packages }}"
+    state: latest
+
+# QoS DSCP Marking (skip in CHROOT)
+- name: Mark traffic through iptables for QoS
+  ansible.builtin.iptables:
+    chain: OUTPUT
+    jump: DSCP
+    table: mangle
+    set_dscp_mark_class: "{{ dscp_class }}"
+    protocol: tcp
+  when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+# Hostname Configuration (skip in CHROOT)
+- name: Update hostname
+  ansible.builtin.hostname:
+    name: "{{ hostname_prefix }}-{{ branch_version }}"
+  when: lookup('env', 'ZEROSTATE') != 'CHROOT'

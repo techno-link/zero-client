@@ -1,0 +1,7 @@
+---
+# Desktop role handlers
+
+- name: Reboot
+  ansible.builtin.command:
+    cmd: reboot
+  when: lookup('env', 'ZEROSTATE') != 'CHROOT'

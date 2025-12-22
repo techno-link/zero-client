@@ -1,0 +1,33 @@
+---
+# Parsec role: Parsec gaming client installation
+
+# Install Dependencies
+- name: Install requirements for Parsec
+  ansible.builtin.apt:
+    name: "{{ parsec_packages }}"
+    state: latest
+
+# Package Age Check
+- name: Check if the Parsec package exists and get its details
+  ansible.builtin.stat:
+    path: "{{ parsec_deb_path }}"
+  register: parsec_file
+
+- name: Calculate Parsec package age in days
+  ansible.builtin.set_fact:
+    file_age_days: "{{ ((ansible_date_time.epoch | int) - (parsec_file.stat.mtime | default(ansible_date_time.epoch | int)) ) / 86400 }}"
+  when: parsec_file.stat.exists
+
+# Download Package (weekly refresh)
+- name: Download the Parsec package if it needs updating
+  ansible.builtin.get_url:
+    url: "{{ parsec_download_url }}"
+    dest: "{{ parsec_deb_path }}"
+    force: yes
+    mode: '0755'
+  when: not parsec_file.stat.exists or (file_age_days | default(0) | int) >= 7
+
+# Install Package
+- name: Install the downloaded Parsec package
+  ansible.builtin.apt:
+    deb: "{{ parsec_deb_path }}"

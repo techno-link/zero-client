@@ -1,0 +1,123 @@
+---
+# Desktop role: GNOME, GDM, user configuration, app hiding, PAM unlock
+
+# Install GDM
+- name: Install GDM
+  ansible.builtin.apt:
+    name:
+      - gdm3
+    state: latest
+
+# Install GUI Applications (skip in CHROOT - snaps don't work)
+- name: Install GUI Applications
+  ansible.builtin.apt:
+    name: "{{ gui_packages }}"
+    state: latest
+  when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+# GDM Auto-login Configuration
+- name: Configure GDM for auto-login
+  ansible.builtin.template:
+    src: gdm-custom.conf.j2
+    dest: '/etc/gdm3/custom.conf'
+    owner: root
+    group: root
+    mode: '0644'
+
+# User Session Configuration
+- name: Set preferred session for auto-login user
+  ansible.builtin.template:
+    src: dmrc.j2
+    dest: "{{ user_home }}/.dmrc"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: '0644'
+
+# Enable GDM
+- name: Ensure GDM is enabled and running
+  ansible.builtin.systemd:
+    name: gdm
+    enabled: yes
+    state: started
+
+# User Namespace Configuration (for browser sandboxing)
+- name: Allow unprivileged users to create user namespaces
+  ansible.builtin.sysctl:
+    name: kernel.unprivileged_userns_clone
+    value: '1'
+    state: present
+    reload: yes
+    sysctl_set: yes
+    sysctl_file: /etc/sysctl.d/99-unprivileged-userns-clone.conf
+
+# Create User Directories
+- name: Create required directories for user
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+  loop:
+    - "{{ user_config_dir }}"
+    - "{{ user_home }}/.config/autostart"
+    - "{{ user_home }}/.local/share/applications"
+
+# Download Desktop Files from Repository
+- name: Get workspace configs from repository
+  ansible.builtin.get_url:
+    url: "{{ github_raw_url }}/desktop/{{ item.file }}"
+    dest: "{{ item.dest }}"
+    force: yes
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: "{{ item.mode | default(omit) }}"
+  loop: "{{ desktop_files }}"
+  notify: Reboot
+
+# Autostart Configuration
+- name: Ensure the settings script runs at session start
+  ansible.builtin.template:
+    src: autostart.desktop.j2
+    dest: "{{ user_home }}/.config/autostart/user-settings.desktop"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: '0644'
+
+# Hide Apps (skip in CHROOT)
+- name: Copy .desktop files to user's local applications
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ user_home }}/.local/share/applications/"
+    force: yes
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: '0644'
+  loop: "{{ hide_apps }}"
+  when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+- name: Ensure NoDisplay=true is set in .desktop files
+  ansible.builtin.lineinfile:
+    path: "{{ user_home }}/.local/share/applications/{{ item | basename }}"
+    insertafter: '^\[Desktop Entry\]'
+    line: 'NoDisplay=true'
+    create: no
+  loop: "{{ hide_apps }}"
+  when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+# PAM Passwordless Unlock
+- name: Add nopasswdlogin rule to gdm-password
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/gdm-password
+    line: 'auth sufficient pam_succeed_if.so user ingroup nopasswdlogin'
+    insertbefore: BOF
+
+- name: Create nopasswdlogin group
+  ansible.builtin.group:
+    name: nopasswdlogin
+    state: present
+
+- name: Add user to nopasswdlogin group
+  ansible.builtin.user:
+    name: "{{ user_name }}"
+    groups: nopasswdlogin
+    append: yes

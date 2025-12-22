@@ -1,0 +1,67 @@
+---
+# Base role: APT management, core packages, TTY configuration, locales
+
+# APT Repository Setup
+- name: Add the Universe repository
+  ansible.builtin.apt_repository:
+    repo: 'deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe'
+    state: present
+    update_cache: yes
+
+# Snapd Management (skip in CHROOT)
+- name: Ensure snapd is installed
+  ansible.builtin.apt:
+    name: snapd
+    state: latest
+  when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+- name: Refresh snapd through snap
+  ansible.builtin.snap:
+    name:
+      - snapd
+      - core
+    state: present
+  when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+# APT Cache and Upgrades
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Upgrade all packages to the latest version
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+
+# Install Base Packages
+- name: Install base packages
+  ansible.builtin.apt:
+    name: "{{ base_packages }}"
+    state: latest
+
+# APT Cleanup
+- name: Remove useless packages from the cache and purge
+  ansible.builtin.apt:
+    autoclean: yes
+
+- name: Remove dependencies that are no longer required
+  ansible.builtin.apt:
+    autoremove: yes
+    purge: yes
+
+# TTY Configuration
+- name: Disable other TTYs (keep only tty1)
+  ansible.builtin.systemd:
+    name: "getty@tty{{ item }}"
+    enabled: no
+    masked: yes
+    state: stopped
+  loop: "{{ disabled_ttys }}"
+  notify: Reload systemd
+
+# Locale Configuration
+- name: Generate locales
+  ansible.builtin.locale_gen:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ locales }}"
