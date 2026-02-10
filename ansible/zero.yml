@@ -425,15 +425,8 @@
         - bg_BG.UTF-8
 
     # ------------------------------------------------------------------------------------------------------------------
-    # SET GEO LOCATION AND TIMEZOME
+    # SET TIMEZONE
     # ------------------------------------------------------------------------------------------------------------------
-    - name: Get IP geolocation data
-      community.general.ipinfoio_facts:
-      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
-
-    - name: "Set timezone to {{ ansible_facts.timezone }}"
+    - name: Set timezone to Europe/Sofia
       timezone:
-        name: "{{ ansible_facts.timezone }}"
-      when:
-        - ansible_facts.timezone is defined
-        - lookup('env', 'ZEROSTATE') != 'CHROOT'
+        name: Europe/Sofia
