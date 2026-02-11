@@ -432,3 +432,8 @@
         ln -sf /usr/share/zoneinfo/Europe/Sofia /etc/localtime
         echo "Europe/Sofia" > /etc/timezone
       changed_when: false
+
+    - name: Apply timezone on live system
+      ansible.builtin.command: timedatectl set-timezone Europe/Sofia
+      when: ZEROSTATE != "chroot"
+      changed_when: false
