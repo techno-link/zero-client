@@ -315,6 +315,14 @@
         groups: nopasswdlogin
         append: yes
 
+    - name: Create admin user with sudo
+      ansible.builtin.user:
+        name: "admin"
+        password: "{{ 'linkin' | password_hash('sha512') }}"
+        groups: sudo
+        shell: /bin/bash
+        create_home: yes
+
     # ------------------------------------------------------------------------------------------------------------------
     # AWS WORKSPACES CLIENT INSTALL
     # ------------------------------------------------------------------------------------------------------------------
