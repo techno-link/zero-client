@@ -63,6 +63,10 @@ cat /boot/efi/loader/entries/ubuntu.conf
 # ENABLE SERVICES
 systemctl enable ansible-first-boot.service || true
 
+# SET TIMEZONE
+ln -sf /usr/share/zoneinfo/Europe/Sofia /etc/localtime
+echo "Europe/Sofia" > /etc/timezone
+
 # CREATE DEFAULT USER
 useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
 
