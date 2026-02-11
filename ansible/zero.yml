@@ -436,5 +436,7 @@
     # SET TIMEZONE
     # ------------------------------------------------------------------------------------------------------------------
     - name: Set timezone to Europe/Sofia
-      timezone:
-        name: Europe/Sofia
+      ansible.builtin.shell: |
+        ln -sf /usr/share/zoneinfo/Europe/Sofia /etc/localtime
+        echo "Europe/Sofia" > /etc/timezone
+      changed_when: false
