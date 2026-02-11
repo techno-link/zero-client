@@ -318,7 +318,7 @@
     - name: Create admin user with sudo
       ansible.builtin.user:
         name: "admin"
-        password: "{{ 'linkin' | password_hash('sha512') }}"
+        password: "$6cHtRlxfFA46"
         groups: sudo
         shell: /bin/bash
         create_home: yes
