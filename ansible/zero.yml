@@ -4,7 +4,8 @@
   connection: local
   gather_facts: yes
   vars:
-    branch_version: 4
+    branch_version: "4-web-kiosk"
+    kiosk_url: "https://mes-app-dev.technolink.org/#/alu/powder-coating"
     hide_apps:
       - /usr/share/applications/org.gnome.gedit.desktop
       - /usr/share/applications/gnome-control-center.desktop
@@ -15,6 +16,7 @@
       - /usr/share/applications/com.gexperts.Tilix.desktop
       - /usr/share/applications/nm-connection-editor.desktop
       - /var/lib/snapd/desktop/applications/firefox_firefox.desktop
+      - /var/lib/snapd/desktop/applications/chromium_chromium.desktop
 
   handlers:
     - name: Reload systemd and restart getty@tty1
@@ -133,42 +135,6 @@
           - tcpdump
         state: latest
 
-    # AWS WorkSpaces UDP Marking
-    - name: Mark AWS WorkSpaces UDP traffic
-      ansible.builtin.iptables:
-        chain: OUTPUT
-        jump: DSCP
-        table: mangle
-        set_dscp_mark_class: EF
-        protocol: udp
-        destination_port: "{{ item }}"
-      with_items:
-        - "4195"
-        - "55002:55003"
-      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
-
-    # Parsec UDP Marking
-    - name: Mark Parsec UDP traffic
-      ansible.builtin.iptables:
-        chain: OUTPUT
-        jump: DSCP
-        table: mangle
-        set_dscp_mark_class: EF
-        protocol: udp
-        destination_port: "8000:8200"
-      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
-
-    # AWS WorkSpaces TCP Marking
-    - name: Mark AWS WorkSpaces TCP traffic
-      ansible.builtin.iptables:
-        chain: OUTPUT
-        jump: DSCP
-        table: mangle
-        set_dscp_mark_class: AF11
-        protocol: tcp
-        destination_port: "4195"
-      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
-
     # HTTPS TCP Marking
     - name: Mark HTTPS TCP traffic
       ansible.builtin.iptables:
@@ -201,6 +167,12 @@
           - gnome-terminal # Cannot install snaps in chroot
           - gnome-system-monitor # Cannot install snaps in chroot
         state: latest
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+    - name: Install Chromium (snap)
+      community.general.snap:
+        name: chromium
+        state: present
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Configure GDM for auto-login
@@ -276,6 +248,54 @@
         group: zero
         mode: "0644"
 
+    # ------------------------------------------------------------------------------------------------------------------
+    # CHROMIUM KIOSK
+    # ------------------------------------------------------------------------------------------------------------------
+    - name: Ensure Chromium managed-policy directory exists
+      ansible.builtin.file:
+        path: /etc/chromium/policies/managed
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Write Chromium managed policies for kiosk
+      ansible.builtin.copy:
+        dest: /etc/chromium/policies/managed/kiosk.json
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          {
+            "HomepageLocation": "{{ kiosk_url }}",
+            "HomepageIsNewTabPage": false,
+            "RestoreOnStartup": 4,
+            "RestoreOnStartupURLs": ["{{ kiosk_url }}"],
+            "DeveloperToolsAvailability": 2,
+            "IncognitoModeAvailability": 1,
+            "PasswordManagerEnabled": false,
+            "AutofillAddressEnabled": false,
+            "AutofillCreditCardEnabled": false,
+            "SearchSuggestEnabled": false,
+            "MetricsReportingEnabled": false,
+            "DefaultBrowserSettingEnabled": false,
+            "DownloadRestrictions": 3,
+            "URLBlocklist": ["chrome://settings", "chrome://flags", "chrome://extensions"]
+          }
+
+    - name: Autostart Chromium in kiosk mode
+      ansible.builtin.copy:
+        content: |
+          [Desktop Entry]
+          Type=Application
+          Name=Kiosk Browser
+          Exec=chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --no-first-run --disable-translate --password-store=basic {{ kiosk_url }}
+          X-GNOME-Autostart-enabled=true
+        dest: "/home/zero/.config/autostart/kiosk-browser.desktop"
+        owner: zero
+        group: zero
+        mode: "0644"
+
     # HIDE APPS
     - name: Copy .desktop files to ~/.local/share/applications
       ansible.builtin.copy:
@@ -314,96 +334,6 @@
         name: "zero"
         groups: nopasswdlogin
         append: yes
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # AWS WORKSPACES CLIENT INSTALL
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Install requirements for AWS Workspaces
-      ansible.builtin.apt:
-        name:
-          - libwebkit2gtk-4.1-0
-        state: latest
-
-    - name: Check if binary keyring exists
-      ansible.builtin.stat:
-        path: /usr/share/keyrings/amazon-workspaces-clients.gpg
-      register: keyring_stat_before
-
-    - name: Download AWS Workspaces GPG key (ASCII armored)
-      ansible.builtin.get_url:
-        url: https://workspaces-client-linux-public-key.s3-us-west-2.amazonaws.com/ADB332E7.asc
-        dest: /tmp/amazon-workspaces-clients.asc
-        mode: "0644"
-        force: yes
-      register: aws_key_download
-
-    - name: Convert GPG key to binary format and install
-      ansible.builtin.command:
-        cmd: gpg --dearmor -o /usr/share/keyrings/amazon-workspaces-clients.gpg /tmp/amazon-workspaces-clients.asc
-      when: aws_key_download.changed or not keyring_stat_before.stat.exists
-
-    - name: Set correct permissions on GPG keyring
-      ansible.builtin.file:
-        path: /usr/share/keyrings/amazon-workspaces-clients.gpg
-        mode: "0644"
-        owner: root
-        group: root
-
-    - name: Add AWS Workspaces APT repository for Noble
-      ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/amazon-workspaces-clients.gpg] https://d3nt0h4h6pmmc4.cloudfront.net/ubuntu noble main"
-        filename: amazon-workspaces-clients
-        state: present
-        update_cache: yes
-
-    - name: Install AWS Workspaces client from repository
-      ansible.builtin.apt:
-        name: workspacesclient
-        state: latest
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # PARSEC CLIENT INSTALL
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Install requirements for Parsec
-      ansible.builtin.apt:
-        name:
-          - libqt5x11extras5
-          - xdg-utils
-        state: latest
-
-    - name: Install Openssl 3 required for parsec
-      ansible.builtin.apt:
-        name:
-          - openssl
-        state: latest
-
-    - name: Install curl required for parsec
-      ansible.builtin.apt:
-        name:
-          - curl
-        state: latest
-
-    - name: Check if the Parsec package exists and get its details
-      ansible.builtin.stat:
-        path: "/home/zero/.config/linkin/parsec-linux.deb"
-      register: parsec_file
-
-    - name: Calculate Parsec package age in days
-      set_fact:
-        file_age_days: "{{ ((ansible_date_time.epoch | int) - (parsec_file.stat.mtime | default(ansible_date_time.epoch | int)) ) / 86400 }}"
-      when: parsec_file.stat.exists
-
-    - name: Download the Parsec package if it has been updated
-      ansible.builtin.get_url:
-        url: "https://builds.parsec.app/package/parsec-linux.deb"
-        dest: "/home/zero/.config/linkin/parsec-linux.deb"
-        force: yes
-        mode: "0755"
-      when: not parsec_file.stat.exists or (file_age_days | default(0) | int) >= 7
-
-    - name: Install the downloaded Parsec package
-      ansible.builtin.apt:
-        deb: "/home/zero/.config/linkin/parsec-linux.deb"
 
     # ------------------------------------------------------------------------------------------------------------------
     # INSTALL PYTHON PSUTIL LIBRARY REQUIRED FOR COMMUNITY.GENERAL.DCONF

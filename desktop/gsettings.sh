@@ -41,7 +41,7 @@ gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-dark'
 
 # FAV APPS
-gsettings set org.gnome.shell favorite-apps "['com.amazon.workspacesclient.desktop', 'parsecd.desktop']"
+gsettings set org.gnome.shell favorite-apps "[]"
 
 # POWER SETTINGS
 gsettings set org.gnome.settings-daemon.plugins.power power-button-action 'interactive'
