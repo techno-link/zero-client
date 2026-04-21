@@ -66,6 +66,9 @@ systemctl enable ansible-first-boot.service || true
 # BOOT TO MULTI-USER TARGET (no display manager; chromium-kiosk.service owns tty1)
 systemctl set-default multi-user.target
 
+# MASK getty@tty1 - chromium-kiosk.service owns the console, no login prompt wanted
+systemctl mask getty@tty1.service
+
 # SET TIMEZONE
 ln -sf /usr/share/zoneinfo/Europe/Sofia /etc/localtime
 echo "Europe/Sofia" > /etc/timezone
