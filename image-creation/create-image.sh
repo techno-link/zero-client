@@ -12,7 +12,22 @@ cleanup() {
   set +e
   sync
 
-  umount -R "$ROOT_MOUNT_PATH" 2>/dev/null || true
+  # Unmount explicitly in reverse dependency order, with lazy fallback so a
+  # busy submount doesn't abort the whole cleanup the way `umount -R` does.
+  # We NEVER rm -rf the mount dir — if any of these fail the state is unsafe
+  # and we want the next run of clean-build.sh to see it and refuse.
+  for mount_path in \
+    "$ROOT_MOUNT_PATH/dev/pts" \
+    "$ROOT_MOUNT_PATH/dev" \
+    "$ROOT_MOUNT_PATH/proc" \
+    "$ROOT_MOUNT_PATH/sys" \
+    "$ROOT_MOUNT_PATH/run" \
+    "$ROOT_MOUNT_PATH/boot/efi" \
+    "$ROOT_MOUNT_PATH"; do
+    if mountpoint -q "$mount_path" 2>/dev/null; then
+      umount "$mount_path" 2>/dev/null || umount -l "$mount_path" 2>/dev/null || true
+    fi
+  done
 
   if [ -n "${LOOP_DEVICE:-}" ]; then
     losetup -d "$LOOP_DEVICE" 2>/dev/null || true
@@ -73,13 +88,21 @@ mount "$ESP_PART" "$ROOT_MOUNT_PATH/boot/efi"
 # Bootstrap
 debootstrap --arch=amd64 noble "$ROOT_MOUNT_PATH" http://archive.ubuntu.com/ubuntu/
 
-# Prepare chroot mounts
+# Prepare chroot mounts. Each rbind is immediately marked rslave so that any
+# mount events inside the chroot (e.g. udev inside a package postinst) stay
+# contained and do not propagate to the host's mount namespace. This is the
+# safety net that prevents a broken cleanup or misbehaving script from eating
+# into the host's /dev or /sys.
 mkdir -p "$ROOT_MOUNT_PATH"/{proc,sys,dev,run,dev/pts}
 mount -t proc /proc "$ROOT_MOUNT_PATH/proc"
 mount --rbind /sys "$ROOT_MOUNT_PATH/sys"
+mount --make-rslave "$ROOT_MOUNT_PATH/sys"
 mount --rbind /dev "$ROOT_MOUNT_PATH/dev"
+mount --make-rslave "$ROOT_MOUNT_PATH/dev"
 mount --bind /run "$ROOT_MOUNT_PATH/run"
+mount --make-rslave "$ROOT_MOUNT_PATH/run"
 mount --bind /dev/pts "$ROOT_MOUNT_PATH/dev/pts"
+mount --make-rslave "$ROOT_MOUNT_PATH/dev/pts"
 
 # Services and playbook
 cp "$SERVICES_DIR/"*.service "$ROOT_MOUNT_PATH/etc/systemd/system/" 2>/dev/null || true
