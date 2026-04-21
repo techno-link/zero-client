@@ -6,10 +6,12 @@ After=network-online.target
 [Service]
 Type=oneshot
 Environment="ANSIBLE_LOG_PATH=/home/zero/.config/linkin/ansible-first-boot.log"
+Environment="ZEROSTATE=FIRSTBOOT"
 ExecStart=/usr/bin/ansible-playbook /root/zero.yml -v
 ExecStartPost=/bin/systemctl disable ansible-first-boot.service
 ExecStartPost=/bin/systemctl enable ansible-boot.service
 ExecStartPost=/bin/systemctl enable ansible-cron.timer
+ExecStartPost=/bin/sync
 ExecStartPost=/sbin/reboot
 
 [Install]

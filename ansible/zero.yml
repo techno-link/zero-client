@@ -1,46 +1,28 @@
 ---
-- name: "configure zero client"
+- name: "configure zero client kiosk"
   hosts: localhost
   connection: local
   gather_facts: yes
   vars:
     branch_version: "4-web-kiosk"
     kiosk_url: "https://mes-app-dev.technolink.org/#/alu/powder-coating"
-    hide_apps:
-      - /usr/share/applications/org.gnome.gedit.desktop
-      - /usr/share/applications/gnome-control-center.desktop
-      - /usr/share/applications/yelp.desktop
-      - /usr/share/applications/org.gnome.Terminal.desktop
-      - /usr/share/applications/gnome-language-selector.desktop
-      - /usr/share/applications/gnome-session-properties.desktop
-      - /usr/share/applications/com.gexperts.Tilix.desktop
-      - /usr/share/applications/nm-connection-editor.desktop
-      - /var/lib/snapd/desktop/applications/firefox_firefox.desktop
-      - /var/lib/snapd/desktop/applications/chromium_chromium.desktop
 
   handlers:
-    - name: Reload systemd and restart getty@tty1
-      ansible.builtin.systemd:
-        daemon_reload: yes
-        name: getty@tty1
-        state: restarted
-
-    - name: Reload systemd
-      ansible.builtin.systemd:
-        daemon_reload: yes
-
     - name: Apply netplan configuration
       ansible.builtin.command:
         cmd: netplan apply
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
-    - name: Reboot
-      command: reboot
-      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+    - name: Restart chromium-kiosk
+      ansible.builtin.systemd:
+        name: chromium-kiosk.service
+        state: restarted
+        daemon_reload: yes
+      when: lookup('env', 'ZEROSTATE') not in ['CHROOT', 'FIRSTBOOT']
 
   tasks:
     # ------------------------------------------------------------------------------------------------------------------
-    # UPDATE AND CLEANUP APT
+    # APT
     # ------------------------------------------------------------------------------------------------------------------
     - name: Add the Universe repository
       ansible.builtin.apt_repository:
@@ -52,6 +34,11 @@
       ansible.builtin.apt:
         name: snapd
         state: latest
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
+
+    - name: Wait for snapd seeding to complete
+      ansible.builtin.command: snap wait system seed.loaded
+      changed_when: false
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     - name: Refresh snapd through snap
@@ -71,9 +58,17 @@
         name: "*"
         state: latest
 
-    - name: Install/upgrade wget
+    - name: Install base tools and cage compositor
       ansible.builtin.apt:
-        name: wget
+        name:
+          - wget
+          - cage
+          - iptables
+          - dnsutils
+          - iputils-ping
+          - traceroute
+          - net-tools
+          - tcpdump
         state: latest
 
     - name: Remove useless packages from the cache and purge
@@ -85,25 +80,8 @@
         autoremove: yes
         purge: yes
 
-    - name: Install python pip
-      ansible.builtin.apt:
-        name: python3-pip
-        state: latest
-
     # ------------------------------------------------------------------------------------------------------------------
-    # CONFIGURE TTY
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Disable other TTYs (tty2-tty6)
-      ansible.builtin.systemd:
-        name: getty@tty{{ item }}
-        enabled: no
-        masked: yes
-        state: stopped
-      loop: [2, 3, 4, 5, 6]
-      notify: Reload systemd
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # NETWORK CONFIG
+    # NETWORK
     # ------------------------------------------------------------------------------------------------------------------
     - name: Create Netplan configuration for DHCP
       ansible.builtin.copy:
@@ -124,19 +102,7 @@
         force: yes
       notify: Apply netplan configuration
 
-    - name: Install basic network debugging tools
-      ansible.builtin.apt:
-        name:
-          - iptables
-          - dnsutils
-          - iputils-ping
-          - traceroute
-          - net-tools
-          - tcpdump
-        state: latest
-
-    # HTTPS TCP Marking
-    - name: Mark HTTPS TCP traffic
+    - name: Mark HTTPS TCP traffic with AF11 DSCP class
       ansible.builtin.iptables:
         chain: OUTPUT
         jump: DSCP
@@ -152,201 +118,48 @@
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
     # ------------------------------------------------------------------------------------------------------------------
-    # OPENBOX AND GUI INSTALLATION
+    # CHROMIUM + KIOSK SERVICE
     # ------------------------------------------------------------------------------------------------------------------
-    - name: Install Gnome
-      ansible.builtin.apt:
-        name:
-          - gdm3
-        state: latest
-
-    - name: Install GUI Applications
-      ansible.builtin.apt:
-        name:
-          - firefox # Cannot install snaps in chroot
-          - gnome-terminal # Cannot install snaps in chroot
-          - gnome-system-monitor # Cannot install snaps in chroot
-        state: latest
-      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
-
     - name: Install Chromium (snap)
       community.general.snap:
         name: chromium
         state: present
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
-    - name: Configure GDM for auto-login
-      ansible.builtin.copy:
-        dest: "/etc/gdm3/custom.conf"
-        content: |
-          [daemon]
-          AutomaticLoginEnable=True
-          AutomaticLogin=zero
-        owner: root
-        group: root
-        mode: "0644"
+    - name: Hold Chromium snap auto-refresh
+      ansible.builtin.command: snap refresh --hold chromium
+      changed_when: false
+      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
-    - name: Set preferred session for auto-login user
-      ansible.builtin.copy:
-        dest: "/home/zero/.dmrc"
-        content: |
-          [Desktop]
-          Session=ubuntu-wayland
-        owner: zero
-        group: zero
-        mode: "0644"
-
-    - name: Ensure GDM is enabled and running
-      ansible.builtin.systemd:
-        name: gdm
-        enabled: yes
-        state: started
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # WORKSPACE CONFIG
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Allow unprivileged users to create user namespaces
-      ansible.builtin.sysctl:
-        name: kernel.unprivileged_userns_clone
-        value: "1"
-        state: present
-        reload: yes
-        sysctl_set: yes
-        sysctl_file: /etc/sysctl.d/99-unprivileged-userns-clone.conf
-
-    - name: Create required directories for zero user
+    - name: Ensure zero log directory exists
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: /home/zero/.config/linkin
         state: directory
         owner: zero
         group: zero
-      loop: ["/home/zero/.config/linkin", "/home/zero/.config/autostart", "/home/zero/.local/share/applications"]
-
-    - name: Get workspace configs
-      ansible.builtin.get_url:
-        url: "https://raw.githubusercontent.com/techno-link/zero-client/v{{ branch_version }}/desktop/{{ item.file }}"
-        dest: "{{ item.dest }}"
-        force: yes
-        owner: zero
-        group: zero
-        mode: "{{ item.mode | default(omit) }}"
-      loop:
-        - { file: "wallpaper.jpg", dest: "/home/zero/.config/linkin/wallpaper.jpg" }
-        - { file: "gsettings.sh", dest: "/home/zero/.config/linkin/gsettings.sh", mode: "0755" }
-      notify: Reboot
-
-    - name: Ensure the script runs at session start
-      copy:
-        content: |
-          [Desktop Entry]
-          Type=Application
-          Name=UserSettings
-          Exec=/home/zero/.config/linkin/gsettings.sh
-          X-GNOME-Autostart-enabled=true
-        dest: "/home/zero/.config/autostart/user-settings.desktop"
-        owner: zero
-        group: zero
-        mode: "0644"
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # CHROMIUM KIOSK
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Ensure Chromium managed-policy directory exists
-      ansible.builtin.file:
-        path: /etc/chromium/policies/managed
-        state: directory
-        owner: root
-        group: root
         mode: "0755"
 
-    - name: Write Chromium managed policies for kiosk
+    - name: Write chromium-kiosk environment file
       ansible.builtin.copy:
-        dest: /etc/chromium/policies/managed/kiosk.json
+        dest: /etc/default/chromium-kiosk
         owner: root
         group: root
         mode: "0644"
         content: |
-          {
-            "HomepageLocation": "{{ kiosk_url }}",
-            "HomepageIsNewTabPage": false,
-            "RestoreOnStartup": 4,
-            "RestoreOnStartupURLs": ["{{ kiosk_url }}"],
-            "DeveloperToolsAvailability": 2,
-            "IncognitoModeAvailability": 1,
-            "PasswordManagerEnabled": false,
-            "AutofillAddressEnabled": false,
-            "AutofillCreditCardEnabled": false,
-            "SearchSuggestEnabled": false,
-            "MetricsReportingEnabled": false,
-            "DefaultBrowserSettingEnabled": false,
-            "DownloadRestrictions": 3,
-            "URLBlocklist": ["chrome://settings", "chrome://flags", "chrome://extensions"]
-          }
+          KIOSK_URL={{ kiosk_url }}
+      notify: Restart chromium-kiosk
 
-    - name: Autostart Chromium in kiosk mode
-      ansible.builtin.copy:
-        content: |
-          [Desktop Entry]
-          Type=Application
-          Name=Kiosk Browser
-          Exec=chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --no-first-run --disable-translate --password-store=basic {{ kiosk_url }}
-          X-GNOME-Autostart-enabled=true
-        dest: "/home/zero/.config/autostart/kiosk-browser.desktop"
-        owner: zero
-        group: zero
-        mode: "0644"
-
-    # HIDE APPS
-    - name: Copy .desktop files to ~/.local/share/applications
-      ansible.builtin.copy:
-        src: "{{ item }}"
-        dest: "/home/zero/.local/share/applications/"
-        force: yes
-        owner: zero
-        group: zero
-        mode: "0644"
-      loop: "{{ hide_apps }}"
+    - name: Enable chromium-kiosk service
+      ansible.builtin.systemd:
+        name: chromium-kiosk.service
+        enabled: yes
+        daemon_reload: yes
       when: lookup('env', 'ZEROSTATE') != 'CHROOT'
 
-    - name: Ensure NoDisplay=true is set in .desktop files
-      ansible.builtin.lineinfile:
-        path: "/home/zero/.local/share/applications/{{ item | basename }}"
-        insertafter: '^\[Desktop Entry\]'
-        line: "NoDisplay=true"
-        create: no
-      loop: "{{ hide_apps }}"
-      when: lookup('env', 'ZEROSTATE') != 'CHROOT'
-
-    # ALLOW UNLOCK SCREEN
-    - name: Add nopasswdlogin rule to gdm-password
-      ansible.builtin.lineinfile:
-        path: /etc/pam.d/gdm-password
-        line: "auth sufficient pam_succeed_if.so user ingroup nopasswdlogin"
-        insertbefore: BOF
-
-    - name: Create nopasswdlogin group
-      ansible.builtin.group:
-        name: nopasswdlogin
-        state: present
-
-    - name: Add user to nopasswdlogin group
-      ansible.builtin.user:
-        name: "zero"
-        groups: nopasswdlogin
-        append: yes
-
     # ------------------------------------------------------------------------------------------------------------------
-    # INSTALL PYTHON PSUTIL LIBRARY REQUIRED FOR COMMUNITY.GENERAL.DCONF
+    # LOCALE / TIMEZONE
     # ------------------------------------------------------------------------------------------------------------------
-    - name: Install psutil python package
-      ansible.builtin.apt:
-        name: python3-psutil
-        state: latest
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # LOCALE CONFIGURATION
-    # ------------------------------------------------------------------------------------------------------------------
-    - name: Generate locales (bg_BG and en_US)
+    - name: Generate locales
       ansible.builtin.locale_gen:
         name: "{{ item }}"
         state: present
@@ -354,9 +167,6 @@
         - en_US.UTF-8
         - bg_BG.UTF-8
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # SET TIMEZONE
-    # ------------------------------------------------------------------------------------------------------------------
     - name: Set timezone to Europe/Sofia
       ansible.builtin.shell: |
         ln -sf /usr/share/zoneinfo/Europe/Sofia /etc/localtime

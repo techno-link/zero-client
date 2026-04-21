@@ -63,12 +63,16 @@ cat /boot/efi/loader/entries/ubuntu.conf
 # ENABLE SERVICES
 systemctl enable ansible-first-boot.service || true
 
+# BOOT TO MULTI-USER TARGET (no display manager; chromium-kiosk.service owns tty1)
+systemctl set-default multi-user.target
+
 # SET TIMEZONE
 ln -sf /usr/share/zoneinfo/Europe/Sofia /etc/localtime
 echo "Europe/Sofia" > /etc/timezone
 
-# CREATE DEFAULT USER
+# CREATE DEFAULT USER (empty password; pam_unix nullok lets PAMName=login open a session without a prompt)
 useradd -m -c "Linkin Zero Client" -d /home/zero -s /bin/bash zero
+passwd -d zero
 
 # RUN ANSIBLE
 if [ -f /root/zero.yml ]; then
