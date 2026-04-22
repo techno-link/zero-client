@@ -22,7 +22,8 @@ UtmpIdentifier=tty1
 UtmpMode=user
 WorkingDirectory=/home/zero
 EnvironmentFile=-/etc/default/chromium-kiosk
-ExecStart=/usr/bin/cage -s -- /snap/bin/chromium --kiosk --noerrdialogs --disable-infobars --disable-session-crashed-bubble --no-first-run ${KIOSK_URL}
+ExecStartPre=-/bin/rm -rf /home/zero/snap/chromium/common/chromium /home/zero/snap/chromium/current/.config/chromium /home/zero/snap/chromium/current/.cache/chromium
+ExecStart=/usr/bin/cage -s -- /snap/bin/chromium --kiosk --incognito --noerrdialogs --disable-infobars --disable-session-crashed-bubble --no-first-run --password-store=basic --disable-features=AutofillServerCommunication,PasswordManagerOnboarding ${KIOSK_URL}
 Restart=always
 RestartSec=3
 
